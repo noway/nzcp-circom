@@ -5,7 +5,6 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
 
 template Multiplier2() {
     signal input a[2512];
-    signal input b;
     signal output c[256];
 
     component sha256 = Sha256(2512);
@@ -24,7 +23,6 @@ template Multiplier2() {
     for (k=0; k<256; k++) {
         c[k] <== sha256.out[k];
     }
-
 }
 
 component main = Multiplier2();
