@@ -52,6 +52,8 @@ describe("SHA256 test", function () {
 
         const arrIn = buffer2bitArray(b);
 
+        console.log('calculating witness...');
+
         const witness = await cir.calculateWitness({ "a": arrIn }, true);
 
         const arrOut = witness.slice(1, 257);
