@@ -3,7 +3,7 @@ pragma circom 2.0.0;
 include "./circomlib-master/circuits/sha256/sha256.circom";
 
 
-template Multiplier2() {
+template NZCP() {
     var ToBeSignedLen = 2512;
 
     signal input a[ToBeSignedLen];
@@ -22,5 +22,5 @@ template Multiplier2() {
     }
 }
 
-component main = Multiplier2();
+component main = NZCP();
 

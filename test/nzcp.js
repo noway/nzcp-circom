@@ -40,7 +40,7 @@ function bitArray2buffer(a) {
 describe("SHA256 test", function () {
     this.timeout(100000);
     it ("Should calculate a hash of 2 compressor", async () => {
-        const p = path.join(__dirname, "../", "multiplier2.circom")
+        const p = path.join(__dirname, "../", "nzcp.circom")
         console.log('p',p)
         const cir = await wasm_tester(p);
 
