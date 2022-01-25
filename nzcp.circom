@@ -10,17 +10,17 @@ template NZCP() {
     signal input a[ToBeSignedBits];
     signal output c[256];
 
-    component sha256 = Sha256(ToBeSignedBits);
+    // component sha256 = Sha256(ToBeSignedBits);
 
     var k;
 
-    for (k=0; k<ToBeSignedBits; k++) {
-        sha256.in[k] <== a[k];
-    }
+    // for (k=0; k<ToBeSignedBits; k++) {
+    //     sha256.in[k] <== a[k];
+    // }
 
-    for (k=0; k<256; k++) {
-        c[k] <== sha256.out[k];
-    }
+    // for (k=0; k<256; k++) {
+    //     c[k] <== sha256.out[k];
+    // }
 
 
     var ToBeSigned[ToBeSignedBytes];
