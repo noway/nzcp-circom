@@ -21,6 +21,14 @@ template NZCP() {
     for (k=0; k<256; k++) {
         c[k] <== sha256.out[k];
     }
+
+
+    var ToBeSigned[ToBeSignedBytes];
+    for (k=0; k<ToBeSignedBytes; k++) {
+        ToBeSigned[k] = a[k*8+7] * 128 | a[k*8+6] * 64 | a[k*8+5] * 32 | a[k*8+4] * 16 | a[k*8+3] * 8 | a[k*8+2] * 4 | a[k*8+1] * 2 | a[k*8+0];
+        log(ToBeSigned[k]);
+        // log(a[k*8+0]);
+    }
 }
 
 component main = NZCP();
