@@ -2,3 +2,5 @@ node_modules/
 *.ptau
 *.zkey
 *.wtns
+circomlib.zip
+circomlib-master
