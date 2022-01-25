@@ -1,0 +1,9 @@
+{
+  "name": "nzcp-circom",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "snarkjs": "^0.4.12"
+  }
+}
