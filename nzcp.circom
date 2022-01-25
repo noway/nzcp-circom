@@ -25,7 +25,7 @@ template NZCP() {
 
     var ToBeSigned[ToBeSignedBytes];
     for (k=0; k<ToBeSignedBytes; k++) {
-        ToBeSigned[k] = a[k*8+7] * 128 | a[k*8+6] * 64 | a[k*8+5] * 32 | a[k*8+4] * 16 | a[k*8+3] * 8 | a[k*8+2] * 4 | a[k*8+1] * 2 | a[k*8+0];
+        ToBeSigned[k] = a[k*8+7] * 1 | a[k*8+6] * 2 | a[k*8+5] * 4 | a[k*8+4] * 8 | a[k*8+3] * 16 | a[k*8+2] * 32 | a[k*8+1] * 64 | a[k*8+0] * 128;
         log(ToBeSigned[k]);
         // log(a[k*8+0]);
     }
