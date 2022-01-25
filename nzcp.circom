@@ -4,16 +4,17 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
 
 
 template NZCP() {
-    var ToBeSignedLen = 2512;
+    var ToBeSignedBits = 2512;
+    var ToBeSignedBytes = ToBeSignedBits/8;
 
-    signal input a[ToBeSignedLen];
+    signal input a[ToBeSignedBits];
     signal output c[256];
 
-    component sha256 = Sha256(ToBeSignedLen);
+    component sha256 = Sha256(ToBeSignedBits);
 
     var k;
 
-    for (k=0; k<ToBeSignedLen; k++) {
+    for (k=0; k<ToBeSignedBits; k++) {
         sha256.in[k] <== a[k];
     }
 
