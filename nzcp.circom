@@ -3,12 +3,54 @@ pragma circom 2.0.0;
 include "./circomlib-master/circuits/sha256/sha256.circom";
 
 
-function readType(a) {
+function readType(v) {
     // return (input >> 5, input);
-    return a >> 5;
+    return v >> 5;
 }
 
+function decodeUint(buffer, pos, v)  {
+    var x = v & 31;
+    // log(x);
+    if (x <= 23) {
+        return x;
+    }
+    else if (x == 24) {
+        var value = buffer[pos];
+        pos++;
+        return value;
+    }
+    // Commented out to save gas
+    // else if (x == 25) { // 16-bit
+    //     var value;
+    //     value = uint8(buffer[pos++]) << 8;
+    //     value |= uint8(buffer[pos++]);
+    //     return (pos, value);
+    // }
+    else if (x == 26) { // 32-bit
+        var value;
+        value = buffer[pos] << 24;
+        pos++;
+        value |= buffer[pos] << 16;
+        pos++;
+        value |= buffer[pos] << 8;
+        pos++;
+        value |= buffer[pos];
+        pos++;
+        return value;
+    }
+    else {
+        // assert(0); // UnsupportedCBORUint
+        return 0;
+    }
+}
+
+
 template NZCP() {
+    var MAJOR_TYPE_INT = 0; // constnat
+    var MAJOR_TYPE_NEGATIVE_INT = 1; // constnat
+    var MAJOR_TYPE_BYTES = 2; // constnat
+    var MAJOR_TYPE_STRING = 3; // constant
+    var MAJOR_TYPE_ARRAY = 4; // constant
     var MAJOR_TYPE_MAP = 5; // constnat
     var ToBeSignedBits = 2512;
     var ToBeSignedBytes = ToBeSignedBits/8;
@@ -43,11 +85,38 @@ template NZCP() {
     //     // log(a[k*8+0]);
     // }
 
-    var type = readType(ToBeSigned[pos]);
+
+    var v = ToBeSigned[pos];
+    var type = readType(v);
     pos++;
+
     assert(type == MAJOR_TYPE_MAP);
-    log(type);
-    // if (
+    // log(type);
+    // log(v);
+
+    // log(pos);
+    var maplen = decodeUint(ToBeSigned, pos, v);
+    // log(maplen);
+    // log(pos);
+
+    for (k=0; k<maplen; k++) {
+        // (uint cbortype, uint v) = readType(stream);
+        var v = ToBeSigned[pos];
+        pos++;
+        var cbortype = readType(v);
+        log(cbortype);
+
+        if (cbortype == MAJOR_TYPE_INT) {
+
+        }
+        else if (cbortype == MAJOR_TYPE_STRING) {
+
+        }
+        else {
+            // assert(0); // UnsupportedCBORUint
+        }
+
+    }
 
 }
 
