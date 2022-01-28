@@ -4,13 +4,11 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
 
 
 function readType(v) {
-    // return (input >> 5, input);
     return v >> 5;
 }
 
 function decodeUint(buffer, pos, v)  {
     var x = v & 31;
-    // log(x);
     if (x <= 23) {
         return x;
     }
@@ -82,7 +80,6 @@ template NZCP() {
     // for (k=pos; k<ToBeSignedBytes - pos; k++) {
     //     // ToBeSigned[k] = a[k*8+7] * 1 | a[k*8+6] * 2 | a[k*8+5] * 4 | a[k*8+4] * 8 | a[k*8+3] * 16 | a[k*8+2] * 32 | a[k*8+1] * 64 | a[k*8+0] * 128;
     //     log(ToBeSigned[k]);
-    //     // log(a[k*8+0]);
     // }
 
 
@@ -91,13 +88,8 @@ template NZCP() {
     pos++;
 
     assert(type == MAJOR_TYPE_MAP);
-    // log(type);
-    // log(v);
 
-    // log(pos);
     var maplen = decodeUint(ToBeSigned, pos, v);
-    // log(maplen);
-    // log(pos);
 
     for (k=0; k<maplen; k++) {
         // (uint cbortype, uint v) = readType(stream);
