@@ -13,6 +13,8 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
+#define CREDENTIAL_SUBJECT_PATH_LEN 2
+
 #define readType(v,type,buffer,pos) \
     var v = buffer[pos]; \
     var type = v >> 5; \
@@ -123,7 +125,7 @@ template NZCP() {
     pos = 27; // 27 bytes to skip;
 
     var j = 0;
-    for (j = 0; j < 2; j++) {
+    for (j = 0; j < CREDENTIAL_SUBJECT_PATH_LEN; j++) {
 
         readType(v,type,ToBeSigned,pos)
 
