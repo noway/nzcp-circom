@@ -84,6 +84,7 @@ function skipValue(buffer, pos) {
     else if (cbortype == MAJOR_TYPE_ARRAY) {
         decodeUint(value,buffer,pos,v)
         for (var i = 0; i < value; i++) {
+            // we support only 1 level of deepness
             pos = skipValueScalar(buffer, pos);
         }
         return pos;
