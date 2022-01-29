@@ -139,7 +139,7 @@ template NZCP() {
 
     decodeUint(maplen,ToBeSigned,pos,v)
 
-    for (k=0; k<maplen-1; k++) { // idk why maplen - 1, fix?
+    for (k=0; k<maplen-1; k++) { // TODO: idk why maplen - 1, fix?
         readType(v,cbortype,ToBeSigned,pos)
 
 
