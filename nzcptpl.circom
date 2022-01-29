@@ -13,31 +13,29 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
-#define readType(v, type, buffer, pos) \
+#define readType(v,type,buffer,pos) \
     var v = buffer[pos]; \
     var type = v >> 5; \
-    pos++
+    pos++;
 
 
-#define decodeUint(value, buffer, pos, v) \
+#define decodeUint(value,buffer,pos,v) \
     var x = v & 31; \
     var value; \
     if (x <= 23) { \
         value = x; \
     } \
     else if (x == 24) { \
-        var value = buffer[pos]; \
+        value = buffer[pos]; \
         pos++; \
     } \
     else if (x == 25) { \
-        var value; \
         value = buffer[pos] << 8; \
         pos++; \
         value |= buffer[pos]; \
         pos++; \
     } \
     else if (x == 26) { \
-        var value; \
         value = buffer[pos] << 24; \
         pos++; \
         value |= buffer[pos] << 16; \
@@ -53,18 +51,18 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
 // TODO: else statement above is UnexpectedCBORType
 
 function skipValue(buffer, pos) {
-    readType(v, cbortype, buffer, pos);
+    readType(v,cbortype,buffer,pos)
 
     if (cbortype == MAJOR_TYPE_INT) {
-        decodeUint(value, buffer, pos, v)
+        decodeUint(value,buffer,pos,v)
         return pos;
     }
     else if (cbortype == MAJOR_TYPE_STRING) {
-        decodeUint(value, buffer, pos, v)
+        decodeUint(value,buffer,pos,v)
         return pos + value;
     }
     else if (cbortype == MAJOR_TYPE_ARRAY) {
-        decodeUint(value, buffer, pos, v)
+        decodeUint(value,buffer,pos,v)
         for (var i = 0; i < value; i++) {
             pos = skipValue(buffer, pos);
         }
@@ -110,14 +108,14 @@ template NZCP() {
     // }
 
 
-    readType(v, type, ToBeSigned, pos);
+    readType(v,type,ToBeSigned,pos)
 
     assert(type == MAJOR_TYPE_MAP);
 
-    decodeUint(maplen, ToBeSigned, pos, v)
+    decodeUint(maplen,ToBeSigned,pos,v)
 
     for (k=0; k<maplen; k++) {
-        readType(v, cbortype, ToBeSigned, pos);
+        readType(v,cbortype,ToBeSigned,pos)
 
         log(cbortype);
 
