@@ -159,10 +159,10 @@ template NZCP() {
         else if (cbortype == MAJOR_TYPE_STRING) {
 
             // log(-1);
-            if (strcmp(ToBeSigned, pos, vc_str, VC_LEN) == 0) {
+            if (strcmp(ToBeSigned, pos, vc_str, value) == 0) {
                 log(42);
             }
-            else if (strcmp(ToBeSigned, pos, credentialSubject_str, CREDENTIAL_SUBJECT_LEN) == 0) {
+            else if (strcmp(ToBeSigned, pos, credentialSubject_str, value) == 0) {
                 log(69);
             }
             pos = skipValue(ToBeSigned, pos);
