@@ -202,9 +202,8 @@ template NZCP() {
     assert(type2 == MAJOR_TYPE_MAP);
     decodeUint(maplen2,ToBeSigned,pos,v2)
 
-    maplen_actual = maplen2;
 
-    for (k=0; k < maplen_actual; k++) { 
+    for (k=0; k < maplen2; k++) { 
         readType(v2,cbortype,ToBeSigned,pos)
         decodeUint(value,ToBeSigned,pos,v2)
         if (cbortype == MAJOR_TYPE_INT) {
