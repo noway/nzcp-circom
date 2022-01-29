@@ -135,6 +135,7 @@ template NZCP() {
     // }
 
 
+    // convert bits to bytes
     signal ToBeSigned[ToBeSignedBytes];
     for (k=0; k<ToBeSignedBytes; k++) {
         var lc1=0;
