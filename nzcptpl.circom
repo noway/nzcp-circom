@@ -158,11 +158,7 @@ template NZCP() {
     for (j = 0; j < CREDENTIAL_SUBJECT_PATH_LEN; j++) {
 
         readType(v,type,ToBeSigned,pos)
-
-        
-
         assert(type == MAJOR_TYPE_MAP);
-
         decodeUint(maplen,ToBeSigned,pos,v)
 
         // This is so bad lmao
@@ -171,10 +167,7 @@ template NZCP() {
 
         for (k=0; k < maplen_actual; k++) { 
             readType(v,cbortype,ToBeSigned,pos)
-
-
             decodeUint(value,ToBeSigned,pos,v)
-
             if (cbortype == MAJOR_TYPE_INT) {
                 if (value == 4) {
                     readType(v,cbortype,ToBeSigned,pos)
@@ -187,7 +180,6 @@ template NZCP() {
                 }            
             }
             else if (cbortype == MAJOR_TYPE_STRING) {
-
                 // TODO: unroll this into a template?
                 if (j == 0) {
                     if (strcmp(ToBeSigned, pos, vc_str, value) == 0) {
@@ -210,13 +202,10 @@ template NZCP() {
                         pos = skipValue(ToBeSigned, pos);
                     }
                 }
-                
-
             }
             else {
                 // assert(0); // UnsupportedCBORUint
             }
-
         }
     }
     log(credentialSubjectPosition);
