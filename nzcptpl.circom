@@ -46,7 +46,6 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
         pos++; \
         value |= buffer[pos]; \
         pos++; \
-        log(26);\
     } \
     else { \
         value = 0; \
@@ -84,9 +83,7 @@ function skipValue(buffer, pos) {
     }
     else if (cbortype == MAJOR_TYPE_ARRAY) {
         decodeUint(value,buffer,pos,v)
-        log(4000);
-        var i = 0;
-        for (i = 0; i < value; i++) {
+        for (var i = 0; i < value; i++) {
             pos = skipValueScalar(buffer, pos);
         }
         return pos;
@@ -185,12 +182,6 @@ template NZCP() {
             }
             else if (cbortype == MAJOR_TYPE_STRING) {
 
-                // log(333);
-                // log(value);
-                for (var d=0; d<value; d++) {
-                    // log(ToBeSigned[pos+d]);
-                }
-                // log(0);
                 if (j == 0 && strcmp(ToBeSigned, pos, vc_str, value) == 0) {
                     pos += value;
                     log(42);
