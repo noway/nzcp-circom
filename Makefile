@@ -15,4 +15,4 @@ circomlib-master/: circom.zip
 
 
 nzcp.circom: 
-	cpp -P nzcptpl.circom > nzcp.circom
+	cpp -P nzcptpl.circom | sed 's/##//g' > nzcp.circom

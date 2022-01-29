@@ -21,7 +21,7 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
     pos++;
 
 
-#define decodeUint(value,buffer,pos,v) \
+#define _decodeUint(value,buffer,pos,v,x) \
     var x = v & 31; \
     var value; \
     if (x <= 23) { \
@@ -50,6 +50,7 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
     else { \
         value = 0; \
     }
+#define decodeUint(value,buffer,pos,v) _decodeUint(value,buffer,pos,v,x##__COUNTER__) 
 // TODO: else statement above is UnexpectedCBORType
 
 function skipValueScalar(buffer, pos) {
@@ -155,59 +156,85 @@ template NZCP() {
 
     var j = 0;
     var credentialSubjectPosition;
-    for (j = 0; j < CREDENTIAL_SUBJECT_PATH_LEN; j++) {
 
-        readType(v,type,ToBeSigned,pos)
-        assert(type == MAJOR_TYPE_MAP);
-        decodeUint(maplen,ToBeSigned,pos,v)
 
-        // This is so bad lmao
-        // TODO: idk why maplen - 1, fix?
-        var maplen_actual = j == 0 ? maplen - 1 : maplen;
+    readType(v,type,ToBeSigned,pos)
+    assert(type == MAJOR_TYPE_MAP);
+    decodeUint(maplen,ToBeSigned,pos,v)
 
-        for (k=0; k < maplen_actual; k++) { 
-            readType(v,cbortype,ToBeSigned,pos)
-            decodeUint(value,ToBeSigned,pos,v)
-            if (cbortype == MAJOR_TYPE_INT) {
-                if (value == 4) {
-                    readType(v,cbortype,ToBeSigned,pos)
-                    decodeUint(exp,ToBeSigned,pos,v)
-                    // Got expiration date
-                    log(exp);
-                }
-                else {
-                    pos = skipValue(ToBeSigned, pos);
-                }            
-            }
-            else if (cbortype == MAJOR_TYPE_STRING) {
-                // TODO: unroll this into a template?
-                if (j == 0) {
-                    if (strcmp(ToBeSigned, pos, vc_str, value) == 0) {
-                        pos += value;
-                        log(42);
-                    }
-                    else {
-                        pos += value;
-                        pos = skipValue(ToBeSigned, pos);
-                    }
-                }
-                else if (j == 1) {
-                    if (strcmp(ToBeSigned, pos, credentialSubject_str, value) == 0) {
-                        pos += value;
-                        credentialSubjectPosition = pos;
-                        log(69);
-                    }
-                    else {
-                        pos += value;
-                        pos = skipValue(ToBeSigned, pos);
-                    }
-                }
+    // This is so bad lmao
+    // TODO: idk why maplen - 1, fix?
+    var maplen_actual = maplen - 1;
+
+    for (k=0; k < maplen_actual; k++) { 
+        readType(v,cbortype,ToBeSigned,pos)
+        decodeUint(value,ToBeSigned,pos,v)
+        if (cbortype == MAJOR_TYPE_INT) {
+            if (value == 4) {
+                readType(v,cbortype,ToBeSigned,pos)
+                decodeUint(exp,ToBeSigned,pos,v)
+                // Got expiration date
+                log(exp);
             }
             else {
-                // assert(0); // UnsupportedCBORUint
+                pos = skipValue(ToBeSigned, pos);
+            }            
+        }
+        else if (cbortype == MAJOR_TYPE_STRING) {
+            if (strcmp(ToBeSigned, pos, vc_str, value) == 0) {
+                pos += value;
+                log(42);
+            }
+            else {
+                pos += value;
+                pos = skipValue(ToBeSigned, pos);
             }
         }
+        else {
+            // assert(0); // UnsupportedCBORUint
+        }
     }
+
+
+
+
+    readType(v2,type2,ToBeSigned,pos)
+    assert(type2 == MAJOR_TYPE_MAP);
+    decodeUint(maplen2,ToBeSigned,pos,v2)
+
+    maplen_actual = maplen2;
+
+    for (k=0; k < maplen_actual; k++) { 
+        readType(v2,cbortype,ToBeSigned,pos)
+        decodeUint(value,ToBeSigned,pos,v2)
+        if (cbortype == MAJOR_TYPE_INT) {
+            if (value == 4) {
+                readType(v2,cbortype,ToBeSigned,pos)
+                decodeUint(exp,ToBeSigned,pos,v2)
+                // Got expiration date
+                log(exp);
+            }
+            else {
+                pos = skipValue(ToBeSigned, pos);
+            }            
+        }
+        else if (cbortype == MAJOR_TYPE_STRING) {
+            if (strcmp(ToBeSigned, pos, credentialSubject_str, value) == 0) {
+                pos += value;
+                credentialSubjectPosition = pos;
+                log(69);
+            }
+            else {
+                pos += value;
+                pos = skipValue(ToBeSigned, pos);
+            }
+        }
+        else {
+            // assert(0); // UnsupportedCBORUint
+        }
+    }
+
+
     log(credentialSubjectPosition);
 
     d <== ToBeSigned[0];
