@@ -46,11 +46,30 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
         pos++; \
         value |= buffer[pos]; \
         pos++; \
+        log(26);\
     } \
     else { \
         value = 0; \
     }
 // TODO: else statement above is UnexpectedCBORType
+
+function skipValueScalar(buffer, pos) {
+    readType(v,cbortype,buffer,pos)
+
+    if (cbortype == MAJOR_TYPE_INT) {
+        decodeUint(value,buffer,pos,v)
+        return pos;
+    }
+    else if (cbortype == MAJOR_TYPE_STRING) {
+        decodeUint(value,buffer,pos,v)
+        return pos + value;
+    }
+    else {
+        // TODO: UnexpectedCBORType error
+        log(666);
+        return pos;
+    }
+}
 
 function skipValue(buffer, pos) {
     readType(v,cbortype,buffer,pos)
@@ -66,17 +85,19 @@ function skipValue(buffer, pos) {
     else if (cbortype == MAJOR_TYPE_ARRAY) {
         decodeUint(value,buffer,pos,v)
         log(4000);
-        for (var i = 0; i < value; i++) {
-            // TODO: need to fix this to proceed
-            // pos = skipValue(buffer, pos);
+        var i = 0;
+        for (i = 0; i < value; i++) {
+            pos = skipValueScalar(buffer, pos);
         }
         return pos;
     }
     else {
         // TODO: UnexpectedCBORType error
+        log(6667);
         return pos;
     }
 }
+
 function strcmp(buffer, pos, str2, len) {
     var i = 0;
     for (i = 0; i < len; i++) {
@@ -135,7 +156,17 @@ template NZCP() {
 
         decodeUint(maplen,ToBeSigned,pos,v)
 
-        for (k=0; k<maplen-1; k++) { // TODO: idk why maplen - 1, fix?
+        // This is so bad lmao
+        var maplen_actual;
+        if (j == 0) {
+            // TODO: idk why maplen - 1, fix?
+            maplen_actual = maplen - 1;
+        }
+        else {
+            maplen_actual = maplen;
+        }
+
+        for (k=0; k < maplen_actual; k++) { 
             readType(v,cbortype,ToBeSigned,pos)
 
 
@@ -154,6 +185,12 @@ template NZCP() {
             }
             else if (cbortype == MAJOR_TYPE_STRING) {
 
+                // log(333);
+                // log(value);
+                for (var d=0; d<value; d++) {
+                    // log(ToBeSigned[pos+d]);
+                }
+                // log(0);
                 if (j == 0 && strcmp(ToBeSigned, pos, vc_str, value) == 0) {
                     pos += value;
                     log(42);
