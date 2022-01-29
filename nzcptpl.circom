@@ -134,24 +134,18 @@ template NZCP() {
     readType(v,type,ToBeSigned,pos)
 
     
-    log(44);
-    log(type);
 
     assert(type == MAJOR_TYPE_MAP);
 
     decodeUint(maplen,ToBeSigned,pos,v)
-    log(maplen);
-        log(-1);
 
     for (k=0; k<maplen-1; k++) { // idk why maplen - 1, fix?
         readType(v,cbortype,ToBeSigned,pos)
 
 
         decodeUint(value,ToBeSigned,pos,v)
-        log(777);
 
         if (cbortype == MAJOR_TYPE_INT) {
-            log(value);
             if (value == 4) {
                 readType(v,cbortype,ToBeSigned,pos)
                 decodeUint(exp,ToBeSigned,pos,v)
@@ -164,7 +158,6 @@ template NZCP() {
         }
         else if (cbortype == MAJOR_TYPE_STRING) {
 
-            log(value);
             if (j == 0 && strcmp(ToBeSigned, pos, vc_str, value) == 0) {
                 pos += value;
                 log(42);
@@ -174,7 +167,6 @@ template NZCP() {
                 log(69);
             }
             else {
-                log(333);
                 pos += value;
                 pos = skipValue(ToBeSigned, pos);
             }
