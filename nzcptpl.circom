@@ -143,6 +143,7 @@ template NZCP() {
     pos = 27; // 27 bytes to skip;
 
     var j = 0;
+    var credentialSubjectPosition = 0;
     for (j = 0; j < CREDENTIAL_SUBJECT_PATH_LEN; j++) {
 
         readType(v,type,ToBeSigned,pos)
@@ -188,6 +189,7 @@ template NZCP() {
                 }
                 else if (j == 1 && strcmp(ToBeSigned, pos, credentialSubject_str, value) == 0) {
                     pos += value;
+                    credentialSubjectPosition = pos;
                     log(69);
                 }
                 else {
@@ -203,6 +205,7 @@ template NZCP() {
 
         }
     }
+    log(credentialSubjectPosition);
 
 }
 
