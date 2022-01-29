@@ -3,6 +3,16 @@ pragma circom 2.0.0;
 include "./circomlib-master/circuits/sha256/sha256.circom";
 
 
+/* CBOR types */
+#define MAJOR_TYPE_INT 0
+#define MAJOR_TYPE_NEGATIVE_INT 1
+#define MAJOR_TYPE_BYTES 2
+#define MAJOR_TYPE_STRING 3
+#define MAJOR_TYPE_ARRAY 4
+#define MAJOR_TYPE_MAP 5
+#define MAJOR_TYPE_TAG 6
+#define MAJOR_TYPE_CONTENT_FREE 7
+
 #define readType(v, type, buffer, pos) \
     var v = buffer[pos]; \
     var type = v >> 5; \
@@ -40,15 +50,33 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
     else { \
         value = 0; \
     }
+// TODO: else statement above is UnexpectedCBORType
 
+function skipValue(buffer, pos) {
+    readType(v, cbortype, buffer, pos);
+
+    if (cbortype == MAJOR_TYPE_INT) {
+        decodeUint(value, buffer, pos, v)
+        return pos;
+    }
+    else if (cbortype == MAJOR_TYPE_STRING) {
+        decodeUint(value, buffer, pos, v)
+        return pos + value;
+    }
+    else if (cbortype == MAJOR_TYPE_ARRAY) {
+        decodeUint(value, buffer, pos, v)
+        for (var i = 0; i < value; i++) {
+            pos = skipValue(buffer, pos);
+        }
+        return pos;
+    }
+    else {
+        // UnexpectedCBORType
+        return pos;
+    }
+}
 
 template NZCP() {
-    var MAJOR_TYPE_INT = 0; // constnat
-    var MAJOR_TYPE_NEGATIVE_INT = 1; // constnat
-    var MAJOR_TYPE_BYTES = 2; // constnat
-    var MAJOR_TYPE_STRING = 3; // constant
-    var MAJOR_TYPE_ARRAY = 4; // constant
-    var MAJOR_TYPE_MAP = 5; // constnat
     var ToBeSignedBits = 2512;
     var ToBeSignedBytes = ToBeSignedBits/8;
 
