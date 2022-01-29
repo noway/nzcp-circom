@@ -63,8 +63,9 @@ function skipValue(buffer, pos) {
     }
     else if (cbortype == MAJOR_TYPE_ARRAY) {
         decodeUint(value,buffer,pos,v)
-        log(value);
+        log(4000);
         for (var i = 0; i < value; i++) {
+            // TODO: need to fix this to proceed
             // pos = skipValue(buffer, pos);
         }
         return pos;
@@ -76,10 +77,7 @@ function skipValue(buffer, pos) {
 }
 function strcmp(buffer, pos, str2, len) {
     var i = 0;
-    var flag = 0;
-    // log(80);
     for (i = 0; i < len; i++) {
-        // log(buffer[pos + i]);
         // log(str2[i]);
         if (buffer[pos + i] != str2[i]) {
             return -1;
@@ -130,19 +128,27 @@ template NZCP() {
     //     log(ToBeSigned[k]);
     // }
 
+    var j = 0;
+    for (j = 0; j < 2; j++) {
 
     readType(v,type,ToBeSigned,pos)
+
+    
+    log(44);
+    log(type);
 
     assert(type == MAJOR_TYPE_MAP);
 
     decodeUint(maplen,ToBeSigned,pos,v)
+    log(maplen);
+        log(-1);
 
-    for (k=0; k<maplen; k++) {
+    for (k=0; k<maplen-1; k++) { // idk why maplen - 1, fix?
         readType(v,cbortype,ToBeSigned,pos)
 
 
         decodeUint(value,ToBeSigned,pos,v)
-        // log(cbortype);
+        log(777);
 
         if (cbortype == MAJOR_TYPE_INT) {
             log(value);
@@ -158,20 +164,29 @@ template NZCP() {
         }
         else if (cbortype == MAJOR_TYPE_STRING) {
 
-            // log(-1);
-            if (strcmp(ToBeSigned, pos, vc_str, value) == 0) {
+            log(value);
+            if (j == 0 && strcmp(ToBeSigned, pos, vc_str, value) == 0) {
+                pos += value;
                 log(42);
             }
-            else if (strcmp(ToBeSigned, pos, credentialSubject_str, value) == 0) {
+            else if (j == 1 && strcmp(ToBeSigned, pos, credentialSubject_str, value) == 0) {
+                pos += value;
                 log(69);
             }
-            pos = skipValue(ToBeSigned, pos);
+            else {
+                log(333);
+                pos += value;
+                pos = skipValue(ToBeSigned, pos);
+            }
+            
 
         }
         else {
+            // log(111);
             // assert(0); // UnsupportedCBORUint
         }
 
+    }
     }
 
 }
