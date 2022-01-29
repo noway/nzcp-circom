@@ -131,54 +131,54 @@ template NZCP() {
     var j = 0;
     for (j = 0; j < 2; j++) {
 
-    readType(v,type,ToBeSigned,pos)
+        readType(v,type,ToBeSigned,pos)
 
-    
+        
 
-    assert(type == MAJOR_TYPE_MAP);
+        assert(type == MAJOR_TYPE_MAP);
 
-    decodeUint(maplen,ToBeSigned,pos,v)
+        decodeUint(maplen,ToBeSigned,pos,v)
 
-    for (k=0; k<maplen-1; k++) { // TODO: idk why maplen - 1, fix?
-        readType(v,cbortype,ToBeSigned,pos)
+        for (k=0; k<maplen-1; k++) { // TODO: idk why maplen - 1, fix?
+            readType(v,cbortype,ToBeSigned,pos)
 
 
-        decodeUint(value,ToBeSigned,pos,v)
+            decodeUint(value,ToBeSigned,pos,v)
 
-        if (cbortype == MAJOR_TYPE_INT) {
-            if (value == 4) {
-                readType(v,cbortype,ToBeSigned,pos)
-                decodeUint(exp,ToBeSigned,pos,v)
-                // Got expiration date
-                log(exp);
+            if (cbortype == MAJOR_TYPE_INT) {
+                if (value == 4) {
+                    readType(v,cbortype,ToBeSigned,pos)
+                    decodeUint(exp,ToBeSigned,pos,v)
+                    // Got expiration date
+                    log(exp);
+                }
+                else {
+                    pos = skipValue(ToBeSigned, pos);
+                }            
+            }
+            else if (cbortype == MAJOR_TYPE_STRING) {
+
+                if (j == 0 && strcmp(ToBeSigned, pos, vc_str, value) == 0) {
+                    pos += value;
+                    log(42);
+                }
+                else if (j == 1 && strcmp(ToBeSigned, pos, credentialSubject_str, value) == 0) {
+                    pos += value;
+                    log(69);
+                }
+                else {
+                    pos += value;
+                    pos = skipValue(ToBeSigned, pos);
+                }
+                
+
             }
             else {
-                pos = skipValue(ToBeSigned, pos);
-            }            
-        }
-        else if (cbortype == MAJOR_TYPE_STRING) {
-
-            if (j == 0 && strcmp(ToBeSigned, pos, vc_str, value) == 0) {
-                pos += value;
-                log(42);
+                // log(111);
+                // assert(0); // UnsupportedCBORUint
             }
-            else if (j == 1 && strcmp(ToBeSigned, pos, credentialSubject_str, value) == 0) {
-                pos += value;
-                log(69);
-            }
-            else {
-                pos += value;
-                pos = skipValue(ToBeSigned, pos);
-            }
-            
 
         }
-        else {
-            // log(111);
-            // assert(0); // UnsupportedCBORUint
-        }
-
-    }
     }
 
 }
