@@ -61,13 +61,13 @@ function skipValue(buffer, pos) {
         decodeUint(value,buffer,pos,v)
         return pos + value;
     }
-    else if (cbortype == MAJOR_TYPE_ARRAY) {
-        decodeUint(value,buffer,pos,v)
-        for (var i = 0; i < value; i++) {
-            pos = skipValue(buffer, pos);
-        }
-        return pos;
-    }
+    // else if (cbortype == MAJOR_TYPE_ARRAY) {
+    //     decodeUint(value,buffer,pos,v)
+    //     for (var i = 0; i < value; i++) {
+    //         pos = skipValue(buffer, pos);
+    //     }
+    //     return pos;
+    // }
     else {
         // UnexpectedCBORType
         return pos;
@@ -117,13 +117,24 @@ template NZCP() {
     for (k=0; k<maplen; k++) {
         readType(v,cbortype,ToBeSigned,pos)
 
-        log(cbortype);
+
+        decodeUint(value,ToBeSigned,pos,v)
+        // log(cbortype);
 
         if (cbortype == MAJOR_TYPE_INT) {
-
+            log(value);
+            if (value == 4) {
+                readType(v,cbortype,ToBeSigned,pos)
+                decodeUint(exp,ToBeSigned,pos,v)
+                // Got expiration date
+                log(exp);
+            }
+            else {
+                pos = skipValue(ToBeSigned, pos);
+            }            
         }
         else if (cbortype == MAJOR_TYPE_STRING) {
-
+            pos = skipValue(ToBeSigned, pos);
         }
         else {
             // assert(0); // UnsupportedCBORUint
