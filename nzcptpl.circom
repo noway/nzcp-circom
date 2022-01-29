@@ -161,7 +161,7 @@ template NZCP() {
 
         
 
-        // assert(type == MAJOR_TYPE_MAP);
+        assert(type == MAJOR_TYPE_MAP);
 
         decodeUint(maplen,ToBeSigned,pos,v)
 
