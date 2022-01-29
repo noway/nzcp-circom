@@ -4,3 +4,4 @@ node_modules/
 *.wtns
 circomlib.zip
 circomlib-master
+nzcp_js
