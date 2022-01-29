@@ -61,13 +61,14 @@ function skipValue(buffer, pos) {
         decodeUint(value,buffer,pos,v)
         return pos + value;
     }
-    // else if (cbortype == MAJOR_TYPE_ARRAY) {
-    //     decodeUint(value,buffer,pos,v)
-    //     for (var i = 0; i < value; i++) {
-    //         pos = skipValue(buffer, pos);
-    //     }
-    //     return pos;
-    // }
+    else if (cbortype == MAJOR_TYPE_ARRAY) {
+        decodeUint(value,buffer,pos,v)
+        log(value);
+        for (var i = 0; i < value; i++) {
+            // pos = skipValue(buffer, pos);
+        }
+        return pos;
+    }
     else {
         // UnexpectedCBORType
         return pos;
