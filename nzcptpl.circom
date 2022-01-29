@@ -71,14 +71,13 @@ function skipValue(buffer, pos) {
         return pos;
     }
     else {
-        // UnexpectedCBORType
+        // TODO: UnexpectedCBORType error
         return pos;
     }
 }
 function strcmp(buffer, pos, str2, len) {
     var i = 0;
     for (i = 0; i < len; i++) {
-        // log(str2[i]);
         if (buffer[pos + i] != str2[i]) {
             return -1;
         }
@@ -174,7 +173,6 @@ template NZCP() {
 
             }
             else {
-                // log(111);
                 // assert(0); // UnsupportedCBORUint
             }
 
