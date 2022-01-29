@@ -97,10 +97,22 @@ function skipValue(buffer, pos) {
     }
 }
 
-function strcmp(buffer, pos, str2, len) {
-    var i = 0;
-    for (i = 0; i < len; i++) {
-        if (buffer[pos + i] != str2[i]) {
+function strcmpVC(buffer, pos, len) {
+    #define VC_LEN 2
+    var vc_str[VC_LEN] = [118, 99];
+    for (var i = 0; i < len; i++) {
+        if (buffer[pos + i] != vc_str[i]) {
+            return -1;
+        }
+    }
+    return 0;
+}
+
+function strcmpCredentialSubject(buffer, pos, len) {
+    #define CREDENTIAL_SUBJECT_LEN 17
+    var credentialSubject_str[CREDENTIAL_SUBJECT_LEN] = [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116];
+    for (var i = 0; i < len; i++) {
+        if (buffer[pos + i] != credentialSubject_str[i]) {
             return -1;
         }
     }
@@ -110,11 +122,7 @@ function strcmp(buffer, pos, str2, len) {
 template NZCP() {
 
 
-    #define VC_LEN 2
-    var vc_str[VC_LEN] = [118, 99];
 
-    #define CREDENTIAL_SUBJECT_LEN 17
-    var credentialSubject_str[CREDENTIAL_SUBJECT_LEN] = [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116];
 
 
     var ToBeSignedBits = 2512;
@@ -181,7 +189,7 @@ template NZCP() {
             }            
         }
         else if (cbortype == MAJOR_TYPE_STRING) {
-            if (strcmp(ToBeSigned, pos, vc_str, value) == 0) {
+            if (strcmpVC(ToBeSigned, pos, value) == 0) {
                 pos += value;
                 log(42);
             }
@@ -218,7 +226,7 @@ template NZCP() {
             }            
         }
         else if (cbortype == MAJOR_TYPE_STRING) {
-            if (strcmp(ToBeSigned, pos, credentialSubject_str, value) == 0) {
+            if (strcmpCredentialSubject(ToBeSigned, pos, value) == 0) {
                 pos += value;
                 credentialSubjectPosition = pos;
                 log(69);
