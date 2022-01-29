@@ -164,14 +164,8 @@ template NZCP() {
         decodeUint(maplen,ToBeSigned,pos,v)
 
         // This is so bad lmao
-        var maplen_actual;
-        if (j == 0) {
-            // TODO: idk why maplen - 1, fix?
-            maplen_actual = maplen - 1;
-        }
-        else {
-            maplen_actual = maplen;
-        }
+        // TODO: idk why maplen - 1, fix?
+        var maplen_actual = j == 0 ? maplen - 1 : maplen;
 
         for (k=0; k < maplen_actual; k++) { 
             readType(v,cbortype,ToBeSigned,pos)
