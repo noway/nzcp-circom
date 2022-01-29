@@ -137,24 +137,15 @@ template NZCP() {
 
     signal ToBeSigned[ToBeSignedBytes];
     for (k=0; k<ToBeSignedBytes; k++) {
-        // ToBeSigned[k] <-- a[k*8+7] * 1 | a[k*8+6] * 2 | a[k*8+5] * 4 | a[k*8+4] * 8 | a[k*8+3] * 16 | a[k*8+2] * 32 | a[k*8+1] * 64 | a[k*8+0] * 128;
-        // assert(ToBeSigned[k] == a[k*8+7] * 1 | a[k*8+6] * 2 | a[k*8+5] * 4 | a[k*8+4] * 8 | a[k*8+3] * 16 | a[k*8+2] * 32 | a[k*8+1] * 64 | a[k*8+0] * 128);
-        // component bits2Num = Bits2Num(8);
-        // for (var i = 0; i < 8; i++) {
-        //     bits2Num.in[i] <== a[k*8+i];
-        // }
-
         var lc1=0;
 
         var e2 = 1;
-        var i = 0;
-        for (i = 7; i>=0; i--) {
+        for (var i = 7; i>=0; i--) {
             lc1 += a[k*8+i] * e2;
             e2 = e2 + e2;
         }
 
         lc1 ==> ToBeSigned[k];
-        // log(lc1);
     }
 
     var pos;
