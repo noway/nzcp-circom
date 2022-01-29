@@ -3,9 +3,11 @@ pragma circom 2.0.0;
 include "./circomlib-master/circuits/sha256/sha256.circom";
 
 
-function readType(v) {
-    return v >> 5;
-}
+#define readType(v, type, buffer, pos) \
+    var v = buffer[pos]; \
+    var type = v >> 5; \
+    pos++
+
 
 function decodeUint(buffer, pos, v)  {
     var x = v & 31;
@@ -83,19 +85,15 @@ template NZCP() {
     // }
 
 
-    var v = ToBeSigned[pos];
-    var type = readType(v);
-    pos++;
+    readType(v, type, ToBeSigned, pos);
 
     assert(type == MAJOR_TYPE_MAP);
 
     var maplen = decodeUint(ToBeSigned, pos, v);
 
     for (k=0; k<maplen; k++) {
-        // (uint cbortype, uint v) = readType(stream);
-        var v = ToBeSigned[pos];
-        pos++;
-        var cbortype = readType(v);
+        readType(v, cbortype, ToBeSigned, pos);
+
         log(cbortype);
 
         if (cbortype == MAJOR_TYPE_INT) {

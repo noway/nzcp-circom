@@ -1,4 +1,4 @@
-.PHONY: nzcp/nzcp.wasm
+.PHONY: nzcp/nzcp.wasm nzcp.circom
 
 public.json: nzcp/nzcp.wasm
 	cd nzcp_js && node generate_witness.js nzcp.wasm ../input.json witness.wtns
@@ -12,3 +12,7 @@ circom.zip:
 
 circomlib-master/: circom.zip
 	unzip circomlib.zip
+
+
+nzcp.circom: 
+	cpp -P nzcptpl.circom > nzcp.circom
