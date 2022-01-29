@@ -9,40 +9,37 @@ include "./circomlib-master/circuits/sha256/sha256.circom";
     pos++
 
 
-function decodeUint(buffer, pos, v)  {
-    var x = v & 31;
-    if (x <= 23) {
-        return x;
+#define decodeUint(value, buffer, pos, v) \
+    var x = v & 31; \
+    var value; \
+    if (x <= 23) { \
+        value = x; \
+    } \
+    else if (x == 24) { \
+        var value = buffer[pos]; \
+        pos++; \
+    } \
+    else if (x == 25) { \
+        var value; \
+        value = buffer[pos] << 8; \
+        pos++; \
+        value |= buffer[pos]; \
+        pos++; \
+    } \
+    else if (x == 26) { \
+        var value; \
+        value = buffer[pos] << 24; \
+        pos++; \
+        value |= buffer[pos] << 16; \
+        pos++; \
+        value |= buffer[pos] << 8; \
+        pos++; \
+        value |= buffer[pos]; \
+        pos++; \
+    } \
+    else { \
+        value = 0; \
     }
-    else if (x == 24) {
-        var value = buffer[pos];
-        pos++;
-        return value;
-    }
-    // Commented out to save gas
-    // else if (x == 25) { // 16-bit
-    //     var value;
-    //     value = uint8(buffer[pos++]) << 8;
-    //     value |= uint8(buffer[pos++]);
-    //     return (pos, value);
-    // }
-    else if (x == 26) { // 32-bit
-        var value;
-        value = buffer[pos] << 24;
-        pos++;
-        value |= buffer[pos] << 16;
-        pos++;
-        value |= buffer[pos] << 8;
-        pos++;
-        value |= buffer[pos];
-        pos++;
-        return value;
-    }
-    else {
-        // assert(0); // UnsupportedCBORUint
-        return 0;
-    }
-}
 
 
 template NZCP() {
@@ -89,7 +86,7 @@ template NZCP() {
 
     assert(type == MAJOR_TYPE_MAP);
 
-    var maplen = decodeUint(ToBeSigned, pos, v);
+    decodeUint(maplen, ToBeSigned, pos, v)
 
     for (k=0; k<maplen; k++) {
         readType(v, cbortype, ToBeSigned, pos);
