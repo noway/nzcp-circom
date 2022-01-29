@@ -74,8 +74,30 @@ function skipValue(buffer, pos) {
         return pos;
     }
 }
+function strcmp(buffer, pos, str2, len) {
+    var i = 0;
+    var flag = 0;
+    // log(80);
+    for (i = 0; i < len; i++) {
+        // log(buffer[pos + i]);
+        // log(str2[i]);
+        if (buffer[pos + i] != str2[i]) {
+            return -1;
+        }
+    }
+    return 0;
+}
 
 template NZCP() {
+
+
+    #define VC_LEN 2
+    var vc_str[VC_LEN] = [118, 99];
+
+    #define CREDENTIAL_SUBJECT_LEN 17
+    var credentialSubject_str[CREDENTIAL_SUBJECT_LEN] = [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116];
+
+
     var ToBeSignedBits = 2512;
     var ToBeSignedBytes = ToBeSignedBits/8;
 
@@ -135,7 +157,16 @@ template NZCP() {
             }            
         }
         else if (cbortype == MAJOR_TYPE_STRING) {
+
+            // log(-1);
+            if (strcmp(ToBeSigned, pos, vc_str, VC_LEN) == 0) {
+                log(42);
+            }
+            else if (strcmp(ToBeSigned, pos, credentialSubject_str, CREDENTIAL_SUBJECT_LEN) == 0) {
+                log(69);
+            }
             pos = skipValue(ToBeSigned, pos);
+
         }
         else {
             // assert(0); // UnsupportedCBORUint
