@@ -64,6 +64,7 @@ template NZCP() {
     signal v;
     v <== 168;
 
+    // TODO: are we sure that type,three_upper_bits,upper_bit_1,upper_bit_2,upper_bit_3 are 8 bits?
     signal type;
 
     // assign `type` signal
