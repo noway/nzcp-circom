@@ -61,19 +61,32 @@ template NZCP() {
         lc1 ==> ToBeSigned[k];
     }
 
-    signal type;
     signal v;
     v <== 168;
 
+    signal type;
+
     type <-- v >> 5;
-    // 2^5 = 32
-    // 0b11100000 = 0xE0
 
     signal check;
-    check <-- v & 0xE0;
-    check & 0x1F === 0;
+    // 0b11100000 = 0xE0
+    check <-- v & 0xE0; // 3 upper bits only of v
 
+    signal lower_bits; // we're checking that this can only be LESS THAN 32 (0b00011111)
+    lower_bits <-- v - check;
 
+    signal upper_bit_1;
+    signal upper_bit_2;
+    signal upper_bit_3;
+    upper_bit_1 <-- lower_bits & 0x80; // 0b10000000
+    upper_bit_2 <-- lower_bits & 0x40; // 0b01000000
+    upper_bit_3 <-- lower_bits & 0x20; // 0b00100000
+    upper_bit_1 === 0;
+    upper_bit_2 === 0;
+    upper_bit_3 === 0;
+
+    // Right shift by n bits is the same as division by 2^n
+    // 2^5 = 32
     type * 32 === check;
 
 
