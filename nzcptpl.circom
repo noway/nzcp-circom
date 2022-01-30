@@ -61,19 +61,20 @@ template NZCP() {
         lc1 ==> ToBeSigned[k];
     }
 
-    signal spos;
-    signal stype;
-    // pos = 27; // 27 bytes to skip;
+    signal type;
+    signal v;
+    v <== 168;
 
-    var pos = 27;
-    var v = ToBeSigned[pos];
-    var type = v >> 5;
-    log(v);
-    log(type);
-    pos++;
+    type <-- v >> 5;
+    // 2^5 = 32
+    // 0b11100000 = 0xE0
 
-    spos <== pos;
-    stype <== type;
+    signal check;
+    check <-- v & 0xE0;
+    check & 0x1F === 0;
+
+
+    type * 32 === check;
 
 
     // TODO: read type as signal (type, pos)
