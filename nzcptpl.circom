@@ -66,28 +66,38 @@ template NZCP() {
 
     signal type;
 
+    // assign `type` signal
+    // shift 0bXXXYYYYY to 0b00000XXX
+    // v is a trusted signal
     type <-- v >> 5;
 
-    signal check;
+    // prepare constraint checking for `type`
+    signal three_upper_bits;
     // 0b11100000 = 0xE0
-    check <-- v & 0xE0; // 3 upper bits only of v
+    // v is trusted signal
+    three_upper_bits <-- v & 0xE0; // 3 upper bits of v (0bXXX00000). v can only be 8 bits.
 
-    signal lower_bits; // we're checking that this can only be LESS THAN 32 (0b00011111)
-    lower_bits <-- v - check;
-
+    // should_only_be_lower_bits is 0b000YYYYY
+    // we get it by 0bXXXYYYYY - 0bXXX00000 to get 0b000YYYYY
+    var should_only_be_lower_bits = v - three_upper_bits;
+    // we're checking that should_only_be_lower_bits can only be LESS THAN 32 (0b00011111)
+    // that verifies that three_upper_bits are pristine and were not messed with.
+    // if someone were to mess with three_upper_bits, should_only_be_lower_bits would contain higher bits
+    // and be more than 32 (0b00011111).
+    // by doing that, we cryptographically assert that should_only_be_lower_bits is in the form of 0b000YYYYY
     signal upper_bit_1;
     signal upper_bit_2;
     signal upper_bit_3;
-    upper_bit_1 <-- lower_bits & 0x80; // 0b10000000
-    upper_bit_2 <-- lower_bits & 0x40; // 0b01000000
-    upper_bit_3 <-- lower_bits & 0x20; // 0b00100000
-    upper_bit_1 === 0;
-    upper_bit_2 === 0;
-    upper_bit_3 === 0;
+    upper_bit_1 <-- should_only_be_lower_bits & 0x80; // 0b10000000. This signal can be 0bX0000000
+    upper_bit_2 <-- should_only_be_lower_bits & 0x40; // 0b01000000. This signal can be 0b0X000000
+    upper_bit_3 <-- should_only_be_lower_bits & 0x20; // 0b00100000. This signal can be 0b00X00000
+    upper_bit_1 === 0; // Assert that 0bX0000000 is 0b00000000
+    upper_bit_2 === 0; // Assert that 0b0X000000 is 0b00000000
+    upper_bit_3 === 0; // Assert that 0b00X00000 is 0b00000000
 
-    // Right shift by n bits is the same as division by 2^n
+    // generate constraint for type signal
     // 2^5 = 32
-    type * 32 === check;
+    type * 32 === three_upper_bits;
 
 
     // TODO: read type as signal (type, pos)
