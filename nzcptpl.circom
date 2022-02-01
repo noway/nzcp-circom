@@ -16,6 +16,9 @@ include "./circomlib-master/circuits/comparators.circom";
 
 #define CREDENTIAL_SUBJECT_PATH_LEN 2
 
+/* assert through constraint and assert */
+#define hardcore_assert(a, b) a === b; assert(a == b)
+
 template CalculateTotal(n) {
     signal input nums[n];
     signal output sum;
@@ -133,6 +136,8 @@ template NZCP() {
     getType.v <== v;
     getType.type ==> type;
     log(type);
+
+    hardcore_assert(type, MAJOR_TYPE_MAP);
 
     pos++;
 
