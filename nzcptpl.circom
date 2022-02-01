@@ -22,6 +22,21 @@ include "./circomlib-master/circuits/comparators.circom";
     pos++;
 
 
+template GetType() {
+    signal input v;
+    signal check_v;
+    signal output type;
+    // assign `type` signal
+    // shift 0bXXXYYYYY to 0b00000XXX
+    type <-- v >> 5;
+    check_v <== type * 32;
+    // we need full 8 bits to check, otherwise in[0] might get stripped
+    component lessThan = LessThan(8); 
+    lessThan.in[0] <== v - check_v;
+    lessThan.in[1] <== 32;
+    lessThan.out === 1;
+}
+
 template NZCP() {
 
 
@@ -65,27 +80,12 @@ template NZCP() {
     signal v;
     v <== 168;
 
-    // TODO: are we sure that type,three_upper_bits,upper_bit_1,upper_bit_2,upper_bit_3 are 8 bits?
     signal type;
+    component getType = GetType();
+    getType.v <== v;
+    getType.type ==> type;
 
-    // assign `type` signal
-    // shift 0bXXXYYYYY to 0b00000XXX
-    // v is a trusted signal
-
-
-    signal check_v;
-    type <-- v >> 5;
-    check_v <== type * 32;
-    // we need full 8 bits to check, otherwise in[0] might get stripped
-    component lessThan = LessThan(8); 
-    lessThan.in[0] <== v - check_v;
-    lessThan.in[1] <== 32;
-    lessThan.out === 1;
-
-
-
-
-    // TODO: read type as signal (type, pos)
+    log(type);
 
     d <== ToBeSigned[0];
 
