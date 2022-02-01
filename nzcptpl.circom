@@ -72,33 +72,10 @@ template NZCP() {
     // v is a trusted signal
     type <-- v >> 5;
 
-    // prepare constraint checking for `type`
-    signal three_upper_bits;
-    // 0b11100000 = 0xE0
-    // v is trusted signal
-    three_upper_bits <-- v & 0xE0; // 3 upper bits of v (0bXXX00000). v can only be 8 bits.
+    signal low_v;
+    low_v <== v & 0x1F;
+    type*32 + low_v === v;
 
-    // should_only_be_lower_bits is 0b000YYYYY
-    // we get it by 0bXXXYYYYY - 0bXXX00000 to get 0b000YYYYY
-    var should_only_be_lower_bits = v - three_upper_bits;
-    // we're checking that should_only_be_lower_bits can only be LESS THAN 32 (0b00011111)
-    // that verifies that three_upper_bits are pristine and were not messed with.
-    // if someone were to mess with three_upper_bits, should_only_be_lower_bits would contain higher bits
-    // and be more than 32 (0b00011111).
-    // by doing that, we cryptographically assert that should_only_be_lower_bits is in the form of 0b000YYYYY
-    signal upper_bit_1;
-    signal upper_bit_2;
-    signal upper_bit_3;
-    upper_bit_1 <-- should_only_be_lower_bits & 0x80; // 0b10000000. This signal can be 0bX0000000
-    upper_bit_2 <-- should_only_be_lower_bits & 0x40; // 0b01000000. This signal can be 0b0X000000
-    upper_bit_3 <-- should_only_be_lower_bits & 0x20; // 0b00100000. This signal can be 0b00X00000
-    upper_bit_1 === 0; // Assert that 0bX0000000 is 0b00000000
-    upper_bit_2 === 0; // Assert that 0b0X000000 is 0b00000000
-    upper_bit_3 === 0; // Assert that 0b00X00000 is 0b00000000
-
-    // generate constraint for type signal
-    // 2^5 = 32
-    type * 32 === three_upper_bits;
 
 
     // TODO: read type as signal (type, pos)
