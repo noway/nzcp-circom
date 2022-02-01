@@ -141,6 +141,9 @@ template NZCP() {
 
     hardcore_assert(type, MAJOR_TYPE_MAP);
 
+    signal x;
+
+    x <== v & 31; // 0b00011111
 
 }
 
