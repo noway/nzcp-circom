@@ -135,11 +135,12 @@ template NZCP() {
     component getType = GetType();
     getType.v <== v;
     getType.type ==> type;
+    pos++;
+
     log(type);
 
     hardcore_assert(type, MAJOR_TYPE_MAP);
 
-    pos++;
 
 }
 
