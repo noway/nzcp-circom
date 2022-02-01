@@ -114,8 +114,8 @@ template NZCP() {
         lc1 ==> ToBeSigned[k];
     }
 
-    signal pos;
-    pos <== 27; // 27 bytes initial skip for example MoH pass
+    var pos;
+    pos = 27; // 27 bytes initial skip for example MoH pass
 
     signal v;
 
@@ -133,6 +133,8 @@ template NZCP() {
     getType.v <== v;
     getType.type ==> type;
     log(type);
+
+    pos++;
 
 }
 
