@@ -1,6 +1,7 @@
 pragma circom 2.0.0;
 
 include "./circomlib-master/circuits/sha256/sha256.circom";
+include "./circomlib-master/circuits/comparators.circom";
 
 
 /* CBOR types */
@@ -70,11 +71,17 @@ template NZCP() {
     // assign `type` signal
     // shift 0bXXXYYYYY to 0b00000XXX
     // v is a trusted signal
-    type <-- v >> 5;
 
-    signal low_v;
-    low_v <== v & 0x1F;
-    type*32 + low_v === v;
+
+    signal check_v;
+    type <-- v >> 5;
+    check_v <== type * 32;
+    // we need full 8 bits to check, otherwise in[0] might get stripped
+    component lessThan = LessThan(8); 
+    lessThan.in[0] <== v - check_v;
+    lessThan.in[1] <== 32;
+    lessThan.out === 1;
+
 
 
 
