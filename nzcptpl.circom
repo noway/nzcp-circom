@@ -114,23 +114,25 @@ template NZCP() {
         lc1 ==> ToBeSigned[k];
     }
 
+    signal pos;
+    pos <== 27; // 27 bytes initial skip for example MoH pass
+
     signal v;
-    v <== 168;
-
-    signal type;
-    component getType = GetType();
-    getType.v <== v;
-    getType.type ==> type;
-
-    log(type);
 
     component quinSelector = QuinSelector(ToBeSignedBytes);
     for (k=0; k<ToBeSignedBytes; k++) {
         quinSelector.in[k] <== ToBeSigned[k];
     }
-    quinSelector.index <== type;
-    d <== quinSelector.out;
-    log(d);
+    quinSelector.index <== pos;
+    v <== quinSelector.out;
+    log(v);
+
+
+    signal type;
+    component getType = GetType();
+    getType.v <== v;
+    getType.type ==> type;
+    log(type);
 
 }
 
