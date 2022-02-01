@@ -16,11 +16,6 @@ include "./circomlib-master/circuits/comparators.circom";
 
 #define CREDENTIAL_SUBJECT_PATH_LEN 2
 
-#define readType(v,type,buffer,pos) \
-    var v = buffer[pos]; \
-    var type = v >> 5; \
-    pos++;
-
 
 template GetType() {
     signal input v;
