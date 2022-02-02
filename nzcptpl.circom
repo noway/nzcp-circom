@@ -158,8 +158,10 @@ template NZCP() {
 
     signal mapval_v[MAX_CWT_MAP_LEN];
     signal mapval_type[MAX_CWT_MAP_LEN];
+    signal mapval_x[MAX_CWT_MAP_LEN];
     component mapval_getV[MAX_CWT_MAP_LEN];
     component mapval_getType[MAX_CWT_MAP_LEN];
+    component mapval_getX[MAX_CWT_MAP_LEN];
 
 
     for (k = 0; k < MAX_CWT_MAP_LEN; k++) { 
@@ -176,7 +178,14 @@ template NZCP() {
 
 
         // log(mapval_v[k]);
-        log(mapval_type[k]);
+        // log(mapval_type[k]);
+
+
+        mapval_getX[k] = GetX();        
+        mapval_getX[k].v <== mapval_v[k];
+        mapval_getX[k].x ==> mapval_x[k];
+
+        log(mapval_x[k]);
 
 
         pos++;
