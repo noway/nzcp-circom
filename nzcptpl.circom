@@ -36,7 +36,7 @@ template GetType() {
     lessThan.out === 1;
 }
 
-template Get5LowerBits() {
+template GetX() {
     signal input v;
     signal output x;
     // the code bellow is a quadratic equivalent of:
@@ -122,7 +122,7 @@ template NZCP() {
 
 
     signal x;
-    component get5LowerBits = Get5LowerBits();
+    component get5LowerBits = GetX();
     get5LowerBits.v <== v;
     get5LowerBits.x ==> x;
 
