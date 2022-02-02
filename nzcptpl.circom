@@ -143,7 +143,24 @@ template NZCP() {
 
     signal x;
 
-    x <== v & 31; // 0b00011111
+    // the code bellow is a quadratic equivalent of:
+    // x <== v & 31; // 0b00011111
+    component num2Bits = Num2Bits(8);
+    num2Bits.in <== v;
+    signal vbits[8];
+    for(k = 0; k < 8; k++) {
+        vbits[k] <== num2Bits.out[k];
+    }
+    var lc1=0;
+    var e2 = 1;
+    for (var i = 0; i<5; i++) {
+        lc1 += vbits[i] * e2;
+        e2 = e2 + e2;
+    }
+    lc1 ==> x;
+
+
+    log(x);
 
 }
 
