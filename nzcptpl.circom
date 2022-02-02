@@ -176,6 +176,7 @@ template NZCP() {
         mapval_getType[k].v <== mapval_v[k];
         mapval_getType[k].type ==> mapval_type[k];
 
+        pos++;
 
         // log(mapval_v[k]);
         // log(mapval_type[k]);
@@ -188,7 +189,6 @@ template NZCP() {
         log(mapval_x[k]);
 
 
-        pos++;
     }
 
 }
