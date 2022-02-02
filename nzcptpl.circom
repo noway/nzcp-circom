@@ -80,7 +80,7 @@ template NZCP() {
 
 
 
-
+    // TODO: dynamic
     var ToBeSignedBits = 2512;
     var ToBeSignedBytes = ToBeSignedBits/8;
 
@@ -147,6 +147,7 @@ template NZCP() {
     get5LowerBits.v <== v;
     get5LowerBits.x ==> x;
 
+    // TODO: should this be more generic and allow for x more than 23?
     assert(x <= 23); // only supporting maps with 23 or less entries
 
     signal maplen;
