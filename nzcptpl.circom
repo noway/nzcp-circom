@@ -21,10 +21,12 @@ include "./incrementalQuinTree.circom";
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
 
+// returns the value of v bit shifted to the right by 5 bits
 template GetType() {
+    // TODO: use Num2Bits?
     signal input v;
     signal output type;
-    // assign `type` signal
+    // assign type signal
     // shift 0bXXXYYYYY to 0b00000XXX
     type <-- v >> 5;
     signal check_v;
@@ -36,6 +38,7 @@ template GetType() {
     lessThan.out === 1;
 }
 
+// returns the 5 lowest bits of v
 template GetX() {
     signal input v;
     signal output x;
