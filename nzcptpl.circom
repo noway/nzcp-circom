@@ -59,6 +59,19 @@ template GetX() {
     lc1 ==> x;
 }
 
+template GetV(ToBeSignedBytes) {
+    signal input bytes[ToBeSignedBytes];
+    signal input pos;
+    signal output v;
+
+    component quinSelector = QuinSelector(ToBeSignedBytes);
+    for (var k=0; k<ToBeSignedBytes; k++) {
+        quinSelector.in[k] <== bytes[k];
+    }
+    quinSelector.index <== pos;
+    v <== quinSelector.out;
+}
+
 template NZCP() {
 
 
@@ -104,12 +117,14 @@ template NZCP() {
 
     signal v;
 
-    component quinSelector = QuinSelector(ToBeSignedBytes);
-    for (k=0; k<ToBeSignedBytes; k++) {
-        quinSelector.in[k] <== ToBeSigned[k];
+    // GetV(ToBeSignedBytes) (ToBeSigned, pos, v);
+    component getV = GetV(ToBeSignedBytes);
+    for(k=0; k<ToBeSignedBytes; k++) {
+        getV.bytes[k] <== ToBeSigned[k];
     }
-    quinSelector.index <== pos;
-    v <== quinSelector.out;
+    getV.pos <== pos;
+    getV.v ==> v;
+
     log(v);
 
 
