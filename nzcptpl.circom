@@ -129,8 +129,13 @@ template NZCP() {
     get5LowerBits.v <== v;
     get5LowerBits.x ==> x;
 
+    assert(x <= 23); // only supporting maps with 23 or less entries
 
-    log(x);
+    signal maplen;
+    maplen <== x;
+
+
+    log(maplen);
 
 }
 
