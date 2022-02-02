@@ -23,11 +23,11 @@ include "./incrementalQuinTree.circom";
 
 template GetType() {
     signal input v;
-    signal check_v;
     signal output type;
     // assign `type` signal
     // shift 0bXXXYYYYY to 0b00000XXX
     type <-- v >> 5;
+    signal check_v;
     check_v <== type * 32;
     // we need full 8 bits to check, otherwise in[0] might get stripped
     component lessThan = LessThan(8); 
