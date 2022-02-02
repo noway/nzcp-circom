@@ -159,6 +159,8 @@ template NZCP() {
     signal mapval_v[MAX_CWT_MAP_LEN];
     signal mapval_type[MAX_CWT_MAP_LEN];
     component mapval_getV[MAX_CWT_MAP_LEN];
+    component mapval_getType[MAX_CWT_MAP_LEN];
+
 
     for (k = 0; k < MAX_CWT_MAP_LEN; k++) { 
         mapval_getV[k] = GetV(ToBeSignedBytes);
@@ -167,7 +169,14 @@ template NZCP() {
         }
         mapval_getV[k].pos <== pos;
         mapval_getV[k].v ==> mapval_v[k];
-        log(mapval_v[k]);
+
+        mapval_getType[k] = GetType();
+        mapval_getType[k].v <== mapval_v[k];
+        mapval_getType[k].type ==> mapval_type[k];
+
+
+        // log(mapval_v[k]);
+        log(mapval_type[k]);
 
 
         pos++;
