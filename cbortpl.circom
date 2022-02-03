@@ -1,5 +1,7 @@
 pragma circom 2.0.0;
 
+// TODO: write tests
+
 #define copyBytes(b, a) for(var i = 0; i<ToBeSignedBytes; i++) { a.bytes[i] <== b[i]; }
 
 // returns the value of v bit shifted to the right by 5 bits
@@ -55,6 +57,7 @@ template GetV(ToBeSignedBytes) {
 }
 
 template DecodeUint(ToBeSignedBytes) {
+    // TODO: only copy over 4 bytes for the lookahead
     // TODO: get v as input
     signal input x;
     signal input bytes[ToBeSignedBytes];
