@@ -157,6 +157,7 @@ template DecodeUint(ToBeSignedBytes) {
     nextpos_26 <== pos + 4;
 
 
+    // execture conditions
     component lessThan = LessThan(8); // 8 bits should be enough
     lessThan.in[0] <== x;
     lessThan.in[1] <== 24;
