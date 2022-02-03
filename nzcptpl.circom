@@ -320,7 +320,7 @@ template NZCP() {
         mapval_value[k] <== mapval_decodeUint[k].value;
 
 
-        log(mapval_x[k]);
+        log(mapval_value[k]);
 
 
     }
