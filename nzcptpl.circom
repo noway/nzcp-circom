@@ -62,6 +62,7 @@ template GetX() {
     lc1 ==> x;
 }
 
+// TODO: rename to GetValue?
 template GetV(ToBeSignedBytes) {
     signal input bytes[ToBeSignedBytes];
     signal input pos;
