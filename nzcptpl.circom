@@ -245,7 +245,6 @@ template NZCP() {
 
     signal v;
 
-    // GetV(ToBeSignedBytes) (ToBeSigned, pos, v);
     component getV = GetV(ToBeSignedBytes);
     for(k=0; k<ToBeSignedBytes; k++) {
         getV.bytes[k] <== ToBeSigned[k];
