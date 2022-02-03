@@ -156,6 +156,47 @@ template DecodeUint(ToBeSignedBytes) {
     signal nextpos_26;
     nextpos_26 <== pos + 4;
 
+
+    component lessThan = LessThan(8); // 8 bits should be enough
+    lessThan.in[0] <== x;
+    lessThan.in[1] <== 24;
+    signal condition_23;
+    lessThan.out ==> condition_23;
+
+    component isEqual24 = IsEqual();
+    isEqual24.in[0] <== x;
+    isEqual24.in[1] <== 24;
+    signal condition_24;
+    isEqual24.out ==> condition_24;
+
+
+    component isEqual25 = IsEqual();
+    isEqual25.in[0] <== x;
+    isEqual25.in[1] <== 25;
+    signal condition_25;
+    isEqual25.out ==> condition_25;
+
+
+    component isEqual26 = IsEqual();
+    isEqual26.in[0] <== x;
+    isEqual26.in[1] <== 26;
+    signal condition_26;
+    isEqual26.out ==> condition_26;
+
+
+    component calculateTotal_value = CalculateTotal(4);
+    calculateTotal_value.nums[0] <== condition_23 * value_23;
+    calculateTotal_value.nums[1] <== condition_24 * value_24;
+    calculateTotal_value.nums[2] <== condition_25 * value_25;
+    calculateTotal_value.nums[3] <== condition_26 * value_26;
+    value <== calculateTotal_value.sum;
+
+    component calculateTotal_nextpos = CalculateTotal(4);
+    calculateTotal_nextpos.nums[0] <== condition_23 * nextpos_23;
+    calculateTotal_nextpos.nums[1] <== condition_24 * nextpos_24;
+    calculateTotal_nextpos.nums[2] <== condition_25 * nextpos_25;
+    calculateTotal_nextpos.nums[3] <== condition_26 * nextpos_26;
+    nextpos <== calculateTotal_nextpos.sum;
 }
 
 template NZCP() {
