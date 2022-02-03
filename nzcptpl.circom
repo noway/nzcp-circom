@@ -23,6 +23,8 @@ include "./incrementalQuinTree.circom";
 /* assert through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
+/* assign bytes to a signal in one go */
+#define copyBytes(b, a) for(var i = 0; i<ToBeSignedBytes; i++) { a.bytes[i] <== b[i]; }
 
 // returns the value of v bit shifted to the right by 5 bits
 template GetType() {
@@ -93,9 +95,8 @@ template DecodeUint(ToBeSignedBytes) {
 
     // if(x == 24)
     component getV_24 = GetV(ToBeSignedBytes);
-    for (var j = 0; j < ToBeSignedBytes; j++) {
-        getV_24.bytes[j] <== bytes[j];
-    }
+
+    copyBytes(bytes, getV_24)
     getV_24.pos <== pos;
     signal value_24;
     value_24 <== getV_24.v;
@@ -105,10 +106,9 @@ template DecodeUint(ToBeSignedBytes) {
     // if(x == 25)
     component getV1_25 = GetV(ToBeSignedBytes);
     component getV2_25 = GetV(ToBeSignedBytes);
-    for (var j = 0; j < ToBeSignedBytes; j++) {
-        getV1_25.bytes[j] <== bytes[j];
-        getV2_25.bytes[j] <== bytes[j];
-    }
+    copyBytes(bytes, getV1_25)
+    copyBytes(bytes, getV2_25)
+
     getV1_25.pos <== pos;
     signal value_1_25;
     value_1_25 <== getV1_25.v * 256;
@@ -128,12 +128,12 @@ template DecodeUint(ToBeSignedBytes) {
     component getV2_26 = GetV(ToBeSignedBytes);
     component getV3_26 = GetV(ToBeSignedBytes);
     component getV4_26 = GetV(ToBeSignedBytes);
-    for (var j = 0; j < ToBeSignedBytes; j++) {
-        getV1_26.bytes[j] <== bytes[j];
-        getV2_26.bytes[j] <== bytes[j];
-        getV3_26.bytes[j] <== bytes[j];
-        getV4_26.bytes[j] <== bytes[j];
-    }
+
+    copyBytes(bytes, getV1_26)
+    copyBytes(bytes, getV2_26)
+    copyBytes(bytes, getV3_26)
+    copyBytes(bytes, getV4_26)
+
     getV1_26.pos <== pos;
     signal value_1_26;
     value_1_26 <== getV1_26.v * 16777216;
@@ -170,13 +170,11 @@ template DecodeUint(ToBeSignedBytes) {
     signal condition_24;
     isEqual24.out ==> condition_24;
 
-
     component isEqual25 = IsEqual();
     isEqual25.in[0] <== x;
     isEqual25.in[1] <== 25;
     signal condition_25;
     isEqual25.out ==> condition_25;
-
 
     component isEqual26 = IsEqual();
     isEqual26.in[0] <== x;
@@ -185,6 +183,7 @@ template DecodeUint(ToBeSignedBytes) {
     isEqual26.out ==> condition_26;
 
 
+    // return
     component calculateTotal_value = CalculateTotal(4);
     calculateTotal_value.nums[0] <== condition_23 * value_23;
     calculateTotal_value.nums[1] <== condition_24 * value_24;
@@ -246,9 +245,7 @@ template NZCP() {
     signal v;
 
     component getV = GetV(ToBeSignedBytes);
-    for(k=0; k<ToBeSignedBytes; k++) {
-        getV.bytes[k] <== ToBeSigned[k];
-    }
+    copyBytes(ToBeSigned, getV)
     getV.pos <== pos;
     getV.v ==> v;
 
@@ -291,9 +288,7 @@ template NZCP() {
 
     for (k = 0; k < MAX_CWT_MAP_LEN; k++) { 
         mapval_getV[k] = GetV(ToBeSignedBytes);
-        for(var j=0; j<ToBeSignedBytes; j++) {
-            mapval_getV[k].bytes[j] <== ToBeSigned[j];
-        }
+        copyBytes(ToBeSigned, mapval_getV[k])
         mapval_getV[k].pos <== pos;
         mapval_getV[k].v ==> mapval_v[k];
 
@@ -312,9 +307,7 @@ template NZCP() {
 
         mapval_decodeUint[k] = DecodeUint(ToBeSignedBytes);
         mapval_decodeUint[k].x <== mapval_x[k];
-        for(var j=0; j<ToBeSignedBytes; j++) {
-            mapval_decodeUint[k].bytes[j] <== ToBeSigned[j];
-        }
+        copyBytes(ToBeSigned, mapval_decodeUint[k])
         mapval_decodeUint[k].pos <== pos;
 
         mapval_value[k] <== mapval_decodeUint[k].value;
