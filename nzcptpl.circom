@@ -179,8 +179,6 @@ template NZCP() {
 
         pos++;
 
-        // log(mapval_v[k]);
-        // log(mapval_type[k]);
 
 
         mapval_getX[k] = GetX();        
