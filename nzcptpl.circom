@@ -102,6 +102,27 @@ template DecodeUint(ToBeSignedBytes) {
     signal nextpos_24;
     nextpos_24 <== pos + 1;
 
+    // if(x == 25)
+    component getV1_25 = GetV(ToBeSignedBytes);
+    component getV2_25 = GetV(ToBeSignedBytes);
+    for (var j = 0; j < ToBeSignedBytes; j++) {
+        getV1_25.bytes[j] <== bytes[j];
+        getV2_25.bytes[j] <== bytes[j];
+    }
+    getV1_25.pos <== pos;
+    signal value_1_25;
+    value_1_25 <== getV1_25.v * 256;
+
+    getV2_25.pos <== pos + 1;
+    signal value_2_25;
+    value_2_25 <== getV2_25.v;
+
+    signal value_25;
+    value_25 <== value_1_25 + value_2_25;
+
+    signal nextpos_25;
+    nextpos_25 <== pos + 2;
+
 }
 
 template NZCP() {
