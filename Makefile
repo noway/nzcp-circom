@@ -1,4 +1,4 @@
-.PHONY: nzcp/nzcp.wasm nzcp.circom
+.PHONY: nzcp/nzcp.wasm nzcp.circom cbor.circom
 
 public.json: nzcp/nzcp.wasm
 	cd nzcp_js && node generate_witness.js nzcp.wasm ../input.json witness.wtns
@@ -14,5 +14,8 @@ circomlib-master/: circom.zip
 	unzip circomlib.zip
 
 
-nzcp.circom: 
+nzcp.circom: cbor.circom
 	cpp -P nzcptpl.circom | sed 's/##//g' > nzcp.circom
+
+cbor.circom: 
+	cpp -P cbortpl.circom | sed 's/##//g' > cbor.circom
