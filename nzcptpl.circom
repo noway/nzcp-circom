@@ -76,6 +76,30 @@ template GetV(ToBeSignedBytes) {
     v <== quinSelector.out;
 }
 
+template DecodeUint(ToBeSignedBytes) {
+    // TODO: get v as input
+    signal input x;
+    signal input bytes[ToBeSignedBytes];
+    signal input pos;
+    signal output value;
+    signal output nextpos;
+
+    component getV = GetV(ToBeSignedBytes);
+
+    if (x <= 23) {
+        value <== x;
+        pos ==> nextpos;
+    }
+    else if(x == 24) {
+        for(var j=0; j<ToBeSignedBytes; j++) {
+            getV.bytes[j] <== bytes[j];
+        }
+        getV.pos <== pos;
+        value <== getV.v;
+        pos + 1 ==> nextpos;
+    }
+}
+
 template NZCP() {
 
 
@@ -160,10 +184,11 @@ template NZCP() {
     signal mapval_v[MAX_CWT_MAP_LEN];
     signal mapval_type[MAX_CWT_MAP_LEN];
     signal mapval_x[MAX_CWT_MAP_LEN];
+    signal mapval_value[MAX_CWT_MAP_LEN];
     component mapval_getV[MAX_CWT_MAP_LEN];
     component mapval_getType[MAX_CWT_MAP_LEN];
     component mapval_getX[MAX_CWT_MAP_LEN];
-
+    component mapval_decodeUint[MAX_CWT_MAP_LEN];
 
     for (k = 0; k < MAX_CWT_MAP_LEN; k++) { 
         mapval_getV[k] = GetV(ToBeSignedBytes);
@@ -184,6 +209,17 @@ template NZCP() {
         mapval_getX[k] = GetX();        
         mapval_getX[k].v <== mapval_v[k];
         mapval_getX[k].x ==> mapval_x[k];
+
+
+        mapval_decodeUint[k] = DecodeUint(ToBeSignedBytes);
+        mapval_decodeUint[k].x <== mapval_x[k];
+        for(var j=0; j<ToBeSignedBytes; j++) {
+            mapval_decodeUint[k].bytes[j] <== ToBeSigned[j];
+        }
+        mapval_decodeUint[k].pos <== pos;
+
+        mapval_value[k] <== mapval_decodeUint[k].value;
+
 
         log(mapval_x[k]);
 
