@@ -84,20 +84,24 @@ template DecodeUint(ToBeSignedBytes) {
     signal output value;
     signal output nextpos;
 
-    component getV = GetV(ToBeSignedBytes);
 
-    if (x <= 23) {
-        value <== x;
-        pos ==> nextpos;
+    // if (x <= 23)
+    signal value_23;
+    value_23 <== x;
+    signal nextpos_23;
+    nextpos_23 <== pos;
+
+    // if(x == 24)
+    component getV_24 = GetV(ToBeSignedBytes);
+    for (var j = 0; j < ToBeSignedBytes; j++) {
+        getV_24.bytes[j] <== bytes[j];
     }
-    else if(x == 24) {
-        for(var j=0; j<ToBeSignedBytes; j++) {
-            getV.bytes[j] <== bytes[j];
-        }
-        getV.pos <== pos;
-        value <== getV.v;
-        pos + 1 ==> nextpos;
-    }
+    getV_24.pos <== pos;
+    signal value_24;
+    value_24 <== getV_24.v;
+    signal nextpos_24;
+    nextpos_24 <== pos + 1;
+
 }
 
 template NZCP() {
