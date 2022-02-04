@@ -68,7 +68,6 @@ describe("SHA256", function () {
 });
 
 describe("CBOR getType", function () {
-    this.timeout(100000);
     const p = path.join(__dirname, "../circuits/getType_test.circom")
     it ("getType(v) == v >> 5", async () => {
         // exhaustive test for 8 bits
@@ -81,7 +80,6 @@ describe("CBOR getType", function () {
 });
 
 describe("CBOR getX", function () {
-    this.timeout(100000);
     const p = path.join(__dirname, "../circuits/getX_test.circom")
     it ("getX(v) == v & 31", async () => {
         // exhaustive test for 8 bits
@@ -94,7 +92,6 @@ describe("CBOR getX", function () {
 });
 
 describe("CBOR getV", function () {
-    this.timeout(100000);
     const p = path.join(__dirname, "../circuits/getV_test.circom")
     it ("getV([1,2,3], 0) == 1", async () => {
         const cir = await wasm_tester(p);
