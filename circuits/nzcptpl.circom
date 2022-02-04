@@ -1,7 +1,7 @@
 pragma circom 2.0.0;
 
-include "./circomlib-master/circuits/sha256/sha256.circom";
-include "./circomlib-master/circuits/comparators.circom";
+include "../circomlib-master/circuits/sha256/sha256.circom";
+include "../circomlib-master/circuits/comparators.circom";
 include "./incrementalQuinTree.circom";
 include "./cbor.circom";
 

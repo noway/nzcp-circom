@@ -67,7 +67,7 @@ describe("SHA256 test", function () {
     */
 
     it ("Should parse ToBeSigned", async () => {
-        const p = path.join(__dirname, "../", "nzcp.circom")
+        const p = path.join(__dirname, "../", "circuits", "nzcp.circom")
         console.log('p',p)
         const cir = await wasm_tester(p);
 

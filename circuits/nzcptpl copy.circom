@@ -1,6 +1,6 @@
 pragma circom 2.0.0;
 
-include "./circomlib-master/circuits/sha256/sha256.circom";
+include "../circomlib-master/circuits/sha256/sha256.circom";
 
 
 /* CBOR types */
