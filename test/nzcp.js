@@ -71,7 +71,7 @@ describe("CBOR getType", function () {
     this.timeout(100000);
     const p = path.join(__dirname, "../circuits/getType_test.circom")
     it ("getType(v) == v >> 5", async () => {
-        // exhaustive test
+        // exhaustive test for 8 bits
         const cir = await wasm_tester(p);
         for (let v = 255; v >= 0; v--) {
             const witness = await cir.calculateWitness({ "v": v }, true);
@@ -84,7 +84,7 @@ describe("CBOR getX", function () {
     this.timeout(100000);
     const p = path.join(__dirname, "../circuits/getX_test.circom")
     it ("getX(v) == v & 31", async () => {
-        // exhaustive test
+        // exhaustive test for 8 bits
         const cir = await wasm_tester(p);
         for (let v = 255; v >= 0; v--) {
             const witness = await cir.calculateWitness({ "v": v }, true);
