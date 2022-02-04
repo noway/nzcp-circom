@@ -110,6 +110,22 @@ describe("CBOR getV", function () {
     });
 });
 
+
+describe("CBOR DecodeUint", function () {
+    const p = path.join(__dirname, "../circuits/decodeUint_test.circom")
+    it ("DecodeUint([0, 0, 0, 0], 0, 167) == 7", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "bytes": [0,0,0,0], pos: 0, v: 167 }, true);
+        assert.equal(witness[1], 7);
+    });
+
+    it ("DecodeUint([0, 0, 0, 0], 0, 168) == 8", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "bytes": [0,0,0,0], pos: 0, v: 168 }, true);
+        assert.equal(witness[1], 8);
+    });
+});
+
 describe("NZCP", function () {
     this.timeout(100000);
     it ("Should parse ToBeSigned", async () => {
