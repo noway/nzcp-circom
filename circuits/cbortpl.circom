@@ -3,8 +3,6 @@ pragma circom 2.0.0;
 include "../circomlib-master/circuits/comparators.circom";
 include "./incrementalQuinTree.circom";
 
-// TODO: write tests
-
 #define copyBytes(b, a) for(var i = 0; i<ToBeSignedBytes; i++) { a.bytes[i] <== b[i]; }
 
 // returns the value of v bit shifted to the right by 5 bits
