@@ -80,6 +80,19 @@ describe("CBOR getType", function () {
     });
 });
 
+describe("CBOR getX", function () {
+    this.timeout(100000);
+    const p = path.join(__dirname, "../circuits/getX_test.circom")
+    it ("getX(v) == v & 31", async () => {
+        // exhaustive test
+        const cir = await wasm_tester(p);
+        for (let v = 255; v >= 0; v--) {
+            const witness = await cir.calculateWitness({ "v": v }, true);
+            assert.equal(witness[1], v & 31);
+        }
+    });
+});
+
 describe("NZCP", function () {
     this.timeout(100000);
     it ("Should parse ToBeSigned", async () => {
