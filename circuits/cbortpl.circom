@@ -10,6 +10,7 @@ include "./incrementalQuinTree.circom";
 // returns the value of v bit shifted to the right by 5 bits
 template GetType() {
     // TODO: use Num2Bits?
+    // TODO: assert 8 bits
     signal input v;
     signal output type;
     // assign type signal
@@ -26,6 +27,7 @@ template GetType() {
 
 // returns the 5 lowest bits of v
 template GetX() {
+    // TODO: assert 8 bits
     signal input v;
     signal output x;
     // the code bellow is a quadratic equivalent of:
