@@ -113,6 +113,7 @@ describe("CBOR getV", function () {
 
 describe("CBOR DecodeUint", function () {
     const p = path.join(__dirname, "../circuits/decodeUint_test.circom")
+    // if (x <= 23)
     it ("DecodeUint([0, 0, 0, 0], 0, 167) == 7", async () => {
         const cir = await wasm_tester(p);
         const witness = await cir.calculateWitness({ "bytes": [0,0,0,0], pos: 0, v: 167 }, true);
@@ -123,6 +124,19 @@ describe("CBOR DecodeUint", function () {
         const cir = await wasm_tester(p);
         const witness = await cir.calculateWitness({ "bytes": [0,0,0,0], pos: 0, v: 168 }, true);
         assert.equal(witness[1], 8);
+    });
+
+    // if(x == 24)
+    it ("DecodeUint([31, 0, 0, 0], 0, 120) == 31", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "bytes": [31,0,0,0], pos: 0, v: 120 }, true);
+        assert.equal(witness[1], 31);
+    });
+
+    it ("DecodeUint([38, 0, 0, 0], 0, 120) == 38", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "bytes": [38,0,0,0], pos: 0, v: 120 }, true);
+        assert.equal(witness[1], 38);
     });
 });
 
