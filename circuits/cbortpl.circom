@@ -5,6 +5,17 @@ include "./incrementalQuinTree.circom";
 
 #define copyBytes(b, a) for(var i = 0; i<ToBeSignedBytes; i++) { a.bytes[i] <== b[i]; }
 
+/* CBOR types */
+#define MAJOR_TYPE_INT 0
+#define MAJOR_TYPE_NEGATIVE_INT 1
+#define MAJOR_TYPE_BYTES 2
+#define MAJOR_TYPE_STRING 3
+#define MAJOR_TYPE_ARRAY 4
+#define MAJOR_TYPE_MAP 5
+#define MAJOR_TYPE_TAG 6
+#define MAJOR_TYPE_CONTENT_FREE 7
+
+
 // returns the value of v bit shifted to the right by 5 bits
 template GetType() {
     // TODO: use Num2Bits?
@@ -205,6 +216,8 @@ template ReadType(ToBeSignedBytes) {
     pos + 1 ==> nextpos;
 }
 
+// TODO: test
+// Skips a scalar value, only ints and strings are supported atm.
 template SkipValueScalar(ToBeSignedBytes) {
     signal input bytes[ToBeSignedBytes];
     signal input pos;
@@ -216,8 +229,35 @@ template SkipValueScalar(ToBeSignedBytes) {
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
     readType.pos <== pos;
-    readType.v ==> v;
-    readType.type ==> type;
-    readType.nextpos ==> nextpos;
+
+    v <== readType.v;
+    type <== readType.type;
+    nextpos <== readType.nextpos;
+
+    component decodeUint = DecodeUint(ToBeSignedBytes);
+    decodeUint.v <== v;
+    copyBytes(bytes, decodeUint)
+    decodeUint.pos <== nextpos;
+
+    signal nextnextpos;
+    nextnextpos <== decodeUint.nextpos;
+    signal value;
+    value <== decodeUint.value;
+
+    component isInt = IsEqual();
+    isInt.in[0] <== type;
+    isInt.in[1] <== MAJOR_TYPE_INT;
+
+    component isString = IsEqual();
+    isString.in[0] <== type;
+    isString.in[1] <== MAJOR_TYPE_STRING;
+
+    signal output finalpos;
+
+    component calculateTotal = CalculateTotal(2);
+    calculateTotal.nums[0] <== isInt.out * nextnextpos;
+    calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
+    finalpos <== calculateTotal.sum;
+
 
 }
