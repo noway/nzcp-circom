@@ -139,6 +139,19 @@ describe("CBOR DecodeUint", function () {
         assert.equal(witness[1], 38);
     });
 
+    // if(x == 25)
+    it ("DecodeUint([42, 69, 0, 0], 0, 25) == 10821", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "bytes": [42, 69, 0, 0], pos: 0, v: 25 }, true);
+        assert.equal(witness[1], 10821);
+    });
+
+    it ("DecodeUint([69, 42, 0, 0], 0, 25) == 17706", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "bytes": [69, 42, 0, 0], pos: 0, v: 25 }, true);
+        assert.equal(witness[1], 17706);
+    });
+
     // if(x == 26)
     it ("DecodeUint([97, 218, 192, 48], 0, 26) == 1641726000", async () => {
         const cir = await wasm_tester(p);
