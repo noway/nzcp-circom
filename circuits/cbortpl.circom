@@ -183,3 +183,41 @@ template DecodeUint(ToBeSignedBytes) {
     calculateTotal_nextpos.nums[3] <== condition_26 * nextpos_26;
     nextpos <== calculateTotal_nextpos.sum;
 }
+
+// TODO: test
+template ReadType(ToBeSignedBytes) {
+
+    signal input bytes[ToBeSignedBytes];
+    signal input pos;
+    signal output nextpos;
+    signal output type;
+    signal output v;
+
+    component getV = GetV(ToBeSignedBytes);
+    copyBytes(bytes, getV)
+    getV.pos <== pos;
+    getV.v ==> v;
+
+    component getType = GetType();
+    getType.v <== v;
+    getType.type ==> type;
+
+    pos + 1 ==> nextpos;
+}
+
+template SkipValueScalar(ToBeSignedBytes) {
+    signal input bytes[ToBeSignedBytes];
+    signal input pos;
+
+    signal v;
+    signal type;
+    signal nextpos;
+
+    component readType = ReadType(ToBeSignedBytes);
+    copyBytes(bytes, readType)
+    readType.pos <== pos;
+    readType.v ==> v;
+    readType.type ==> type;
+    readType.nextpos ==> nextpos;
+
+}
