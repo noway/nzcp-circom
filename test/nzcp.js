@@ -93,6 +93,26 @@ describe("CBOR getX", function () {
     });
 });
 
+describe("CBOR getV", function () {
+    this.timeout(100000);
+    const p = path.join(__dirname, "../circuits/getV_test.circom")
+    it ("getV([1,2,3], 0) == 1", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "bytes": [1,2,3], pos: 0 }, true);
+        assert.equal(witness[1], 1);
+    });
+    it ("getV([1,2,3], 1) == 2", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "bytes": [1,2,3], pos: 1 }, true);
+        assert.equal(witness[1], 2);
+    });
+    it ("getV([1,2,3], 1) == 3", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "bytes": [1,2,3], pos: 2 }, true);
+        assert.equal(witness[1], 3);
+    });
+});
+
 describe("NZCP", function () {
     this.timeout(100000);
     it ("Should parse ToBeSigned", async () => {
