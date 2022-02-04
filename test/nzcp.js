@@ -37,7 +37,7 @@ function bitArray2buffer(a) {
 }
 
 
-describe("SHA256 test", function () {
+describe("SHA256", function () {
     this.timeout(100000);
     /*
     it ("Should calculate a hash of ToBeSigned", async () => {
@@ -65,7 +65,45 @@ describe("SHA256 test", function () {
         assert.equal(hash, hash2);
     });
     */
+});
 
+describe("CBOR getType", function () {
+    this.timeout(100000);
+    const p = path.join(__dirname, "../circuits/getType_test.circom")
+    it ("getType(168) == 5n", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "v": 168 }, true);
+        assert.equal(witness[1], 5n);
+    });
+    it ("getType(161) == 5n", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "v": 161 }, true);
+        assert.equal(witness[1], 5n);
+    });
+    it ("getType(130) == 4n", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "v": 130 }, true);
+        assert.equal(witness[1], 4n);
+    });
+    it ("getType(100) == 3n", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "v": 100 }, true);
+        assert.equal(witness[1], 3n);
+    });
+    it ("getType(90) == 2n", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "v": 90 }, true);
+        assert.equal(witness[1], 2n);
+    });
+    it ("getType(60) == 1n", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "v": 60 }, true);
+        assert.equal(witness[1], 1n);
+    });
+});
+
+describe("NZCP", function () {
+    this.timeout(100000);
     it ("Should parse ToBeSigned", async () => {
         const p = path.join(__dirname, "../", "circuits", "nzcp.circom")
         console.log('p',p)
@@ -84,5 +122,4 @@ describe("SHA256 test", function () {
 
         assert.equal("0000000000000000000000000000000000000000000000000000000000000000", hash2);
     });
-
 });
