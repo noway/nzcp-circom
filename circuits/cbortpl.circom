@@ -69,7 +69,6 @@ template DecodeUint(ToBeSignedBytes) {
     signal output value;
     signal output nextpos;
 
-
     signal x;
     component getX = GetX();
     getX.v <== v;
