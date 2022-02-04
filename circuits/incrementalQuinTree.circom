@@ -1,5 +1,7 @@
 pragma circom 2.0.0;
 
+// https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/calculateTotal.circom
+// License: MIT
 template CalculateTotal(n) {
     signal input nums[n];
     signal output sum;
@@ -14,6 +16,8 @@ template CalculateTotal(n) {
     sum <== sums[n - 1];
 }
 
+// https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/incrementalQuinTree.circom
+// License: MIT
 template QuinSelector(choices) {
     signal input in[choices];
     signal input index;
