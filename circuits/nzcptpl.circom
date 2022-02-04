@@ -127,15 +127,8 @@ template NZCP() {
 
         pos++;
 
-
-
-        mapval_getX[k] = GetX();        
-        mapval_getX[k].v <== mapval_v[k];
-        mapval_getX[k].x ==> mapval_x[k];
-
-
         mapval_decodeUint[k] = DecodeUint(ToBeSignedBytes);
-        mapval_decodeUint[k].x <== mapval_x[k];
+        mapval_decodeUint[k].v <== mapval_v[k];
         copyBytes(ToBeSigned, mapval_decodeUint[k])
         mapval_decodeUint[k].pos <== pos;
 

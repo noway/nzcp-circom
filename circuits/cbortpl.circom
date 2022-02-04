@@ -63,13 +63,17 @@ template GetV(ToBeSignedBytes) {
 
 template DecodeUint(ToBeSignedBytes) {
     // TODO: only copy over 4 bytes for the lookahead
-    // TODO: get v as input
-    signal input x;
+    signal input v;
     signal input bytes[ToBeSignedBytes];
     signal input pos;
     signal output value;
     signal output nextpos;
 
+
+    signal x;
+    component getX = GetX();
+    getX.v <== v;
+    getX.x ==> x;
 
     // if (x <= 23)
     signal value_23;
