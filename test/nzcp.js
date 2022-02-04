@@ -138,6 +138,14 @@ describe("CBOR DecodeUint", function () {
         const witness = await cir.calculateWitness({ "bytes": [38,0,0,0], pos: 0, v: 120 }, true);
         assert.equal(witness[1], 38);
     });
+
+    // if(x == 26)
+    it ("DecodeUint([97, 218, 192, 48], 0, 26) == 1641726000", async () => {
+        const cir = await wasm_tester(p);
+        const witness = await cir.calculateWitness({ "bytes": [97, 218, 192, 48], pos: 0, v: 26 }, true);
+        assert.equal(witness[1], 1641726000);
+    });
+
 });
 
 describe("NZCP", function () {
