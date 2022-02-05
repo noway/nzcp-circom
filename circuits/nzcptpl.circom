@@ -34,19 +34,19 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     signal input bytes[ToBeSignedBytes];
     signal input pos;
 
-    signal output foundpos;
+    signal output needlepos;
 
     signal mapval_v[MAX_CWT_MAP_LEN];
     signal mapval_type[MAX_CWT_MAP_LEN];
     signal mapval_value[MAX_CWT_MAP_LEN];
-    signal mapval_isVC[MAX_CWT_MAP_LEN];
+    signal mapval_isNeedle[MAX_CWT_MAP_LEN];
     signal mapval_isAccepted[MAX_CWT_MAP_LEN];
 
     component mapval_readType[MAX_CWT_MAP_LEN];
     component mapval_decodeUint[MAX_CWT_MAP_LEN];
     component mapval_skipValue[MAX_CWT_MAP_LEN];
     component mapval_isString[MAX_CWT_MAP_LEN];
-    component mapval_isVCString[MAX_CWT_MAP_LEN];
+    component mapval_isNeedleString[MAX_CWT_MAP_LEN];
     component mapval_withinMaplen[MAX_CWT_MAP_LEN];
 
     signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
@@ -89,26 +89,26 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
         mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
 
         // is current value interpreted as a string is a "vc" string?
-        mapval_isVCString[k] = StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen);
-        copyBytes(bytes, mapval_isVCString[k])
-        mapval_isVCString[k].pos <== pos_loop_3[k]; // pos before skipping
-        mapval_isVCString[k].len <== mapval_value[k];
+        mapval_isNeedleString[k] = StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen);
+        copyBytes(bytes, mapval_isNeedleString[k])
+        mapval_isNeedleString[k].pos <== pos_loop_3[k]; // pos before skipping
+        mapval_isNeedleString[k].len <== mapval_value[k];
 
         mapval_withinMaplen[k] = LessThan(8);
         mapval_withinMaplen[k].in[0] <== k;
         mapval_withinMaplen[k].in[1] <== maplen;
 
         // is current value a "vc" string?
-        mapval_isVC[k] <== mapval_isString[k].out * mapval_isVCString[k].out;
+        mapval_isNeedle[k] <== mapval_isString[k].out * mapval_isNeedleString[k].out;
 
         // should we select this vc pos candidate?
-        mapval_isAccepted[k] <== mapval_isVC[k] * mapval_withinMaplen[k].out;
+        mapval_isAccepted[k] <== mapval_isNeedle[k] * mapval_withinMaplen[k].out;
 
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
         calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (pos_loop_3[k] + mapval_value[k]);
     }
 
-    foundpos <== calculateTotal_foundpos.sum;
+    needlepos <== calculateTotal_foundpos.sum;
 }
 
 template NZCP() {
@@ -190,7 +190,7 @@ template NZCP() {
     copyBytes(ToBeSigned, findVC)
     findVC.pos <== pos;
     findVC.maplen <== maplen;
-    vc_pos <== findVC.foundpos;
+    vc_pos <== findVC.needlepos;
 
 
     log(vc_pos);
