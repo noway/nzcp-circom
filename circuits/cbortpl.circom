@@ -268,6 +268,7 @@ template SkipValueScalar(ToBeSignedBytes) {
 
 
 // TODO: rename finalpos to nextpos
+// TODO: rename ToBeSignedBytes to byteslen or len
 template SkipValue(ToBeSignedBytes) {
 
     signal input bytes[ToBeSignedBytes];
