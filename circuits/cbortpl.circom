@@ -337,3 +337,30 @@ template SkipValue(ToBeSignedBytes) {
 
 
 }
+
+// TODO: test
+// check if a string is equal to a given string
+template SEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
+    signal input bytes[ToBeSignedBytes];
+    signal input pos;
+    signal input len;
+    
+    signal output out;
+
+    component isSameLen = IsEqual();
+    isSameLen.in[0] <== len;
+    isSameLen.in[1] <== ConstBytesLen;
+
+    var conditionsSum = isSameLen;
+    component isEqual[ConstBytesLen] = IsEqual();
+    for (var i = 0; i < ConstBytesLen; i++) {
+        isEqual.in[0] <== ConstBytes[i];
+        isEqual.in[1] <== bytes[i];
+        conditionsSum = conditionsSum + isEqual.out;
+    }
+
+    var allConditionsAreTrue = ConstBytesLen + 1;
+    component isZero = IsZero();
+    isZero.in <== allConditionsAreTrue - conditionsSum;
+    out <== isZero.out;
+}
