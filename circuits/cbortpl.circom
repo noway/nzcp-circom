@@ -342,7 +342,7 @@ template SkipValue(ToBeSignedBytes) {
 // TODO: test
 // TODO: rename to StringEquals
 // check if a string is equal to a given string
-template SEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
+template StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     signal input bytes[ToBeSignedBytes];
     signal input pos;
     signal input len;
