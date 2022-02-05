@@ -194,6 +194,7 @@ template NZCP() {
     log(vc_pos);
     */
 
+    /*
     component readMapLength2 = ReadMapLength(ToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength2)
     readMapLength2.pos <== 76;
@@ -205,6 +206,10 @@ template NZCP() {
     findCredSubj.maplen <== readMapLength2.len;
     credSubj_pos <== findCredSubj.needlepos;
     log(credSubj_pos);
+    */
+
+    signal credSubj_pos;
+    credSubj_pos <== 246;
 
 }
 
