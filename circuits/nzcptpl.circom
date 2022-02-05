@@ -21,6 +21,8 @@ include "./cbor.circom";
 
 #define CREDENTIAL_SUBJECT_PATH_LEN 2
 
+#define TO_BE_SIGNED_BITS 2512
+
 // usually is 5. TODO: allow for more?
 #define MAX_CWT_MAP_LEN 5
 
@@ -145,18 +147,17 @@ template ReadMapLength(ToBeSignedBytes) {
 
 template NZCP() {
     // TODO: dynamic
-    var ToBeSignedBits = 2512;
-    var ToBeSignedBytes = ToBeSignedBits/8;
+    var ToBeSignedBytes = TO_BE_SIGNED_BITS/8;
 
-    signal input a[ToBeSignedBits];
+    signal input a[TO_BE_SIGNED_BITS];
     signal output c[256];
     signal output d;
 
     var k;
 
-    // component sha256 = Sha256(ToBeSignedBits);
+    // component sha256 = Sha256(TO_BE_SIGNED_BITS);
 
-    // for (k=0; k<ToBeSignedBits; k++) {
+    // for (k=0; k<TO_BE_SIGNED_BITS; k++) {
     //     sha256.in[k] <== a[k];
     // }
 
