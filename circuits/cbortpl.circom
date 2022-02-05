@@ -21,7 +21,7 @@ include "./incrementalQuinTree.circom";
 // returns the value of v bit shifted to the right by 5 bits
 template GetType() {
     // TODO: use Num2Bits?
-    // TODO: assert 8 bits
+    // TODO: assert 8 bits here and in all other places
     signal input v;
     signal output type;
     // assign type signal
@@ -35,8 +35,6 @@ template GetType() {
     lessThan.in[1] <== 32;
     lessThan.out === 1;
 }
-
-// TODO: new template ReadType which is GetV + GetType?
 
 // returns the 5 lowest bits of v
 template GetX() {
