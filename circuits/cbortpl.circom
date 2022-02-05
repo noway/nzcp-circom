@@ -15,6 +15,8 @@ include "./incrementalQuinTree.circom";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
+#define MAX_ARRAY_LEN 4
+
 
 // returns the value of v bit shifted to the right by 5 bits
 template GetType() {
@@ -258,6 +260,73 @@ template SkipValueScalar(ToBeSignedBytes) {
     calculateTotal.nums[0] <== isInt.out * nextnextpos;
     calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
     finalpos <== calculateTotal.sum;
+
+
+}
+
+
+template SkipValue(ToBeSignedBytes) {
+
+    signal input bytes[ToBeSignedBytes];
+    signal input pos;
+
+    signal v;
+    signal type;
+    signal nextpos;
+
+    component readType = ReadType(ToBeSignedBytes);
+    copyBytes(bytes, readType)
+    readType.pos <== pos;
+
+    v <== readType.v;
+    type <== readType.type;
+    nextpos <== readType.nextpos;
+
+    component decodeUint = DecodeUint(ToBeSignedBytes);
+    decodeUint.v <== v;
+    copyBytes(bytes, decodeUint)
+    decodeUint.pos <== nextpos;
+
+    signal nextnextpos;
+    nextnextpos <== decodeUint.nextpos;
+    signal value;
+    value <== decodeUint.value;
+
+
+
+    signal nextposarray[MAX_ARRAY_LEN];
+    component skipValue[MAX_ARRAY_LEN]; // TODO: dynamic
+    for (var i = 0; i < MAX_ARRAY_LEN; i++) {
+        skipValue[i] = SkipValueScalar(ToBeSignedBytes);
+        copyBytes(bytes, skipValue[i])
+        skipValue[i].pos <== i == 0 ? pos : nextposarray[i - 1];
+        skipValue[i].finalpos ==> nextposarray[i];
+    }
+
+
+    // if (cbortype == MAJOR_TYPE_INT) 
+    component isInt = IsEqual();
+    isInt.in[0] <== type;
+    isInt.in[1] <== MAJOR_TYPE_INT;
+
+    // else if (cbortype == MAJOR_TYPE_STRING)
+    component isString = IsEqual();
+    isString.in[0] <== type;
+    isString.in[1] <== MAJOR_TYPE_STRING;
+
+    // else if (cbortype == MAJOR_TYPE_ARRAY)
+    component isArray = IsEqual();
+    isArray.in[0] <== type;
+    isArray.in[1] <== MAJOR_TYPE_ARRAY;
+
+    signal output finalpos;
+
+    component calculateTotal = CalculateTotal(2);
+    calculateTotal.nums[0] <== isInt.out * nextnextpos;
+    calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
+    calculateTotal.nums[1] <== isArray.out * (skipValue[MAX_ARRAY_LEN - 1].finalpos);
+    finalpos <== calculateTotal.sum;
+
 
 
 }
