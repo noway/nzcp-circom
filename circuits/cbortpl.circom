@@ -112,7 +112,7 @@ template DecodeUint(ToBeSignedBytes) {
 
     getV1_25.pos <== pos;
     signal value_1_25;
-    value_1_25 <== getV1_25.v * 256;
+    value_1_25 <== getV1_25.v * 256; // 2**8
 
     getV2_25.pos <== pos + 1;
     signal value_2_25;
@@ -137,15 +137,15 @@ template DecodeUint(ToBeSignedBytes) {
 
     getV1_26.pos <== pos;
     signal value_1_26;
-    value_1_26 <== getV1_26.v * 16777216;
+    value_1_26 <== getV1_26.v * 16777216; // 2**24
 
     getV2_26.pos <== pos + 1;
     signal value_2_26;
-    value_2_26 <== getV2_26.v * 65536;
+    value_2_26 <== getV2_26.v * 65536; // 2**16
 
     getV3_26.pos <== pos + 2;
     signal value_3_26;
-    value_3_26 <== getV3_26.v * 256;
+    value_3_26 <== getV3_26.v * 256; // 2**8
 
     getV4_26.pos <== pos + 3;
     signal value_4_26;
