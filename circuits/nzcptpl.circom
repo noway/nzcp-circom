@@ -55,7 +55,6 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     signal pos_loop_3[MAX_CWT_MAP_LEN];
 
     component calculateTotal_vc_pos = CalculateTotal(MAX_CWT_MAP_LEN);
-    signal vc_pos;
 
     pos_loop_1[0] <== pos;
 
@@ -109,9 +108,8 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
         calculateTotal_vc_pos.nums[k] <== mapval_isAccepted[k] * (pos_loop_3[k] + mapval_value[k]);
     }
-    calculateTotal_vc_pos.sum ==> vc_pos;
 
-    nextpos <== vc_pos;
+    nextpos <== calculateTotal_vc_pos.sum;
 }
 
 template NZCP() {
