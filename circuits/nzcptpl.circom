@@ -178,20 +178,16 @@ template NZCP() {
         lc1 ==> ToBeSigned[k];
     }
 
-    signal pos;
-    signal maplen;
     component readMapLength = ReadMapLength(ToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength)
     readMapLength.pos <== CLAIMS_SKIP_EXAMPLE;
-    pos <== readMapLength.nextpos;
-    maplen <== readMapLength.len;
 
     // find "vc" key pos in the map
     signal vc_pos;
     component findVC = FindMapKey(ToBeSignedBytes, [118, 99], 2);
     copyBytes(ToBeSigned, findVC)
-    findVC.pos <== pos;
-    findVC.maplen <== maplen;
+    findVC.pos <== readMapLength.nextpos;
+    findVC.maplen <== readMapLength.len;
     vc_pos <== findVC.needlepos;
     log(vc_pos);
 
