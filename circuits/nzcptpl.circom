@@ -33,6 +33,18 @@ include "./cbor.circom";
 #define copyBytes(b, a) for(var z = 0; z<ToBeSignedBytes; z++) { a.bytes[z] <== b[z]; }
 
 
+#define CREDENTIAL_SUBJECT_MAP_LEN 3
+
+#define GIVEN_NAME_STR [103, 105, 118, 101, 110, 78, 97, 109, 101]
+#define GIVEN_NAME_LEN 9
+
+#define FAMILY_NAME_STR [102, 97, 109, 105, 108, 121, 78, 97, 109, 101]
+#define FAMILY_NAME_LEN 8
+
+#define DOB_STR [100, 111, 98]
+#define DOB_LEN 3
+
+
 template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     signal input maplen;
     signal input bytes[ToBeSignedBytes];
@@ -211,6 +223,66 @@ template NZCP() {
 
     signal credSubj_pos;
     credSubj_pos <== 246;
+
+    component readMapLength3 = ReadMapLength(ToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLength3)
+    readMapLength3.pos <== credSubj_pos;
+    // log(readMapLength3.len);
+
+    hardcore_assert(readMapLength3.len, CREDENTIAL_SUBJECT_MAP_LEN);
+
+    signal mapval_pos[CREDENTIAL_SUBJECT_MAP_LEN];
+    signal mapval_v[CREDENTIAL_SUBJECT_MAP_LEN];
+    signal mapval_type[CREDENTIAL_SUBJECT_MAP_LEN];
+    signal mapval_nextpos[CREDENTIAL_SUBJECT_MAP_LEN];
+    signal mapval_x[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_readType[CREDENTIAL_SUBJECT_MAP_LEN];// = ReadType(ToBeSignedBytes);
+    component mapval_getX[CREDENTIAL_SUBJECT_MAP_LEN];// = ReadType(ToBeSignedBytes);
+
+    component mapval_isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_isFamilyName[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_isDOB[CREDENTIAL_SUBJECT_MAP_LEN];
+
+    for(k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
+
+        // TODO: make this a template "ReadStringLength"
+        mapval_readType[k] = ReadType(ToBeSignedBytes);
+        copyBytes(ToBeSigned, mapval_readType[k])
+        mapval_readType[k].pos <== k == 0 ? readMapLength3.nextpos : mapval_readType[k - 1].nextpos; // 27 bytes initial skip for example MoH pass
+        mapval_readType[k].v ==> mapval_v[k];
+        mapval_readType[k].type ==> mapval_type[k];
+        // hardcore_assert(mapval_type[k], MAJOR_TYPE_MAP);
+
+        // read map length
+        mapval_getX[k] = GetX();
+        mapval_getX[k].v <== mapval_v[k];
+        mapval_getX[k].x ==> mapval_x[k];
+        // TODO: should this be more generic and allow for string keys with length of more than 23? (but we DO now it won't be more than 9!)
+        assert(mapval_x[k] <= 23); // only supporting strings with 23 or less entries
+
+
+        
+
+        mapval_isGivenName[k] = StringEquals(ToBeSignedBytes, GIVEN_NAME_STR, GIVEN_NAME_LEN);
+        copyBytes(ToBeSigned, mapval_isGivenName[k])
+        mapval_isGivenName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
+        mapval_isGivenName[k].len <== mapval_x[k];
+
+        mapval_isFamilyName[k] = StringEquals(ToBeSignedBytes, FAMILY_NAME_STR, FAMILY_NAME_LEN);
+        copyBytes(ToBeSigned, mapval_isFamilyName[k])
+        mapval_isFamilyName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
+        mapval_isFamilyName[k].len <== mapval_x[k];
+
+        mapval_isDOB[k] = StringEquals(ToBeSignedBytes, DOB_STR, DOB_LEN);
+        copyBytes(ToBeSigned, mapval_isDOB[k])
+        mapval_isDOB[k].pos <== mapval_readType[k].nextpos; // pos before skipping
+        mapval_isDOB[k].len <== mapval_x[k];
+
+        log(mapval_isGivenName[k].out);
+        log(mapval_isFamilyName[k].out);
+        log(mapval_isDOB[k].out);
+
+    }
 
 }
 
