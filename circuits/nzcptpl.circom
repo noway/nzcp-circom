@@ -7,6 +7,8 @@ include "./cbor.circom";
 
 // TODO: only use <== not ==>
 
+#define CLAIMS_SKIP_EXAMPLE 27 
+
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
 #define MAJOR_TYPE_NEGATIVE_INT 1
@@ -147,43 +149,35 @@ template NZCP() {
         lc1 ==> ToBeSigned[k];
     }
 
+    // read type
     signal v;
     signal type;
     signal pos;
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(ToBeSigned, readType)
-    readType.pos <== 27; // 27 bytes initial skip for example MoH pass
+    readType.pos <== CLAIMS_SKIP_EXAMPLE; // 27 bytes initial skip for example MoH pass
     readType.v ==> v;
     readType.type ==> type;
     pos <== readType.nextpos;
-
-    log(type);
-
     hardcore_assert(type, MAJOR_TYPE_MAP);
 
-
+    // read map length
+    signal maplen;
     signal x;
     component getX = GetX();
     getX.v <== v;
     getX.x ==> x;
-
     // TODO: should this be more generic and allow for x more than 23?
     assert(x <= 23); // only supporting maps with 23 or less entries
-
-    signal maplen;
     maplen <== x;
 
-
-    log(maplen);
-
+    // find "vc" key pos in the map
     signal vc_pos;
     component findVC = FindMapKey(ToBeSignedBytes, [118, 99], 2);
     copyBytes(ToBeSigned, findVC)
     findVC.pos <== pos;
     findVC.maplen <== maplen;
     vc_pos <== findVC.needlepos;
-
-
     log(vc_pos);
 
 }
