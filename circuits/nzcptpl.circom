@@ -118,7 +118,7 @@ template NZCP() {
     component mapval_skipValue[MAX_CWT_MAP_LEN];
     component mapval_isString[MAX_CWT_MAP_LEN];
     component mapval_isLen2[MAX_CWT_MAP_LEN];
-    component mapval_isVC[MAX_CWT_MAP_LEN];
+    component mapval_isVCString[MAX_CWT_MAP_LEN];
 
     signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
     signal pos_loop_2[MAX_CWT_MAP_LEN];
@@ -169,15 +169,15 @@ template NZCP() {
 
 
 
-        mapval_isVC[k] = StringEquals(ToBeSignedBytes, [118, 99], 2);
-        copyBytes(ToBeSigned, mapval_isVC[k])
-        mapval_isVC[k].pos <== pos_loop_3[k]; // pos before skipping
-        mapval_isVC[k].len <== mapval_value[k];
+        mapval_isVCString[k] = StringEquals(ToBeSignedBytes, [118, 99], 2);
+        copyBytes(ToBeSigned, mapval_isVCString[k])
+        mapval_isVCString[k].pos <== pos_loop_3[k]; // pos before skipping
+        mapval_isVCString[k].len <== mapval_value[k];
 
         potential_vc_pos[k] <== pos_loop_3[k] + mapval_value[k];
 
 
-        log(mapval_isVC[k].out);
+        log(mapval_isVCString[k].out);
         log(potential_vc_pos[k]);
 
 
