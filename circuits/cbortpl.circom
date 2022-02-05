@@ -3,7 +3,7 @@ pragma circom 2.0.0;
 include "../circomlib-master/circuits/comparators.circom";
 include "./incrementalQuinTree.circom";
 
-#define copyBytes(b, a) for(var i = 0; i<ToBeSignedBytes; i++) { a.bytes[i] <== b[i]; }
+#define copyBytes(b, a) for(var z = 0; z<ToBeSignedBytes; z++) { a.bytes[z] <== b[z]; }
 
 /* CBOR types */
 #define MAJOR_TYPE_INT 0

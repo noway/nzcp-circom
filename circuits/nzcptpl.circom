@@ -25,7 +25,7 @@ include "./cbor.circom";
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
 /* assign bytes to a signal in one go */
-#define copyBytes(b, a) for(var i = 0; i<ToBeSignedBytes; i++) { a.bytes[i] <== b[i]; }
+#define copyBytes(b, a) for(var z = 0; z<ToBeSignedBytes; z++) { a.bytes[z] <== b[z]; }
 
 
 template NZCP() {
