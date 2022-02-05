@@ -134,6 +134,7 @@ template NZCP() {
 
     for (k = 0; k < MAX_CWT_MAP_LEN; k++) { 
 
+        // read type
         mapval_readType[k] = ReadType(ToBeSignedBytes);
         copyBytes(ToBeSigned, mapval_readType[k])
         mapval_readType[k].pos <== pos_loop_1[k];
@@ -141,7 +142,7 @@ template NZCP() {
         mapval_type[k] <== mapval_readType[k].type;
         pos_loop_2[k] <== mapval_readType[k].nextpos;
 
-
+        // decode uint
         mapval_decodeUint[k] = DecodeUint(ToBeSignedBytes);
         mapval_decodeUint[k].v <== mapval_v[k];
         copyBytes(ToBeSigned, mapval_decodeUint[k])
@@ -149,7 +150,7 @@ template NZCP() {
         pos_loop_3[k] <== mapval_decodeUint[k].nextpos;
         mapval_value[k] <== mapval_decodeUint[k].value;
 
-
+        // skip value for next iteration
         mapval_skipValue[k] = SkipValue(ToBeSignedBytes);
         mapval_skipValue[k].pos <== pos_loop_3[k];
         copyBytes(ToBeSigned, mapval_skipValue[k])
@@ -157,17 +158,21 @@ template NZCP() {
             pos_loop_1[k + 1] <== mapval_skipValue[k].finalpos;
         }
 
+        // is current value a string?
         mapval_isString[k] = IsEqual();
         mapval_isString[k].in[0] <== mapval_type[k];
         mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
 
+        // is current value interpreted as a string is a "vc" string?
         mapval_isVCString[k] = StringEquals(ToBeSignedBytes, [118, 99], 2);
         copyBytes(ToBeSigned, mapval_isVCString[k])
         mapval_isVCString[k].pos <== pos_loop_3[k]; // pos before skipping
         mapval_isVCString[k].len <== mapval_value[k];
 
+        // is current value a "vc" string?
         mapval_isVC[k] <== mapval_isString[k].out * mapval_isVCString[k].out;
 
+        // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
         calculateTotal_vc_pos.nums[k] <== mapval_isVC[k] * (pos_loop_3[k] + mapval_value[k]);
     }
     calculateTotal_vc_pos.sum ==> vc_pos;
