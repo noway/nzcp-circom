@@ -3,6 +3,9 @@ pragma circom 2.0.0;
 include "../circomlib-master/circuits/comparators.circom";
 include "./incrementalQuinTree.circom";
 
+/* assert through constraint and assert */
+#define hardcore_assert(a, b) a === b; assert(a == b)
+
 #define copyBytes(b, a) for(var z = 0; z<ToBeSignedBytes; z++) { a.bytes[z] <== b[z]; }
 
 /* CBOR types */
@@ -370,4 +373,84 @@ template StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     component isZero = IsZero();
     isZero.in <== allConditionsAreTrue - conditionsSum;
     out <== isZero.out;
+}
+
+// template CopyString(ToBeSignedBytes, MaxLen) {
+//     signal input bytes[ToBeSignedBytes];
+//     signal input pos;
+//     signal input len;
+
+//     signal output outputbytes[MaxLen];
+
+//     component getV[MaxLen];
+//     for (var i = 0; i < MaxLen; i++) {
+//         getV[i] = GetV(ToBeSignedBytes);
+//         copyBytes(bytes, getV[i])
+//         getV[i].pos <== pos + i;
+//         getV[i].v ==> outputbytes[i];
+//     }
+// }
+
+
+// TODO: test
+template DecodeString(ToBeSignedBytes, MaxLen) {
+    // signal input bytes[ToBeSignedBytes];
+    // signal input pos;
+    // signal input len;
+
+    // signal output outputbytes[MaxLen];
+
+    // component getV[MaxLen];
+    // for (var i = 0; i < MaxLen; i++) {
+    //     getV[i] = GetV(ToBeSignedBytes);
+    //     copyBytes(bytes, getV[i])
+    //     getV[i].pos <== pos + i;
+    //     getV[i].v ==> outputbytes[i];
+    // }
+
+
+    signal input bytes[ToBeSignedBytes];
+    signal input pos;
+    // signal input len;
+    signal output outputbytes[MaxLen];
+    signal output finalpos;
+
+    signal v;
+    signal type;
+    signal nextpos;
+
+    component readType = ReadType(ToBeSignedBytes);
+    copyBytes(bytes, readType)
+    readType.pos <== pos;
+
+    v <== readType.v;
+    type <== readType.type;
+    nextpos <== readType.nextpos;
+
+    component decodeUint = DecodeUint(ToBeSignedBytes);
+    decodeUint.v <== v;
+    copyBytes(bytes, decodeUint)
+    decodeUint.pos <== nextpos;
+
+    signal nextnextpos;
+    nextnextpos <== decodeUint.nextpos;
+    signal value;
+    value <== decodeUint.value;
+
+
+    hardcore_assert(type, MAJOR_TYPE_STRING);
+
+
+
+    component getV[MaxLen];
+    for (var i = 0; i < MaxLen; i++) {
+        getV[i] = GetV(ToBeSignedBytes);
+        copyBytes(bytes, getV[i])
+        getV[i].pos <== nextnextpos + i;
+        getV[i].v ==> outputbytes[i];
+        log(outputbytes[i]);
+    }
+    log(420);
+
+    finalpos <== nextnextpos + value;
 }
