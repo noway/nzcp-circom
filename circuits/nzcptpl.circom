@@ -110,30 +110,52 @@ template NZCP() {
     signal mapval_type[MAX_CWT_MAP_LEN];
     signal mapval_x[MAX_CWT_MAP_LEN];
     signal mapval_value[MAX_CWT_MAP_LEN];
+
     component mapval_getV[MAX_CWT_MAP_LEN];
     component mapval_getType[MAX_CWT_MAP_LEN];
     component mapval_getX[MAX_CWT_MAP_LEN];
     component mapval_decodeUint[MAX_CWT_MAP_LEN];
+    component mapval_skipValue[MAX_CWT_MAP_LEN];
+
+
+    signal pos_loop_1[MAX_CWT_MAP_LEN];
+    signal pos_loop_2[MAX_CWT_MAP_LEN];
+    signal pos_loop_3[MAX_CWT_MAP_LEN];
+    // signal pos_loop_4[MAX_CWT_MAP_LEN];
+
+
+    // var pos_loop = pos;
+    pos_loop_1[0] <== pos;
 
     for (k = 0; k < MAX_CWT_MAP_LEN; k++) { 
+        // --- ReadType start ---
         mapval_getV[k] = GetV(ToBeSignedBytes);
         copyBytes(ToBeSigned, mapval_getV[k])
-        mapval_getV[k].pos <== pos;
+        mapval_getV[k].pos <== pos_loop_1[k];
         mapval_getV[k].v ==> mapval_v[k];
 
         mapval_getType[k] = GetType();
         mapval_getType[k].v <== mapval_v[k];
         mapval_getType[k].type ==> mapval_type[k];
 
-        pos++;
+        pos_loop_2[k] <== pos_loop_1[k] + 1;
+        // --- ReadRype end ---
 
         mapval_decodeUint[k] = DecodeUint(ToBeSignedBytes);
         mapval_decodeUint[k].v <== mapval_v[k];
         copyBytes(ToBeSigned, mapval_decodeUint[k])
-        mapval_decodeUint[k].pos <== pos;
+        mapval_decodeUint[k].pos <== pos_loop_2[k];
+        pos_loop_3[k] <== mapval_decodeUint[k].nextpos;
 
         mapval_value[k] <== mapval_decodeUint[k].value;
 
+
+        mapval_skipValue[k] = SkipValue(ToBeSignedBytes);
+        mapval_skipValue[k].pos <== pos_loop_3[k];
+        copyBytes(ToBeSigned, mapval_skipValue[k])
+        if (k != MAX_CWT_MAP_LEN - 1) {
+            pos_loop_1[k + 1] <== mapval_skipValue[k].finalpos;
+        }
 
         log(mapval_value[k]);
 

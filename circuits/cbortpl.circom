@@ -305,6 +305,9 @@ template SkipValue(ToBeSignedBytes) {
         skipValue[i].pos <== i == 0 ? pos : nextposarray[i - 1];
         skipValue[i].finalpos ==> nextposarray[i];
     }
+    signal array_final_pos;
+    array_final_pos <== skipValue[MAX_ARRAY_LEN - 1].finalpos;
+
 
 
     // if (cbortype == MAJOR_TYPE_INT) 
@@ -324,10 +327,10 @@ template SkipValue(ToBeSignedBytes) {
 
     signal output finalpos;
 
-    component calculateTotal = CalculateTotal(2);
+    component calculateTotal = CalculateTotal(3);
     calculateTotal.nums[0] <== isInt.out * nextnextpos;
     calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
-    calculateTotal.nums[1] <== isArray.out * (skipValue[MAX_ARRAY_LEN - 1].finalpos);
+    calculateTotal.nums[2] <== isArray.out * array_final_pos;
     finalpos <== calculateTotal.sum;
 
 
