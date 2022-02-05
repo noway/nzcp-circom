@@ -116,7 +116,7 @@ template NZCP() {
     component mapval_getX[MAX_CWT_MAP_LEN];
     component mapval_decodeUint[MAX_CWT_MAP_LEN];
     component mapval_skipValue[MAX_CWT_MAP_LEN];
-
+    component mapval_isString[MAX_CWT_MAP_LEN];
 
     signal pos_loop_1[MAX_CWT_MAP_LEN];
     signal pos_loop_2[MAX_CWT_MAP_LEN];
@@ -155,7 +155,12 @@ template NZCP() {
             pos_loop_1[k + 1] <== mapval_skipValue[k].finalpos;
         }
 
-        log(mapval_value[k]);
+        mapval_isString[k] = IsEqual();
+        mapval_isString[k].in[0] <== mapval_type[k];
+        mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
+
+        log(mapval_isString[k].out);
+        // log(mapval_type[k]);
 
 
     }
