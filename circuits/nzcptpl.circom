@@ -113,6 +113,35 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     needlepos <== calculateTotal_foundpos.sum;
 }
 
+template ReadMapLength(ToBeSignedBytes) {
+    // read type
+    signal input pos;
+    signal input bytes[ToBeSignedBytes];
+    signal output len;
+    signal output nextpos;
+
+    signal v;
+    signal type;
+    
+    component readType = ReadType(ToBeSignedBytes);
+    copyBytes(bytes, readType)
+    readType.pos <== pos; // 27 bytes initial skip for example MoH pass
+    readType.v ==> v;
+    readType.type ==> type;
+    nextpos <== readType.nextpos;
+    hardcore_assert(type, MAJOR_TYPE_MAP);
+
+    // read map length
+    signal x;
+    component getX = GetX();
+    getX.v <== v;
+    getX.x ==> x;
+    // TODO: should this be more generic and allow for x more than 23?
+    assert(x <= 23); // only supporting maps with 23 or less entries
+
+    len <== x;
+}
+
 template NZCP() {
     // TODO: dynamic
     var ToBeSignedBits = 2512;
@@ -149,27 +178,13 @@ template NZCP() {
         lc1 ==> ToBeSigned[k];
     }
 
-    // read type
-    signal v;
-    signal type;
     signal pos;
-    component readType = ReadType(ToBeSignedBytes);
-    copyBytes(ToBeSigned, readType)
-    readType.pos <== CLAIMS_SKIP_EXAMPLE; // 27 bytes initial skip for example MoH pass
-    readType.v ==> v;
-    readType.type ==> type;
-    pos <== readType.nextpos;
-    hardcore_assert(type, MAJOR_TYPE_MAP);
-
-    // read map length
     signal maplen;
-    signal x;
-    component getX = GetX();
-    getX.v <== v;
-    getX.x ==> x;
-    // TODO: should this be more generic and allow for x more than 23?
-    assert(x <= 23); // only supporting maps with 23 or less entries
-    maplen <== x;
+    component readMapLength = ReadMapLength(ToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLength)
+    readMapLength.pos <== CLAIMS_SKIP_EXAMPLE;
+    pos <== readMapLength.nextpos;
+    maplen <== readMapLength.len;
 
     // find "vc" key pos in the map
     signal vc_pos;
