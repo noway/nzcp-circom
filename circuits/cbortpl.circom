@@ -226,6 +226,8 @@ template SkipValueScalar(ToBeSignedBytes) {
     signal input bytes[ToBeSignedBytes];
     signal input pos;
 
+    signal output finalpos;
+
     signal v;
     signal type;
     signal nextpos;
@@ -256,8 +258,6 @@ template SkipValueScalar(ToBeSignedBytes) {
     isString.in[0] <== type;
     isString.in[1] <== MAJOR_TYPE_STRING;
 
-    signal output finalpos;
-
     component calculateTotal = CalculateTotal(2);
     calculateTotal.nums[0] <== isInt.out * nextnextpos;
     calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
@@ -272,6 +272,8 @@ template SkipValue(ToBeSignedBytes) {
 
     signal input bytes[ToBeSignedBytes];
     signal input pos;
+
+    signal output finalpos;
 
     signal v;
     signal type;
@@ -324,8 +326,6 @@ template SkipValue(ToBeSignedBytes) {
     component isArray = IsEqual();
     isArray.in[0] <== type;
     isArray.in[1] <== MAJOR_TYPE_ARRAY;
-
-    signal output finalpos;
 
     component calculateTotal = CalculateTotal(3);
     calculateTotal.nums[0] <== isInt.out * nextnextpos;
