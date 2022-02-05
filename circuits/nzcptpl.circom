@@ -77,18 +77,19 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
         pos_loop_3[k] <== mapval_decodeUint[k].nextpos;
         mapval_value[k] <== mapval_decodeUint[k].value;
 
+        // is current value a string?
+        mapval_isString[k] = IsEqual();
+        mapval_isString[k].in[0] <== mapval_type[k];
+        mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
+
         // skip value for next iteration
         mapval_skipValue[k] = SkipValue(ToBeSignedBytes);
-        mapval_skipValue[k].pos <== pos_loop_3[k];
+        mapval_skipValue[k].pos <== pos_loop_3[k] + (mapval_value[k] * mapval_isString[k].out);
         copyBytes(bytes, mapval_skipValue[k])
         if (k != MAX_CWT_MAP_LEN - 1) {
             pos_loop_1[k + 1] <== mapval_skipValue[k].finalpos;
         }
 
-        // is current value a string?
-        mapval_isString[k] = IsEqual();
-        mapval_isString[k].in[0] <== mapval_type[k];
-        mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
 
         // is current value interpreted as a string is a "vc" string?
         mapval_isNeedleString[k] = StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen);
@@ -178,6 +179,7 @@ template NZCP() {
         lc1 ==> ToBeSigned[k];
     }
 
+    /*
     component readMapLength = ReadMapLength(ToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength)
     readMapLength.pos <== CLAIMS_SKIP_EXAMPLE;
@@ -190,6 +192,19 @@ template NZCP() {
     findVC.maplen <== readMapLength.len;
     vc_pos <== findVC.needlepos;
     log(vc_pos);
+    */
+
+    component readMapLength2 = ReadMapLength(ToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLength2)
+    readMapLength2.pos <== 76;
+
+    signal credSubj_pos;
+    component findCredSubj = FindMapKey(ToBeSignedBytes, [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116], 17);
+    copyBytes(ToBeSigned, findCredSubj)
+    findCredSubj.pos <== readMapLength2.nextpos;
+    findCredSubj.maplen <== readMapLength2.len;
+    credSubj_pos <== findCredSubj.needlepos;
+    log(credSubj_pos);
 
 }
 

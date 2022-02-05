@@ -15,7 +15,7 @@ include "./incrementalQuinTree.circom";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
-#define MAX_ARRAY_LEN 4
+#define MAX_ARRAY_LEN 2
 
 
 // returns the value of v bit shifted to the right by 5 bits
@@ -304,7 +304,7 @@ template SkipValue(ToBeSignedBytes) {
     for (var i = 0; i < MAX_ARRAY_LEN; i++) {
         skipValue[i] = SkipValueScalar(ToBeSignedBytes);
         copyBytes(bytes, skipValue[i])
-        skipValue[i].pos <== i == 0 ? pos : nextposarray[i - 1];
+        skipValue[i].pos <== i == 0 ? nextnextpos : nextposarray[i - 1];
         skipValue[i].finalpos ==> nextposarray[i];
     }
     signal array_final_pos;
