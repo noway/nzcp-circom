@@ -120,9 +120,11 @@ template NZCP() {
     component mapval_isLen2[MAX_CWT_MAP_LEN];
     component mapval_isVC[MAX_CWT_MAP_LEN];
 
-    signal pos_loop_1[MAX_CWT_MAP_LEN];
+    signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
     signal pos_loop_2[MAX_CWT_MAP_LEN];
     signal pos_loop_3[MAX_CWT_MAP_LEN];
+    signal potential_vc_pos[MAX_CWT_MAP_LEN];
+
 
 
     signal vc_pos;
@@ -172,7 +174,11 @@ template NZCP() {
         mapval_isVC[k].pos <== pos_loop_3[k]; // pos before skipping
         mapval_isVC[k].len <== mapval_value[k];
 
+        potential_vc_pos[k] <== pos_loop_3[k] + mapval_value[k];
+
+
         log(mapval_isVC[k].out);
+        log(potential_vc_pos[k]);
 
 
     }
