@@ -111,6 +111,7 @@ template NZCP() {
     signal mapval_x[MAX_CWT_MAP_LEN];
     signal mapval_value[MAX_CWT_MAP_LEN];
     signal mapval_isVC[MAX_CWT_MAP_LEN];
+    signal mapval_isAccepted[MAX_CWT_MAP_LEN];
 
     component mapval_readType[MAX_CWT_MAP_LEN];
     component mapval_getX[MAX_CWT_MAP_LEN];
@@ -119,6 +120,7 @@ template NZCP() {
     component mapval_isString[MAX_CWT_MAP_LEN];
     component mapval_isLen2[MAX_CWT_MAP_LEN];
     component mapval_isVCString[MAX_CWT_MAP_LEN];
+    component mapval_withinMaplen[MAX_CWT_MAP_LEN];
 
     signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
     signal pos_loop_2[MAX_CWT_MAP_LEN];
@@ -169,11 +171,18 @@ template NZCP() {
         mapval_isVCString[k].pos <== pos_loop_3[k]; // pos before skipping
         mapval_isVCString[k].len <== mapval_value[k];
 
+        mapval_withinMaplen[k] = LessThan(8);
+        mapval_withinMaplen[k].in[0] <== k;
+        mapval_withinMaplen[k].in[1] <== maplen;
+
         // is current value a "vc" string?
         mapval_isVC[k] <== mapval_isString[k].out * mapval_isVCString[k].out;
 
+        // should we select this vc pos candidate?
+        mapval_isAccepted[k] <== mapval_isVC[k] * mapval_withinMaplen[k].out;
+
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_vc_pos.nums[k] <== mapval_isVC[k] * (pos_loop_3[k] + mapval_value[k]);
+        calculateTotal_vc_pos.nums[k] <== mapval_isAccepted[k] * (pos_loop_3[k] + mapval_value[k]);
     }
     calculateTotal_vc_pos.sum ==> vc_pos;
 
