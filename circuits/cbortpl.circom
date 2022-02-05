@@ -375,43 +375,11 @@ template StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     out <== isZero.out;
 }
 
-// template CopyString(ToBeSignedBytes, MaxLen) {
-//     signal input bytes[ToBeSignedBytes];
-//     signal input pos;
-//     signal input len;
-
-//     signal output outputbytes[MaxLen];
-
-//     component getV[MaxLen];
-//     for (var i = 0; i < MaxLen; i++) {
-//         getV[i] = GetV(ToBeSignedBytes);
-//         copyBytes(bytes, getV[i])
-//         getV[i].pos <== pos + i;
-//         getV[i].v ==> outputbytes[i];
-//     }
-// }
-
-
 // TODO: test
 template DecodeString(ToBeSignedBytes, MaxLen) {
-    // signal input bytes[ToBeSignedBytes];
-    // signal input pos;
-    // signal input len;
-
-    // signal output outputbytes[MaxLen];
-
-    // component getV[MaxLen];
-    // for (var i = 0; i < MaxLen; i++) {
-    //     getV[i] = GetV(ToBeSignedBytes);
-    //     copyBytes(bytes, getV[i])
-    //     getV[i].pos <== pos + i;
-    //     getV[i].v ==> outputbytes[i];
-    // }
-
-
     signal input bytes[ToBeSignedBytes];
     signal input pos;
-    // signal input len;
+
     signal output outputbytes[MaxLen];
     signal output finalpos;
 
