@@ -118,6 +118,7 @@ template NZCP() {
     component mapval_skipValue[MAX_CWT_MAP_LEN];
     component mapval_isString[MAX_CWT_MAP_LEN];
     component mapval_isLen2[MAX_CWT_MAP_LEN];
+    component mapval_sequals[MAX_CWT_MAP_LEN];
 
     signal pos_loop_1[MAX_CWT_MAP_LEN];
     signal pos_loop_2[MAX_CWT_MAP_LEN];
@@ -163,16 +164,15 @@ template NZCP() {
         mapval_isString[k].in[0] <== mapval_type[k];
         mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
 
-        // TODO: not sure I need this? can just put len into signalled strcmp or something
-        mapval_isLen2[k] = IsEqual();
-        mapval_isLen2[k].in[0] <== mapval_value[k];
-        mapval_isLen2[k].in[1] <== 2; // strlen("vc")
 
 
 
-        if (mapval_isString[k].out && mapval_isLen2[k].out) {
-            log(mapval_value[k]);
-        }
+        mapval_sequals[k] = SEquals(ToBeSignedBytes, [118, 99], 2);
+        copyBytes(ToBeSigned, mapval_sequals[k])
+        mapval_sequals[k].pos <== pos_loop_3[k]; // pos before skipping
+        mapval_sequals[k].len <== mapval_value[k];
+
+        log(mapval_sequals[k].out);
 
 
     }

@@ -340,6 +340,7 @@ template SkipValue(ToBeSignedBytes) {
 }
 
 // TODO: test
+// TODO: rename to StringEquals
 // check if a string is equal to a given string
 template SEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     signal input bytes[ToBeSignedBytes];
@@ -352,12 +353,19 @@ template SEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     isSameLen.in[0] <== len;
     isSameLen.in[1] <== ConstBytesLen;
 
-    var conditionsSum = isSameLen;
-    component isEqual[ConstBytesLen] = IsEqual();
+    var conditionsSum = isSameLen.out;
+    component isEqual[ConstBytesLen];
+    component getV[ConstBytesLen];
     for (var i = 0; i < ConstBytesLen; i++) {
-        isEqual.in[0] <== ConstBytes[i];
-        isEqual.in[1] <== bytes[i];
-        conditionsSum = conditionsSum + isEqual.out;
+        isEqual[i] = IsEqual();
+        isEqual[i].in[0] <== ConstBytes[i];
+
+        getV[i] = GetV(ToBeSignedBytes);
+        copyBytes(bytes, getV[i])
+        getV[i].pos <== pos + i;
+        getV[i].v ==> isEqual[i].in[1];
+
+        conditionsSum = conditionsSum + isEqual[i].out;
     }
 
     var allConditionsAreTrue = ConstBytesLen + 1;
