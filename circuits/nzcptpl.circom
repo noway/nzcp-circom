@@ -29,11 +29,98 @@ include "./cbor.circom";
 #define copyBytes(b, a) for(var z = 0; z<ToBeSignedBytes; z++) { a.bytes[z] <== b[z]; }
 
 
+template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
+    signal input maplen;
+    signal input bytes[ToBeSignedBytes];
+    signal input pos;
+
+    signal output nextpos;
+
+
+    signal mapval_v[MAX_CWT_MAP_LEN];
+    signal mapval_type[MAX_CWT_MAP_LEN];
+    signal mapval_x[MAX_CWT_MAP_LEN];
+    signal mapval_value[MAX_CWT_MAP_LEN];
+    signal mapval_isVC[MAX_CWT_MAP_LEN];
+    signal mapval_isAccepted[MAX_CWT_MAP_LEN];
+
+    component mapval_readType[MAX_CWT_MAP_LEN];
+    component mapval_getX[MAX_CWT_MAP_LEN];
+    component mapval_decodeUint[MAX_CWT_MAP_LEN];
+    component mapval_skipValue[MAX_CWT_MAP_LEN];
+    component mapval_isString[MAX_CWT_MAP_LEN];
+    component mapval_isLen2[MAX_CWT_MAP_LEN];
+    component mapval_isVCString[MAX_CWT_MAP_LEN];
+    component mapval_withinMaplen[MAX_CWT_MAP_LEN];
+
+    signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
+    signal pos_loop_2[MAX_CWT_MAP_LEN];
+    signal pos_loop_3[MAX_CWT_MAP_LEN];
+
+
+
+    component calculateTotal_vc_pos = CalculateTotal(MAX_CWT_MAP_LEN);
+    signal vc_pos;
+
+
+    pos_loop_1[0] <== pos;
+
+    for (var k = 0; k < MAX_CWT_MAP_LEN; k++) { 
+
+        // read type
+        mapval_readType[k] = ReadType(ToBeSignedBytes);
+        copyBytes(bytes, mapval_readType[k])
+        mapval_readType[k].pos <== pos_loop_1[k];
+        mapval_v[k] <== mapval_readType[k].v;
+        mapval_type[k] <== mapval_readType[k].type;
+        pos_loop_2[k] <== mapval_readType[k].nextpos;
+
+        // decode uint
+        mapval_decodeUint[k] = DecodeUint(ToBeSignedBytes);
+        mapval_decodeUint[k].v <== mapval_v[k];
+        copyBytes(bytes, mapval_decodeUint[k])
+        mapval_decodeUint[k].pos <== pos_loop_2[k];
+        pos_loop_3[k] <== mapval_decodeUint[k].nextpos;
+        mapval_value[k] <== mapval_decodeUint[k].value;
+
+        // skip value for next iteration
+        mapval_skipValue[k] = SkipValue(ToBeSignedBytes);
+        mapval_skipValue[k].pos <== pos_loop_3[k];
+        copyBytes(bytes, mapval_skipValue[k])
+        if (k != MAX_CWT_MAP_LEN - 1) {
+            pos_loop_1[k + 1] <== mapval_skipValue[k].finalpos;
+        }
+
+        // is current value a string?
+        mapval_isString[k] = IsEqual();
+        mapval_isString[k].in[0] <== mapval_type[k];
+        mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
+
+        // is current value interpreted as a string is a "vc" string?
+        mapval_isVCString[k] = StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen);
+        copyBytes(bytes, mapval_isVCString[k])
+        mapval_isVCString[k].pos <== pos_loop_3[k]; // pos before skipping
+        mapval_isVCString[k].len <== mapval_value[k];
+
+        mapval_withinMaplen[k] = LessThan(8);
+        mapval_withinMaplen[k].in[0] <== k;
+        mapval_withinMaplen[k].in[1] <== maplen;
+
+        // is current value a "vc" string?
+        mapval_isVC[k] <== mapval_isString[k].out * mapval_isVCString[k].out;
+
+        // should we select this vc pos candidate?
+        mapval_isAccepted[k] <== mapval_isVC[k] * mapval_withinMaplen[k].out;
+
+        // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
+        calculateTotal_vc_pos.nums[k] <== mapval_isAccepted[k] * (pos_loop_3[k] + mapval_value[k]);
+    }
+    calculateTotal_vc_pos.sum ==> vc_pos;
+
+    nextpos <== vc_pos;
+}
+
 template NZCP() {
-
-
-
-
     // TODO: dynamic
     var ToBeSignedBits = 2512;
     var ToBeSignedBytes = ToBeSignedBits/8;
@@ -107,85 +194,13 @@ template NZCP() {
 
     log(maplen);
 
-    signal mapval_v[MAX_CWT_MAP_LEN];
-    signal mapval_type[MAX_CWT_MAP_LEN];
-    signal mapval_x[MAX_CWT_MAP_LEN];
-    signal mapval_value[MAX_CWT_MAP_LEN];
-    signal mapval_isVC[MAX_CWT_MAP_LEN];
-    signal mapval_isAccepted[MAX_CWT_MAP_LEN];
-
-    component mapval_readType[MAX_CWT_MAP_LEN];
-    component mapval_getX[MAX_CWT_MAP_LEN];
-    component mapval_decodeUint[MAX_CWT_MAP_LEN];
-    component mapval_skipValue[MAX_CWT_MAP_LEN];
-    component mapval_isString[MAX_CWT_MAP_LEN];
-    component mapval_isLen2[MAX_CWT_MAP_LEN];
-    component mapval_isVCString[MAX_CWT_MAP_LEN];
-    component mapval_withinMaplen[MAX_CWT_MAP_LEN];
-
-    signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
-    signal pos_loop_2[MAX_CWT_MAP_LEN];
-    signal pos_loop_3[MAX_CWT_MAP_LEN];
-
-
-
-    component calculateTotal_vc_pos = CalculateTotal(MAX_CWT_MAP_LEN);
     signal vc_pos;
+    component findVC = FindMapKey(ToBeSignedBytes, [118, 99], 2);
+    copyBytes(ToBeSigned, findVC)
+    findVC.pos <== pos;
+    findVC.maplen <== maplen;
+    vc_pos <== findVC.nextpos;
 
-
-    pos_loop_1[0] <== pos;
-
-    for (k = 0; k < MAX_CWT_MAP_LEN; k++) { 
-
-        // read type
-        mapval_readType[k] = ReadType(ToBeSignedBytes);
-        copyBytes(ToBeSigned, mapval_readType[k])
-        mapval_readType[k].pos <== pos_loop_1[k];
-        mapval_v[k] <== mapval_readType[k].v;
-        mapval_type[k] <== mapval_readType[k].type;
-        pos_loop_2[k] <== mapval_readType[k].nextpos;
-
-        // decode uint
-        mapval_decodeUint[k] = DecodeUint(ToBeSignedBytes);
-        mapval_decodeUint[k].v <== mapval_v[k];
-        copyBytes(ToBeSigned, mapval_decodeUint[k])
-        mapval_decodeUint[k].pos <== pos_loop_2[k];
-        pos_loop_3[k] <== mapval_decodeUint[k].nextpos;
-        mapval_value[k] <== mapval_decodeUint[k].value;
-
-        // skip value for next iteration
-        mapval_skipValue[k] = SkipValue(ToBeSignedBytes);
-        mapval_skipValue[k].pos <== pos_loop_3[k];
-        copyBytes(ToBeSigned, mapval_skipValue[k])
-        if (k != MAX_CWT_MAP_LEN - 1) {
-            pos_loop_1[k + 1] <== mapval_skipValue[k].finalpos;
-        }
-
-        // is current value a string?
-        mapval_isString[k] = IsEqual();
-        mapval_isString[k].in[0] <== mapval_type[k];
-        mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
-
-        // is current value interpreted as a string is a "vc" string?
-        mapval_isVCString[k] = StringEquals(ToBeSignedBytes, [118, 99], 2);
-        copyBytes(ToBeSigned, mapval_isVCString[k])
-        mapval_isVCString[k].pos <== pos_loop_3[k]; // pos before skipping
-        mapval_isVCString[k].len <== mapval_value[k];
-
-        mapval_withinMaplen[k] = LessThan(8);
-        mapval_withinMaplen[k].in[0] <== k;
-        mapval_withinMaplen[k].in[1] <== maplen;
-
-        // is current value a "vc" string?
-        mapval_isVC[k] <== mapval_isString[k].out * mapval_isVCString[k].out;
-
-        // should we select this vc pos candidate?
-        mapval_isAccepted[k] <== mapval_isVC[k] * mapval_withinMaplen[k].out;
-
-        // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_vc_pos.nums[k] <== mapval_isAccepted[k] * (pos_loop_3[k] + mapval_value[k]);
-    }
-    calculateTotal_vc_pos.sum ==> vc_pos;
 
     log(vc_pos);
 
