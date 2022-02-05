@@ -181,9 +181,9 @@ template NZCP() {
 
 
     signal x;
-    component get5LowerBits = GetX();
-    get5LowerBits.v <== v;
-    get5LowerBits.x ==> x;
+    component getX = GetX();
+    getX.v <== v;
+    getX.x ==> x;
 
     // TODO: should this be more generic and allow for x more than 23?
     assert(x <= 23); // only supporting maps with 23 or less entries
