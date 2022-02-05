@@ -121,10 +121,8 @@ template NZCP() {
     signal pos_loop_1[MAX_CWT_MAP_LEN];
     signal pos_loop_2[MAX_CWT_MAP_LEN];
     signal pos_loop_3[MAX_CWT_MAP_LEN];
-    // signal pos_loop_4[MAX_CWT_MAP_LEN];
 
 
-    // var pos_loop = pos;
     pos_loop_1[0] <== pos;
 
     for (k = 0; k < MAX_CWT_MAP_LEN; k++) { 
