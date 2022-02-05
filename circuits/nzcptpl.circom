@@ -5,6 +5,7 @@ include "../circomlib-master/circuits/comparators.circom";
 include "./incrementalQuinTree.circom";
 include "./cbor.circom";
 
+// TODO: only use <== not ==>
 
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
