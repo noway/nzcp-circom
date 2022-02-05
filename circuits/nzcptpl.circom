@@ -147,24 +147,35 @@ template NZCP() {
         lc1 ==> ToBeSigned[k];
     }
 
-    var pos;
-    pos = 27; // 27 bytes initial skip for example MoH pass
+    // var pos;
+    // pos = 27; // 27 bytes initial skip for example MoH pass
+
+    // signal v;
+
+    // component getV = GetV(ToBeSignedBytes);
+    // copyBytes(ToBeSigned, getV)
+    // getV.pos <== pos;
+    // getV.v ==> v;
+
+    // log(v);
+
+
+    // signal type;
+    // component getType = GetType();
+    // getType.v <== v;
+    // getType.type ==> type;
+    // pos++;
+
 
     signal v;
-
-    component getV = GetV(ToBeSignedBytes);
-    copyBytes(ToBeSigned, getV)
-    getV.pos <== pos;
-    getV.v ==> v;
-
-    log(v);
-
-
     signal type;
-    component getType = GetType();
-    getType.v <== v;
-    getType.type ==> type;
-    pos++;
+    signal pos;
+    component readType = ReadType(ToBeSignedBytes);
+    copyBytes(ToBeSigned, readType)
+    readType.pos <== 27; // 27 bytes initial skip for example MoH pass
+    readType.v ==> v;
+    readType.type ==> type;
+    pos <== readType.nextpos;
 
     log(type);
 
