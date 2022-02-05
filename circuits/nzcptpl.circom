@@ -39,17 +39,14 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
 
     signal mapval_v[MAX_CWT_MAP_LEN];
     signal mapval_type[MAX_CWT_MAP_LEN];
-    signal mapval_x[MAX_CWT_MAP_LEN];
     signal mapval_value[MAX_CWT_MAP_LEN];
     signal mapval_isVC[MAX_CWT_MAP_LEN];
     signal mapval_isAccepted[MAX_CWT_MAP_LEN];
 
     component mapval_readType[MAX_CWT_MAP_LEN];
-    component mapval_getX[MAX_CWT_MAP_LEN];
     component mapval_decodeUint[MAX_CWT_MAP_LEN];
     component mapval_skipValue[MAX_CWT_MAP_LEN];
     component mapval_isString[MAX_CWT_MAP_LEN];
-    component mapval_isLen2[MAX_CWT_MAP_LEN];
     component mapval_isVCString[MAX_CWT_MAP_LEN];
     component mapval_withinMaplen[MAX_CWT_MAP_LEN];
 
@@ -57,11 +54,8 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     signal pos_loop_2[MAX_CWT_MAP_LEN];
     signal pos_loop_3[MAX_CWT_MAP_LEN];
 
-
-
     component calculateTotal_vc_pos = CalculateTotal(MAX_CWT_MAP_LEN);
     signal vc_pos;
-
 
     pos_loop_1[0] <== pos;
 
