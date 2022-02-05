@@ -39,7 +39,7 @@ include "./cbor.circom";
 #define GIVEN_NAME_LEN 9
 
 #define FAMILY_NAME_STR [102, 97, 109, 105, 108, 121, 78, 97, 109, 101]
-#define FAMILY_NAME_LEN 8
+#define FAMILY_NAME_LEN 10
 
 #define DOB_STR [100, 111, 98]
 #define DOB_LEN 3
@@ -242,13 +242,14 @@ template NZCP() {
     component mapval_isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_isFamilyName[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_isDOB[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_skipValue[CREDENTIAL_SUBJECT_MAP_LEN];
 
     for(k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
 
         // TODO: make this a template "ReadStringLength"
         mapval_readType[k] = ReadType(ToBeSignedBytes);
         copyBytes(ToBeSigned, mapval_readType[k])
-        mapval_readType[k].pos <== k == 0 ? readMapLength3.nextpos : mapval_readType[k - 1].nextpos; // 27 bytes initial skip for example MoH pass
+        mapval_readType[k].pos <== k == 0 ? readMapLength3.nextpos : mapval_skipValue[k - 1].finalpos; // 27 bytes initial skip for example MoH pass
         mapval_readType[k].v ==> mapval_v[k];
         mapval_readType[k].type ==> mapval_type[k];
         // hardcore_assert(mapval_type[k], MAJOR_TYPE_MAP);
@@ -277,6 +278,10 @@ template NZCP() {
         copyBytes(ToBeSigned, mapval_isDOB[k])
         mapval_isDOB[k].pos <== mapval_readType[k].nextpos; // pos before skipping
         mapval_isDOB[k].len <== mapval_x[k];
+
+        mapval_skipValue[k] = SkipValueScalar(ToBeSignedBytes);
+        copyBytes(ToBeSigned, mapval_skipValue[k])
+        mapval_skipValue[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
 
         log(mapval_isGivenName[k].out);
         log(mapval_isFamilyName[k].out);
