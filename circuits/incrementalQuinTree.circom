@@ -24,7 +24,7 @@ template QuinSelector(choices) {
     signal output out;
     
     // Ensure that index < choices
-    component lessThan = LessThan(12);// changed 3 to 12
+    component lessThan = LessThan(9);// changed 3 to 9
     lessThan.in[0] <== index;
     lessThan.in[1] <== choices;
     lessThan.out === 1;
