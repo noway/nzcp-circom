@@ -124,10 +124,10 @@ template NZCP() {
     signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
     signal pos_loop_2[MAX_CWT_MAP_LEN];
     signal pos_loop_3[MAX_CWT_MAP_LEN];
-    signal vc_pos_sum[MAX_CWT_MAP_LEN];
 
 
 
+    component calculateTotal_vc_pos = CalculateTotal(MAX_CWT_MAP_LEN);
     signal vc_pos;
 
 
@@ -177,14 +177,11 @@ template NZCP() {
 
         mapval_isVC[k] <== mapval_isString[k].out * mapval_isVCString[k].out;
 
-        vc_pos_sum[k] <== mapval_isVC[k] * (pos_loop_3[k] + mapval_value[k]);
-
-
-        // log(mapval_isVC[k]);
-        log(vc_pos_sum[k]);
-
-
+        calculateTotal_vc_pos.nums[k] <== mapval_isVC[k] * (pos_loop_3[k] + mapval_value[k]);
     }
+    calculateTotal_vc_pos.sum ==> vc_pos;
+
+    log(vc_pos);
 
 }
 
