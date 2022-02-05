@@ -36,6 +36,8 @@ template GetType() {
     lessThan.out === 1;
 }
 
+// TODO: new template ReadType which is GetV + GetType?
+
 // returns the 5 lowest bits of v
 template GetX() {
     // TODO: assert 8 bits
@@ -265,6 +267,7 @@ template SkipValueScalar(ToBeSignedBytes) {
 }
 
 
+// TODO: rename finalpos to nextpos
 template SkipValue(ToBeSignedBytes) {
 
     signal input bytes[ToBeSignedBytes];
