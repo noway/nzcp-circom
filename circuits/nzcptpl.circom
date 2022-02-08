@@ -44,6 +44,8 @@ include "./cbor.circom";
 #define DOB_STR [100, 111, 98]
 #define DOB_LEN 3
 
+#define COMMA_CHAR 44
+
 #define STRING_MAX_LEN 10
 
 #define NOT(in) (1 + in - 2*in)
@@ -424,9 +426,9 @@ template NZCP() {
         credSubj_isDOB[k] <== NOT(credSubj_isUnderSep2[k].out);
 
         credSubj_givenNameChar[k] <== credSubj_isGivenName[k].out * credSubj_givenNameSelector[k].out;
-        credSubj_sep1Char[k] <== credSubj_isSep1[k] * 44;
+        credSubj_sep1Char[k] <== credSubj_isSep1[k] * COMMA_CHAR;
         credSubj_familyNameChar[k] <== credSubj_isFamilyName[k] * credSubj_familyNameSelector[k].out;
-        credSubj_sep2Char[k] <== credSubj_isSep2[k] * 44;
+        credSubj_sep2Char[k] <== credSubj_isSep2[k] * COMMA_CHAR;
         credSubj_dobChar[k] <== credSubj_isDOB[k] * credSubj_dobSelector[k].out;
 
         credSubj_concatString[k] <== credSubj_givenNameChar[k] + credSubj_sep1Char[k] + credSubj_familyNameChar[k] + credSubj_sep2Char[k] + credSubj_dobChar[k];
