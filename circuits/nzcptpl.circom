@@ -163,6 +163,7 @@ template ReadMapLength(ToBeSignedBytes) {
     len <== x;
 }
 
+// TODO: check that inputs are bytes
 template NZCP() {
     // TODO: dynamic
     var ToBeSignedBytes = TO_BE_SIGNED_BITS/8;
@@ -407,6 +408,7 @@ template NZCP() {
         credSubj_isUnderSep2[k].in[0] <== k;
         credSubj_isUnderSep2[k].in[1] <== givenNameLen + 1 + familyNameLen + 1;
 
+        // TODO: use mux?
         credSubj_givenNameSelector[k] = QuinSelector(CONCAT_MAX_LEN);
         for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_givenNameSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
         credSubj_givenNameSelector[k].index <== k;

@@ -18,6 +18,7 @@ template CalculateTotal(n) {
 
 // https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/incrementalQuinTree.circom
 // License: MIT
+// TODO: specify bits as input
 template QuinSelector(choices) {
     signal input in[choices];
     signal input index;
