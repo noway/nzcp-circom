@@ -310,7 +310,6 @@ template NZCP() {
 
     component credSubj_isFirst[CONCAT_MAX_LEN];
     component credSubj_isUnderSecond[CONCAT_MAX_LEN];
-    component credSubj_isUnderThird[CONCAT_MAX_LEN];
 
     component credSubj_firstSelector[CONCAT_MAX_LEN];
     component credSubj_secondSelector[CONCAT_MAX_LEN];
@@ -337,11 +336,6 @@ template NZCP() {
         credSubj_isUnderSecond[k].in[0] <== k;
         credSubj_isUnderSecond[k].in[1] <== mapval_stringLen[0] + mapval_stringLen[1];
 
-        credSubj_isUnderThird[k] = LessThan(CONCAT_SIZE_BITS);
-        credSubj_isUnderThird[k].in[0] <== k;
-        credSubj_isUnderThird[k].in[1] <== mapval_stringLen[0] + mapval_stringLen[1] + mapval_stringLen[2]; // TODO: this is actually always true, optimize
-
-
         credSubj_firstSelector[k] = QuinSelector(CONCAT_MAX_LEN);
         for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_firstSelector[k].in[z] <== mapval_stringValue[0][z]; } // TODO: macro for this?
         credSubj_firstSelector[k].index <== k;
@@ -355,7 +349,6 @@ template NZCP() {
         credSubj_thirdSelector[k].index <== k - mapval_stringLen[0] - mapval_stringLen[1];
         
         credSubj_notFirst[k] <== NOT(credSubj_isFirst[k].out);
-
         credSubj_isSecond[k] <== credSubj_isUnderSecond[k].out * credSubj_notFirst[k];
         credSubj_isThird[k] <== NOT(credSubj_isUnderSecond[k].out);
 
