@@ -44,6 +44,8 @@ include "./cbor.circom";
 #define DOB_STR [100, 111, 98]
 #define DOB_LEN 3
 
+#define STRING_MAX_LEN 10
+
 
 template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     signal input maplen;
@@ -236,20 +238,23 @@ template NZCP() {
     signal mapval_type[CREDENTIAL_SUBJECT_MAP_LEN];
     signal mapval_nextpos[CREDENTIAL_SUBJECT_MAP_LEN];
     signal mapval_x[CREDENTIAL_SUBJECT_MAP_LEN];
+    signal mapval_stringValue[CREDENTIAL_SUBJECT_MAP_LEN][STRING_MAX_LEN];
+    signal mapval_stringLen[CREDENTIAL_SUBJECT_MAP_LEN];
+
     component mapval_readType[CREDENTIAL_SUBJECT_MAP_LEN];// = ReadType(ToBeSignedBytes);
     component mapval_getX[CREDENTIAL_SUBJECT_MAP_LEN];// = ReadType(ToBeSignedBytes);
 
     component mapval_isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_isFamilyName[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_isDOB[CREDENTIAL_SUBJECT_MAP_LEN];
-    component mapval_skipValue[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_decodeString[CREDENTIAL_SUBJECT_MAP_LEN];
 
     for(k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
 
         // TODO: make this a template "ReadStringLength"
         mapval_readType[k] = ReadType(ToBeSignedBytes);
         copyBytes(ToBeSigned, mapval_readType[k])
-        mapval_readType[k].pos <== k == 0 ? readMapLength3.nextpos : mapval_skipValue[k - 1].finalpos; // 27 bytes initial skip for example MoH pass
+        mapval_readType[k].pos <== k == 0 ? readMapLength3.nextpos : mapval_decodeString[k - 1].finalpos; // 27 bytes initial skip for example MoH pass
         mapval_readType[k].v ==> mapval_v[k];
         mapval_readType[k].type ==> mapval_type[k];
         // hardcore_assert(mapval_type[k], MAJOR_TYPE_MAP);
@@ -280,9 +285,11 @@ template NZCP() {
         mapval_isDOB[k].len <== mapval_x[k];
 
         // TODO: decode string here
-        mapval_skipValue[k] = DecodeString(ToBeSignedBytes, 10); // TODO: dynamic length? or sane default which can't crash
-        copyBytes(ToBeSigned, mapval_skipValue[k])
-        mapval_skipValue[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
+        mapval_decodeString[k] = DecodeString(ToBeSignedBytes, STRING_MAX_LEN); // TODO: dynamic length? or sane default which can't crash
+        copyBytes(ToBeSigned, mapval_decodeString[k])
+        mapval_decodeString[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
+        for(var z = 0; z<STRING_MAX_LEN; z++) {  mapval_decodeString[k].outputbytes[z] ==> mapval_stringValue[k][z]; } // TODO: macro for this?
+        mapval_stringLen[k] <== mapval_decodeString[k].len;
 
         log(mapval_isGivenName[k].out);
         log(mapval_isFamilyName[k].out);
