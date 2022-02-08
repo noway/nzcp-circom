@@ -249,8 +249,8 @@ template NZCP() {
     signal mapval_stringValue[CREDENTIAL_SUBJECT_MAP_LEN][CONCAT_MAX_LEN];
     signal mapval_stringLen[CREDENTIAL_SUBJECT_MAP_LEN];
 
-    component mapval_readType[CREDENTIAL_SUBJECT_MAP_LEN];// = ReadType(ToBeSignedBytes);
-    component mapval_getX[CREDENTIAL_SUBJECT_MAP_LEN];// = ReadType(ToBeSignedBytes);
+    component mapval_readType[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_getX[CREDENTIAL_SUBJECT_MAP_LEN];
 
     component mapval_isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_isFamilyName[CREDENTIAL_SUBJECT_MAP_LEN];
@@ -314,16 +314,13 @@ template NZCP() {
     component credSubj_secondSelector[CONCAT_MAX_LEN];
     component credSubj_thirdSelector[CONCAT_MAX_LEN];
 
+    signal credSubj_notFirst[CONCAT_MAX_LEN];
+    signal credSubj_isSecond[CONCAT_MAX_LEN];
+    signal credSubj_isThird[CONCAT_MAX_LEN];
+
     signal credSubj_firstChar[CONCAT_MAX_LEN];
     signal credSubj_secondChar[CONCAT_MAX_LEN];
     signal credSubj_thirdChar[CONCAT_MAX_LEN];
-
-    signal credSubj_notFirst[CONCAT_MAX_LEN];
-    // signal credSubj_notUnderSecond[CONCAT_MAX_LEN];
-    // signal credSubj_notUnderThird[CONCAT_MAX_LEN]; // not used
-
-    signal credSubj_isSecond[CONCAT_MAX_LEN];
-    signal credSubj_isThird[CONCAT_MAX_LEN];
     
     log(420);
     for(k = 0; k < CONCAT_MAX_LEN; k++) {
