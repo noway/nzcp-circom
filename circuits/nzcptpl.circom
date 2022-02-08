@@ -235,7 +235,6 @@ template NZCP() {
     component readMapLength3 = ReadMapLength(ToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength3)
     readMapLength3.pos <== credSubj_pos;
-    // log(readMapLength3.len);
 
     hardcore_assert(readMapLength3.len, CREDENTIAL_SUBJECT_MAP_LEN);
 
@@ -305,10 +304,6 @@ template NZCP() {
         mapval_decodeString[k] = DecodeString(ToBeSignedBytes, STRING_MAX_LEN); // TODO: dynamic length? or sane default which can't crash
         copyBytes(ToBeSigned, mapval_decodeString[k])
         mapval_decodeString[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
-
-        // log(mapval_isGivenName[k].out);
-        // log(mapval_isFamilyName[k].out);
-        // log(mapval_isDOB[k].out);
 
     }
 
@@ -391,7 +386,6 @@ template NZCP() {
     signal credSubj_sep2Char[CONCAT_MAX_LEN];
     signal credSubj_dobChar[CONCAT_MAX_LEN];
     
-    log(420);
     for(k = 0; k < CONCAT_MAX_LEN; k++) {
         credSubj_isGivenName[k] = LessThan(CONCAT_SIZE_BITS);
         credSubj_isGivenName[k].in[0] <== k;
@@ -435,7 +429,6 @@ template NZCP() {
         credSubj_dobChar[k] <== credSubj_isDOB[k] * credSubj_dobSelector[k].out;
 
         credSubj_concatString[k] <== credSubj_givenNameChar[k] + credSubj_sep1Char[k] + credSubj_familyNameChar[k] + credSubj_sep2Char[k] + credSubj_dobChar[k];
-        // log(credSubj_concatString[k]);
         
     }
 
