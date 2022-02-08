@@ -46,3 +46,25 @@ template QuinSelector(choices) {
     // Returns 0 + 0 + ... + item
     out <== sums[choices - 1];
 }
+
+template QuinSelectorUnchecked(choices) {
+    signal input in[choices];
+    signal input index;
+    signal output out;
+    
+    component eqs[choices];
+    signal sums[choices];
+
+    // For each item, check whether its index equals the input index.
+    for (var i = 0; i < choices; i ++) {
+        eqs[i] = IsZero();
+        eqs[i].in <== i - index;
+
+        // eqs[i].out is 1 if the index matches. As such, at most one input to
+        // out is not 0.
+        sums[i] <== i == 0 ? eqs[i].out * in[i] : sums[i - 1] + (eqs[i].out * in[i]);
+    }
+
+    // Returns 0 + 0 + ... + item
+    out <== sums[choices - 1];
+}
