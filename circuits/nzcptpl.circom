@@ -24,7 +24,7 @@ include "./cbor.circom";
 #define TO_BE_SIGNED_BITS 2512
 
 // usually is 5. TODO: allow for more?
-#define MAX_CWT_MAP_LEN 5
+#define MAX_CWT_MAP_LEN 8
 
 /* assert through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)
