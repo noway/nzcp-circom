@@ -305,6 +305,7 @@ template SkipValue(ToBeSignedBytes) {
 
     signal nextposarray[MAX_ARRAY_LEN];
     component skipValue[MAX_ARRAY_LEN];
+    // TODO: use mux here?
     component qs = QuinSelectorUnchecked(MAX_ARRAY_LEN);
     for (var i = 0; i < MAX_ARRAY_LEN; i++) {
         skipValue[i] = SkipValueScalar(ToBeSignedBytes);
