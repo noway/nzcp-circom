@@ -364,53 +364,52 @@ template NZCP() {
 
     signal credSubj_concatString[CONCAT_MAX_LEN];
 
-    // TODO: rename first/second/third to given/family/dob
-    component credSubj_isFirst[CONCAT_MAX_LEN];
-    component credSubj_isUnderSecond[CONCAT_MAX_LEN];
+    component credSubj_isGivenName[CONCAT_MAX_LEN];
+    component credSubj_isUnderFamilyName[CONCAT_MAX_LEN];
 
-    component credSubj_firstSelector[CONCAT_MAX_LEN];
-    component credSubj_secondSelector[CONCAT_MAX_LEN];
-    component credSubj_thirdSelector[CONCAT_MAX_LEN];
+    component credSubj_givenNameSelector[CONCAT_MAX_LEN];
+    component credSubj_familyNameSelector[CONCAT_MAX_LEN];
+    component credSubj_dobSelector[CONCAT_MAX_LEN];
 
-    signal credSubj_notFirst[CONCAT_MAX_LEN];
-    signal credSubj_isSecond[CONCAT_MAX_LEN];
-    signal credSubj_isThird[CONCAT_MAX_LEN];
+    signal credSubj_notGivenName[CONCAT_MAX_LEN];
+    signal credSubj_isFamilyName[CONCAT_MAX_LEN];
+    signal credSubj_isDOB[CONCAT_MAX_LEN];
 
-    signal credSubj_firstChar[CONCAT_MAX_LEN];
-    signal credSubj_secondChar[CONCAT_MAX_LEN];
-    signal credSubj_thirdChar[CONCAT_MAX_LEN];
+    signal credSubj_givenNameChar[CONCAT_MAX_LEN];
+    signal credSubj_familyNameChar[CONCAT_MAX_LEN];
+    signal credSubj_dobChar[CONCAT_MAX_LEN];
     
     log(420);
     for(k = 0; k < CONCAT_MAX_LEN; k++) {
-        credSubj_isFirst[k] = LessThan(CONCAT_SIZE_BITS);
-        credSubj_isFirst[k].in[0] <== k;
-        credSubj_isFirst[k].in[1] <== givenNameLen;
+        credSubj_isGivenName[k] = LessThan(CONCAT_SIZE_BITS);
+        credSubj_isGivenName[k].in[0] <== k;
+        credSubj_isGivenName[k].in[1] <== givenNameLen;
 
-        credSubj_isUnderSecond[k] = LessThan(CONCAT_SIZE_BITS);
-        credSubj_isUnderSecond[k].in[0] <== k;
-        credSubj_isUnderSecond[k].in[1] <== givenNameLen + familyNameLen;
+        credSubj_isUnderFamilyName[k] = LessThan(CONCAT_SIZE_BITS);
+        credSubj_isUnderFamilyName[k].in[0] <== k;
+        credSubj_isUnderFamilyName[k].in[1] <== givenNameLen + familyNameLen;
 
-        credSubj_firstSelector[k] = QuinSelector(CONCAT_MAX_LEN);
-        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_firstSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
-        credSubj_firstSelector[k].index <== k;
+        credSubj_givenNameSelector[k] = QuinSelector(CONCAT_MAX_LEN);
+        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_givenNameSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
+        credSubj_givenNameSelector[k].index <== k;
 
-        credSubj_secondSelector[k] = QuinSelector(CONCAT_MAX_LEN);
-        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_secondSelector[k].in[z] <== familyName[z]; } // TODO: macro for this?
-        credSubj_secondSelector[k].index <== k - givenNameLen;
+        credSubj_familyNameSelector[k] = QuinSelector(CONCAT_MAX_LEN);
+        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_familyNameSelector[k].in[z] <== familyName[z]; } // TODO: macro for this?
+        credSubj_familyNameSelector[k].index <== k - givenNameLen;
 
-        credSubj_thirdSelector[k] = QuinSelector(CONCAT_MAX_LEN);
-        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_thirdSelector[k].in[z] <== dob[z]; } // TODO: macro for this?
-        credSubj_thirdSelector[k].index <== k - givenNameLen - familyNameLen;
+        credSubj_dobSelector[k] = QuinSelector(CONCAT_MAX_LEN);
+        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_dobSelector[k].in[z] <== dob[z]; } // TODO: macro for this?
+        credSubj_dobSelector[k].index <== k - givenNameLen - familyNameLen;
         
-        credSubj_notFirst[k] <== NOT(credSubj_isFirst[k].out);
-        credSubj_isSecond[k] <== credSubj_isUnderSecond[k].out * credSubj_notFirst[k];
-        credSubj_isThird[k] <== NOT(credSubj_isUnderSecond[k].out);
+        credSubj_notGivenName[k] <== NOT(credSubj_isGivenName[k].out);
+        credSubj_isFamilyName[k] <== credSubj_isUnderFamilyName[k].out * credSubj_notGivenName[k];
+        credSubj_isDOB[k] <== NOT(credSubj_isUnderFamilyName[k].out);
 
-        credSubj_firstChar[k] <== credSubj_isFirst[k].out * credSubj_firstSelector[k].out;
-        credSubj_secondChar[k] <== credSubj_isSecond[k] * credSubj_secondSelector[k].out;
-        credSubj_thirdChar[k] <== credSubj_isThird[k] * credSubj_thirdSelector[k].out;
+        credSubj_givenNameChar[k] <== credSubj_isGivenName[k].out * credSubj_givenNameSelector[k].out;
+        credSubj_familyNameChar[k] <== credSubj_isFamilyName[k] * credSubj_familyNameSelector[k].out;
+        credSubj_dobChar[k] <== credSubj_isDOB[k] * credSubj_dobSelector[k].out;
 
-        credSubj_concatString[k] <== credSubj_firstChar[k] + credSubj_secondChar[k] + credSubj_thirdChar[k];
+        credSubj_concatString[k] <== credSubj_givenNameChar[k] + credSubj_familyNameChar[k] + credSubj_dobChar[k];
         log(credSubj_concatString[k]);
         
     }
