@@ -186,6 +186,7 @@ template NZCP() {
 
 
     // convert bits to bytes
+    // TODO: use bits2num?
     signal ToBeSigned[ToBeSignedBytes];
     for (k=0; k<ToBeSignedBytes; k++) {
         var lc1=0;
