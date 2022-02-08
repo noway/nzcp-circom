@@ -238,7 +238,8 @@ template NZCP() {
 
     var STRINGS_TO_CONCAT = 3;
     var CONCAT_MAX_LEN = STRINGS_TO_CONCAT*STRING_MAX_LEN;
-    var CONCAT_SIZE_BITS = 5;
+    // TODO: calculate during compile time?
+    var CONCAT_SIZE_BITS = 5; // 2**CONCAT_SIZE_BITS should be > CONCAT_MAX_LEN
 
 
     signal mapval_pos[CREDENTIAL_SUBJECT_MAP_LEN];
@@ -362,21 +363,28 @@ template NZCP() {
     dobLen <== dob_lenCalculateTotal.sum;
 
 
+    // concat givenName, familyName, dob
     signal credSubj_concatString[CONCAT_MAX_LEN];
 
     component credSubj_isGivenName[CONCAT_MAX_LEN];
+    component credSubj_isUnderSep1[CONCAT_MAX_LEN];
     component credSubj_isUnderFamilyName[CONCAT_MAX_LEN];
+    component credSubj_isUnderSep2[CONCAT_MAX_LEN];
 
     component credSubj_givenNameSelector[CONCAT_MAX_LEN];
     component credSubj_familyNameSelector[CONCAT_MAX_LEN];
     component credSubj_dobSelector[CONCAT_MAX_LEN];
 
     signal credSubj_notGivenName[CONCAT_MAX_LEN];
+    signal credSubj_isSep1[CONCAT_MAX_LEN];
     signal credSubj_isFamilyName[CONCAT_MAX_LEN];
+    signal credSubj_isSep2[CONCAT_MAX_LEN];
     signal credSubj_isDOB[CONCAT_MAX_LEN];
 
     signal credSubj_givenNameChar[CONCAT_MAX_LEN];
+    signal credSubj_sep1Char[CONCAT_MAX_LEN];
     signal credSubj_familyNameChar[CONCAT_MAX_LEN];
+    signal credSubj_sep2Char[CONCAT_MAX_LEN];
     signal credSubj_dobChar[CONCAT_MAX_LEN];
     
     log(420);
@@ -385,9 +393,17 @@ template NZCP() {
         credSubj_isGivenName[k].in[0] <== k;
         credSubj_isGivenName[k].in[1] <== givenNameLen;
 
+        credSubj_isUnderSep1[k] = LessThan(CONCAT_SIZE_BITS);
+        credSubj_isUnderSep1[k].in[0] <== k;
+        credSubj_isUnderSep1[k].in[1] <== givenNameLen + 1;
+
         credSubj_isUnderFamilyName[k] = LessThan(CONCAT_SIZE_BITS);
         credSubj_isUnderFamilyName[k].in[0] <== k;
-        credSubj_isUnderFamilyName[k].in[1] <== givenNameLen + familyNameLen;
+        credSubj_isUnderFamilyName[k].in[1] <== givenNameLen + 1 + familyNameLen;
+
+        credSubj_isUnderSep2[k] = LessThan(CONCAT_SIZE_BITS);
+        credSubj_isUnderSep2[k].in[0] <== k;
+        credSubj_isUnderSep2[k].in[1] <== givenNameLen + 1 + familyNameLen + 1;
 
         credSubj_givenNameSelector[k] = QuinSelector(CONCAT_MAX_LEN);
         for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_givenNameSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
@@ -395,21 +411,25 @@ template NZCP() {
 
         credSubj_familyNameSelector[k] = QuinSelector(CONCAT_MAX_LEN);
         for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_familyNameSelector[k].in[z] <== familyName[z]; } // TODO: macro for this?
-        credSubj_familyNameSelector[k].index <== k - givenNameLen;
+        credSubj_familyNameSelector[k].index <== k - givenNameLen - 1;
 
         credSubj_dobSelector[k] = QuinSelector(CONCAT_MAX_LEN);
         for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_dobSelector[k].in[z] <== dob[z]; } // TODO: macro for this?
-        credSubj_dobSelector[k].index <== k - givenNameLen - familyNameLen;
+        credSubj_dobSelector[k].index <== k - givenNameLen - 1 - familyNameLen - 1;
         
         credSubj_notGivenName[k] <== NOT(credSubj_isGivenName[k].out);
-        credSubj_isFamilyName[k] <== credSubj_isUnderFamilyName[k].out * credSubj_notGivenName[k];
-        credSubj_isDOB[k] <== NOT(credSubj_isUnderFamilyName[k].out);
+        credSubj_isSep1[k] <== credSubj_isUnderSep1[k].out * credSubj_notGivenName[k];
+        credSubj_isFamilyName[k] <== credSubj_isUnderFamilyName[k].out * NOT(credSubj_isUnderSep1[k].out);
+        credSubj_isSep2[k] <== credSubj_isUnderSep2[k].out * NOT(credSubj_isUnderFamilyName[k].out);
+        credSubj_isDOB[k] <== NOT(credSubj_isUnderSep2[k].out);
 
         credSubj_givenNameChar[k] <== credSubj_isGivenName[k].out * credSubj_givenNameSelector[k].out;
+        credSubj_sep1Char[k] <== credSubj_isSep1[k] * 44;
         credSubj_familyNameChar[k] <== credSubj_isFamilyName[k] * credSubj_familyNameSelector[k].out;
+        credSubj_sep2Char[k] <== credSubj_isSep2[k] * 44;
         credSubj_dobChar[k] <== credSubj_isDOB[k] * credSubj_dobSelector[k].out;
 
-        credSubj_concatString[k] <== credSubj_givenNameChar[k] + credSubj_familyNameChar[k] + credSubj_dobChar[k];
+        credSubj_concatString[k] <== credSubj_givenNameChar[k] + credSubj_sep1Char[k] + credSubj_familyNameChar[k] + credSubj_sep2Char[k] + credSubj_dobChar[k];
         log(credSubj_concatString[k]);
         
     }
