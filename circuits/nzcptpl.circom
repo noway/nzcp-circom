@@ -308,7 +308,7 @@ template NZCP() {
     for(var h = 0; h<STRING_MAX_LEN; h++) {
         givenName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            givenName_charsCalculateTotal[h].nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].outputbytes[h];
+            givenName_charsCalculateTotal[h].nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].outbytes[h];
         }
         givenName[h] <== givenName_charsCalculateTotal[h].sum;
     }
@@ -326,7 +326,7 @@ template NZCP() {
     for(var h = 0; h<STRING_MAX_LEN; h++) {
         familyName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            familyName_charsCalculateTotal[h].nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].outputbytes[h];
+            familyName_charsCalculateTotal[h].nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].outbytes[h];
         }
         familyName[h] <== familyName_charsCalculateTotal[h].sum;
     }
@@ -344,7 +344,7 @@ template NZCP() {
     for(var h = 0; h<STRING_MAX_LEN; h++) {
         dob_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            dob_charsCalculateTotal[h].nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].outputbytes[h];
+            dob_charsCalculateTotal[h].nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].outbytes[h];
         }
         dob[h] <== dob_charsCalculateTotal[h].sum;
     }

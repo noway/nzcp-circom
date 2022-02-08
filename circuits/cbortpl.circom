@@ -383,7 +383,7 @@ template DecodeString(ToBeSignedBytes, MaxLen) {
     signal input bytes[ToBeSignedBytes];
     signal input pos;
 
-    signal output outputbytes[MaxLen]; // TODO: rename to outbytes
+    signal output outbytes[MaxLen];
     signal output finalpos; // TODO: rename to nextpos
     signal output len;
 
@@ -419,8 +419,8 @@ template DecodeString(ToBeSignedBytes, MaxLen) {
         getV[i] = GetV(ToBeSignedBytes);
         copyBytes(bytes, getV[i])
         getV[i].pos <== nextnextpos + i;
-        getV[i].v ==> outputbytes[i];
-        // log(outputbytes[i]);
+        getV[i].v ==> outbytes[i];
+        // log(outbytes[i]);
     }
     // log(420);
 
