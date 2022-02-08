@@ -292,7 +292,6 @@ template NZCP() {
         mapval_isDOB[k].pos <== mapval_readType[k].nextpos; // pos before skipping
         mapval_isDOB[k].len <== mapval_x[k];
 
-        // TODO: decode string here
         mapval_decodeString[k] = DecodeString(ToBeSignedBytes, STRING_MAX_LEN); // TODO: dynamic length? or sane default which can't crash
         copyBytes(ToBeSigned, mapval_decodeString[k])
         mapval_decodeString[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
