@@ -47,6 +47,7 @@ template QuinSelector(choices) {
     out <== sums[choices - 1];
 }
 
+// Not checking for overflow
 template QuinSelectorUnchecked(choices) {
     signal input in[choices];
     signal input index;

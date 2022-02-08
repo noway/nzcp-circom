@@ -304,7 +304,7 @@ template SkipValue(ToBeSignedBytes) {
 
 
     signal nextposarray[MAX_ARRAY_LEN];
-    component skipValue[MAX_ARRAY_LEN]; // TODO: dynamic
+    component skipValue[MAX_ARRAY_LEN];
     component qs = QuinSelectorUnchecked(MAX_ARRAY_LEN);
     for (var i = 0; i < MAX_ARRAY_LEN; i++) {
         skipValue[i] = SkipValueScalar(ToBeSignedBytes);
@@ -315,9 +315,7 @@ template SkipValue(ToBeSignedBytes) {
     }
     qs.index <== value - 1;
     signal array_final_pos;
-    // qs.in[0] <== nextposarray[0];
-    // qs.in[1] <== nextposarray[1];
-    array_final_pos <== qs.out; //skipValue[MAX_ARRAY_LEN - 1].finalpos;
+    array_final_pos <== qs.out;
 
 
 
