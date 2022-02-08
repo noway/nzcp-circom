@@ -246,8 +246,14 @@ template NZCP() {
     signal mapval_type[CREDENTIAL_SUBJECT_MAP_LEN];
     signal mapval_nextpos[CREDENTIAL_SUBJECT_MAP_LEN];
     signal mapval_x[CREDENTIAL_SUBJECT_MAP_LEN];
-    signal mapval_stringValue[CREDENTIAL_SUBJECT_MAP_LEN][CONCAT_MAX_LEN];
-    signal mapval_stringLen[CREDENTIAL_SUBJECT_MAP_LEN];
+    // signal mapval_stringValue[CREDENTIAL_SUBJECT_MAP_LEN][CONCAT_MAX_LEN];
+    // signal mapval_stringLen[CREDENTIAL_SUBJECT_MAP_LEN];
+    signal givenName[CONCAT_MAX_LEN];
+    signal givenNameLen;
+    signal familyName[CONCAT_MAX_LEN];
+    signal familyNameLen;
+    signal dob[CONCAT_MAX_LEN];
+    signal dobLen;
 
     component mapval_readType[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_getX[CREDENTIAL_SUBJECT_MAP_LEN];
@@ -295,9 +301,6 @@ template NZCP() {
         mapval_decodeString[k] = DecodeString(ToBeSignedBytes, STRING_MAX_LEN); // TODO: dynamic length? or sane default which can't crash
         copyBytes(ToBeSigned, mapval_decodeString[k])
         mapval_decodeString[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
-        for(var z = 0; z<STRING_MAX_LEN; z++) {  mapval_decodeString[k].outputbytes[z] ==> mapval_stringValue[k][z]; } // TODO: macro for this?
-        for(var z = STRING_MAX_LEN; z < CONCAT_MAX_LEN; z++) { mapval_stringValue[k][z] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
-        mapval_stringLen[k] <== mapval_decodeString[k].len;
 
         log(mapval_isGivenName[k].out);
         log(mapval_isFamilyName[k].out);
@@ -305,8 +308,77 @@ template NZCP() {
 
     }
 
+
+    // relies on CREDENTIAL_SUBJECT_MAP_LEN to be 3
+    // TODO: write it through CalculateTotal to support arbitrary length?
+
+    component givenName_charsCalculateTotal[STRING_MAX_LEN];
+    for(var h = 0; h<STRING_MAX_LEN; h++) {
+        givenName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+            givenName_charsCalculateTotal[h].nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].outputbytes[h];
+        }
+        givenName[h] <== givenName_charsCalculateTotal[h].sum;
+    }
+    for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { givenName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
+    component givenName_lenCalculateTotal;
+    givenName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+        givenName_lenCalculateTotal.nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].len;
+    }
+    givenNameLen <== givenName_lenCalculateTotal.sum;
+
+
+
+    component familyName_charsCalculateTotal[STRING_MAX_LEN];
+    for(var h = 0; h<STRING_MAX_LEN; h++) {
+        familyName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+            familyName_charsCalculateTotal[h].nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].outputbytes[h];
+        }
+        familyName[h] <== familyName_charsCalculateTotal[h].sum;
+    }
+    for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { familyName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
+    component familyName_lenCalculateTotal;
+    familyName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+        familyName_lenCalculateTotal.nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].len;
+    }
+    familyNameLen <== familyName_lenCalculateTotal.sum;
+
+
+    component dob_charsCalculateTotal[STRING_MAX_LEN];
+    for(var h = 0; h<STRING_MAX_LEN; h++) {
+        dob_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+            dob_charsCalculateTotal[h].nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].outputbytes[h];
+        }
+        dob[h] <== dob_charsCalculateTotal[h].sum;
+    }
+    for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { dob[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
+    component dob_lenCalculateTotal;
+    dob_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+        dob_lenCalculateTotal.nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].len;
+    }
+    dobLen <== dob_lenCalculateTotal.sum;
+
+    // for(var h = 0; h<STRING_MAX_LEN; h++) {
+    //     familyName[h] <== mapval_decodeString[0].outputbytes[h] * mapval_isFamilyName[0].out + mapval_decodeString[1].outputbytes[h] * mapval_isFamilyName[1].out + mapval_decodeString[2].outputbytes[h] * mapval_isFamilyName[2].out;
+    // }
+    // for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { familyName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
+    // familyNameLen <== mapval_decodeString[0].len * mapval_isFamilyName[0].out + mapval_decodeString[1].len * mapval_isFamilyName[1].out + mapval_decodeString[2].len * mapval_isFamilyName[2].out;
+
+    // for(var h = 0; h<STRING_MAX_LEN; h++) {  
+    //     dob[h] <== mapval_decodeString[0].outputbytes[h] * mapval_isDOB[0].out + mapval_decodeString[1].outputbytes[h] * mapval_isDOB[1].out + mapval_decodeString[2].outputbytes[h] * mapval_isDOB[2].out;
+    // }
+    // for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { dob[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
+    // dobLen <== mapval_decodeString[0].len * mapval_isDOB[0].out + mapval_decodeString[1].len * mapval_isDOB[1].out + mapval_decodeString[2].len * mapval_isDOB[2].out;
+
+
     signal credSubj_concatString[CONCAT_MAX_LEN];
 
+    // TODO: rename first/second/third to given/family/dob
     component credSubj_isFirst[CONCAT_MAX_LEN];
     component credSubj_isUnderSecond[CONCAT_MAX_LEN];
 
@@ -326,23 +398,23 @@ template NZCP() {
     for(k = 0; k < CONCAT_MAX_LEN; k++) {
         credSubj_isFirst[k] = LessThan(CONCAT_SIZE_BITS);
         credSubj_isFirst[k].in[0] <== k;
-        credSubj_isFirst[k].in[1] <== mapval_stringLen[0];
+        credSubj_isFirst[k].in[1] <== givenNameLen;
 
         credSubj_isUnderSecond[k] = LessThan(CONCAT_SIZE_BITS);
         credSubj_isUnderSecond[k].in[0] <== k;
-        credSubj_isUnderSecond[k].in[1] <== mapval_stringLen[0] + mapval_stringLen[1];
+        credSubj_isUnderSecond[k].in[1] <== givenNameLen + familyNameLen;
 
         credSubj_firstSelector[k] = QuinSelector(CONCAT_MAX_LEN);
-        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_firstSelector[k].in[z] <== mapval_stringValue[0][z]; } // TODO: macro for this?
+        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_firstSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
         credSubj_firstSelector[k].index <== k;
 
         credSubj_secondSelector[k] = QuinSelector(CONCAT_MAX_LEN);
-        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_secondSelector[k].in[z] <== mapval_stringValue[1][z]; } // TODO: macro for this?
-        credSubj_secondSelector[k].index <== k - mapval_stringLen[0];
+        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_secondSelector[k].in[z] <== familyName[z]; } // TODO: macro for this?
+        credSubj_secondSelector[k].index <== k - givenNameLen;
 
         credSubj_thirdSelector[k] = QuinSelector(CONCAT_MAX_LEN);
-        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_thirdSelector[k].in[z] <== mapval_stringValue[2][z]; } // TODO: macro for this?
-        credSubj_thirdSelector[k].index <== k - mapval_stringLen[0] - mapval_stringLen[1];
+        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_thirdSelector[k].in[z] <== dob[z]; } // TODO: macro for this?
+        credSubj_thirdSelector[k].index <== k - givenNameLen - familyNameLen;
         
         credSubj_notFirst[k] <== NOT(credSubj_isFirst[k].out);
         credSubj_isSecond[k] <== credSubj_isUnderSecond[k].out * credSubj_notFirst[k];
