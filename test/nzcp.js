@@ -185,6 +185,6 @@ describe("NZCP", function () {
         const arrOut = witness.slice(1, 257);
         const hash2 = bitArray2buffer(arrOut).toString("hex");
 
-        assert.equal("0000000000000000000000000000000000000000000000000000000000000000", hash2);
+        assert.equal(hash2, "5fb355822221720ea4ce6734e5a09e459d452574a19310c0cea7c141f43a3dab");
     });
 });

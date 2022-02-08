@@ -445,10 +445,26 @@ template NZCP() {
         n2b[k] = Num2Bits(8);
         n2b[k].in <== credSubj_concatString[k];
         for (var j = 0; j < 8; j++) {
-            bits[k*8 + j] <== n2b[k].out[j];
-            log(bits[k*8 + j]);
+            bits[k*8 + (7 - j)] <== n2b[k].out[j];
         }
     }
+
+
+    var CONCAT_LEN = 23; // TODO: dynamic
+    var CONCAT_LEN_BITS = CONCAT_LEN * 8;
+
+    component sha256 = Sha256(CONCAT_LEN_BITS);
+
+    for (k=0; k<CONCAT_LEN_BITS; k++) {
+        sha256.in[k] <== bits[k];
+    }
+
+    for (k=0; k<256; k++) {
+        c[k] <== sha256.out[k];
+    }
+
+
+
 
 }
 
