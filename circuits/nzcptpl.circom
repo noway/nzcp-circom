@@ -434,8 +434,20 @@ template NZCP() {
         credSubj_dobChar[k] <== credSubj_isDOB[k] * credSubj_dobSelector[k].out;
 
         credSubj_concatString[k] <== credSubj_givenNameChar[k] + credSubj_sep1Char[k] + credSubj_familyNameChar[k] + credSubj_sep2Char[k] + credSubj_dobChar[k];
-        log(credSubj_concatString[k]);
+        // log(credSubj_concatString[k]);
         
+    }
+
+
+    component n2b[CONCAT_MAX_LEN];
+    signal bits[CONCAT_MAX_LEN*8];
+    for(k = 0; k < CONCAT_MAX_LEN; k++) {
+        n2b[k] = Num2Bits(8);
+        n2b[k].in <== credSubj_concatString[k];
+        for (var j = 0; j < 8; j++) {
+            bits[k*8 + j] <== n2b[k].out[j];
+            log(bits[k*8 + j]);
+        }
     }
 
 }
