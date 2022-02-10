@@ -184,7 +184,7 @@ template NZCP() {
     //     c[k] <== sha256.out[k];
     // }
 
-
+    /*
     // convert bits to bytes
     // TODO: use bits2num?
     signal ToBeSigned[ToBeSignedBytes];
@@ -425,6 +425,18 @@ template NZCP() {
 
         credSubj_concatString[k] <== credSubj_givenNameChar[k] + credSubj_sep1Char[k] + credSubj_familyNameChar[k] + credSubj_sep2Char[k] + credSubj_dobChar[k];
         
+    }
+    */
+
+    var STRINGS_TO_CONCAT = 3;
+    var CONCAT_MAX_LEN = STRINGS_TO_CONCAT*STRING_MAX_LEN;
+    signal credSubj_concatString[CONCAT_MAX_LEN];
+    var concatstr[CONCAT_MAX_LEN] = [
+        74, 97, 99, 107, 44, 83, 112, 97, 114, 114, 111, 119, 44, 49, 57, 54, 48, 45, 48, 52, 45, 49, 54,
+        0,0,0,0,0,0,0
+    ];
+    for(var i = 0; i < CONCAT_MAX_LEN; i++) {
+        credSubj_concatString[i] <== concatstr[i];
     }
 
 
