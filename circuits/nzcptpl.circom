@@ -234,6 +234,7 @@ template NZCP() {
     hardcore_assert(readMapLength3.len, CREDENTIAL_SUBJECT_MAP_LEN);
 
 
+    // TODO: this bellow should be its own template
     var STRINGS_TO_CONCAT = 3;
     var CONCAT_MAX_LEN = STRINGS_TO_CONCAT*STRING_MAX_LEN;
     // TODO: calculate during compile time?
