@@ -7,7 +7,7 @@ template Sha256Test() {
     signal input len;
     signal output out[256];
 
-    var L_bits = 8;
+    var L_bits = 16;
 
     component sha256_unsafe = Sha256_unsafe(1);
     for (var i=0; i<512 - L_bits; i++) {
@@ -15,10 +15,10 @@ template Sha256Test() {
     }
     
     component n2b = Num2Bits(L_bits);
-    n2b.in <== len * L_bits;
+    n2b.in <== len * 8;
 
     for (var i=512-L_bits; i<512; i++) {
-        sha256_unsafe.in[0][i] <== n2b.out[512 - i - 1];
+        sha256_unsafe.in[0][i] <== n2b.out[(L_bits - 1) - (i - 512 + L_bits)];
     }
     sha256_unsafe.tBlock <== 1;
 
