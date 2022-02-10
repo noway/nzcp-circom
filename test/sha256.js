@@ -30,6 +30,9 @@ describe("Sha256", function () {
         const input = genSha256Inputs(message, 1);
         const len = message.length;
 
+        console.log('input.segments',input.segments[0])
+        console.log(bitArray2buffer(input.segments[0]).toString('hex'))
+
         console.log('calculating witness...');
 
         console.log('tBlock',input.tBlock)
