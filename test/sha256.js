@@ -26,12 +26,15 @@ describe("Sha256", function () {
         const p = path.join(__dirname, "../", "circuits", "sha256_test.circom")
         const cir = await wasm_tester(p);
 
-        const input = genSha256Inputs("Jack,Sparrow,1960-04-16", 1);
+        const message = "Jack,Sparrow,1960-04-16"
+        const input = genSha256Inputs(message, 1);
+        const len = message.length;
 
         console.log('calculating witness...');
 
         console.log('tBlock',input.tBlock)
-        const witness = await cir.calculateWitness({ "in": input.segments[0] }, true);
+
+        const witness = await cir.calculateWitness({ "in": input.segments[0], len }, true);
 
         const arrOut = witness.slice(1, 257);
         const hash2 = bitArray2buffer(arrOut).toString("hex");
