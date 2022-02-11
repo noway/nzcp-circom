@@ -3,6 +3,7 @@ const path = require("path");
 const wasm_tester = require("circom_tester").wasm;
 const {buffer2bitArray, bitArray2buffer, arrayChunk, padMessage} = require("./helpers/utils");
 const assert = chai.assert;
+const Sha256 = require('./helpers/sha256')
 
 function genSha256Inputs(input, nCount, nWidth = 512, inParam = "in") {
     var segments = arrayChunk(padMessage(buffer2bitArray(Buffer.from(input))), nWidth);
@@ -38,6 +39,6 @@ describe("Sha256", function () {
         const arrOut = witness.slice(1, 257);
         const hash2 = bitArray2buffer(arrOut).toString("hex");
 
-        assert.equal(hash2,"5fb355822221720ea4ce6734e5a09e459d452574a19310c0cea7c141f43a3dab")
+        assert.equal(hash2,Sha256.hash(message))
     });
 });
