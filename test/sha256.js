@@ -27,20 +27,11 @@ describe("Sha256", function () {
         const cir = await wasm_tester(p);
 
         const message = "Jack,Sparrow,1960-04-16"
-        const input = genSha256Inputs(message, 1);
         const len = message.length;
-
-        console.log('input.segments',input.segments[0])
-        console.log(bitArray2buffer(input.segments[0]).toString('hex'))
-
-        console.log('calculating witness...');
-
-        console.log('tBlock',input.tBlock)
 
         let inn = buffer2bitArray(Buffer.from(message))
         const add_bits = 512-inn.length
         inn = inn.concat(Array(add_bits).fill(0));
-        console.log(inn)
 
         const witness = await cir.calculateWitness({ "in": inn, len }, true);
 
