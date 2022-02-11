@@ -37,7 +37,12 @@ describe("Sha256", function () {
 
         console.log('tBlock',input.tBlock)
 
-        const witness = await cir.calculateWitness({ "in": input.segments[0], len }, true);
+        let inn = buffer2bitArray(Buffer.from(message))
+        const add_bits = 512-inn.length
+        inn = inn.concat(Array(add_bits).fill(0));
+        console.log(inn)
+
+        const witness = await cir.calculateWitness({ "in": inn, len }, true);
 
         const arrOut = witness.slice(1, 257);
         const hash2 = bitArray2buffer(arrOut).toString("hex");
