@@ -27,18 +27,23 @@ describe("Sha256", function () {
         const p = path.join(__dirname, "../", "circuits", "sha256_test.circom")
         const cir = await wasm_tester(p);
 
-        const message = "Jack,Sparrow,1960-04-16"
-        const len = message.length;
+        for(let i=0; i<56; i++) {
 
-        let inn = buffer2bitArray(Buffer.from(message))
-        const add_bits = 512-inn.length
-        inn = inn.concat(Array(add_bits).fill(0));
+            const message = Array(i).fill("a").join("")
+            const len = message.length;
+            console.log("message", message, len)
 
-        const witness = await cir.calculateWitness({ "in": inn, len }, true);
+            let inn = buffer2bitArray(Buffer.from(message))
+            const add_bits = 512-inn.length
+            inn = inn.concat(Array(add_bits).fill(0));
 
-        const arrOut = witness.slice(1, 257);
-        const hash2 = bitArray2buffer(arrOut).toString("hex");
+            const witness = await cir.calculateWitness({ "in": inn, len }, true);
 
-        assert.equal(hash2,Sha256.hash(message))
+            const arrOut = witness.slice(1, 257);
+            const hash2 = bitArray2buffer(arrOut).toString("hex");
+
+            assert.equal(hash2,Sha256.hash(message))
+        }
+
     });
 });
