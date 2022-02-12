@@ -70,12 +70,16 @@ template Sha256Any(BlockSpace) {
     signal output out[SHA256_LEN];
 
     component input_j_block[MaxBlockCount];
-    for (var j = 0; j < MaxBlockCount; j++) {
-        var blocks = j + 1;
-        input_j_block[j] = Sha256Var(blocks);
-        // calcualte sha256 as if it was blocks blocks
-        input_j_block[j].len <== len;
-        for (var i = 0; i < BLOCK_LEN * blocks; i++) { input_j_block[j].in[i] <== in[i]; }
+    for (var p = 0; p < MaxBlockCount; p++) {
+        var blocks = p + 1;
+        input_j_block[p] = Sha256Var(blocks);
+        // prepare sha256 input as if it was blocks blocks
+        input_j_block[p].len <== len;
+        for (var j = 0; j < blocks; j++) {
+            for (var i = 0; i < BLOCK_LEN; i++) {
+                input_j_block[p].in[j * BLOCK_LEN + i] <== in[j * BLOCK_LEN + i];
+            }
+        }
     }
 
     signal len_plus_64;
@@ -92,10 +96,19 @@ template Sha256Any(BlockSpace) {
 
     component mmm = MultiMultiMux(BlockSpace, MaxBits);
     for (var p = 0; p < MaxBlockCount; p++) {
-        for (var j = 0; j < MaxBlockCount; j++) {
-            for (var i = 0; i < BLOCK_LEN; i++) { mmm.in[p][j * BLOCK_LEN + i] <== input_j_block[j].out[i]; }
+        var blocks = p + 1;
+        for (var j = 0; j < blocks; j++) {
+            for (var i = 0; i < BLOCK_LEN; i++) {
+                mmm.in[p][j * BLOCK_LEN + i] <== input_j_block[p].out[j * BLOCK_LEN + i];
+            }
+        }
+        for (var j = blocks; j < MaxBlockCount; j++) {
+            for (var i = 0; i < BLOCK_LEN; i++) {
+                mmm.in[p][j * BLOCK_LEN + i] <== 0;
+            }
         }
     }
+    log(shr.out[0]);
     for (var k = 0; k < BlockSpace; k++) { mmm.selector[k] <== shr.out[k]; }
 
     component b2n = Bits2Num(BlockSpace);
@@ -106,6 +119,7 @@ template Sha256Any(BlockSpace) {
 
     component sha256_unsafe = Sha256_unsafe(MaxBlockCount);
     sha256_unsafe.tBlock <== b2n.out + 1;
+    // log(sha256_unsafe.tBlock);
     // for (var i = 0; i < MaxBits; i++) {  }
     for (var j = 0; j < MaxBlockCount; j++) {
         for (var i = 0; i < BLOCK_LEN; i++) {
