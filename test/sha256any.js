@@ -16,18 +16,18 @@ function msgToBits(msg) {
 }
 
 describe("Sha256", function () {
-    this.timeout(100000);
+    this.timeout(1000000000);
 
     // TODO: into a separate test
-    it ("Should generate hash for 1-2 blocks", async () => {
+    it ("Should generate hash for 1-4 blocks", async () => {
         const p = path.join(__dirname, "../", "circuits", "sha256Any_test.circom")
         const cir = await wasm_tester(p);
 
-        for(let i=0; i<120; i++) {
+        for(let i=0; i<248; i++) {
 
             const message = Array(i).fill("a").join("")
             const len = message.length * 8;
-            console.log("message", message, len)
+            console.log("message", message, len, len / 8)
 
             const inn = msgToBits(message)
 

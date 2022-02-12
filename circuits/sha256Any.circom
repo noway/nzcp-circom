@@ -11,7 +11,7 @@ template Sha256Any() {
     var SHA256_LEN = 256;
     var ALL_BITS = BLOCK_LEN * MAX_BLOCK_COUNT;
 
-    var LEN_MAX_BITS = 10; // can hold up to 1024 value
+    var LEN_MAX_BITS = 11; // can hold up to 2048 value, change if going beyond 4 blocks or if going 2 blocks
     var MUX_SELECTORS = 2;
 
     signal input in[ALL_BITS];
