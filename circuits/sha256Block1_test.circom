@@ -1,8 +1,11 @@
 pragma circom 2.0.0;
 
-include "../snark-jwt-verify-master/circuits/sha256.circom";
-include "../circomlib-master/circuits/mux1.circom";
+// include "../snark-jwt-verify-master/circuits/sha256.circom";
+// include "../circomlib-master/circuits/mux1.circom";
 
+include "./sha256Var.circom";
+
+/*
 template Sha256Block1Test() {
     var BLOCK_LEN = 512;
     var SHA256_LEN = 256;
@@ -44,4 +47,5 @@ template Sha256Block1Test() {
         out[i] <== sha256_unsafe.out[i];
     }
 }
-component main = Sha256Block1Test();
+*/
+component main = Sha256Var(1);
