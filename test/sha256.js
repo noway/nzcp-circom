@@ -22,7 +22,8 @@ function genSha256Inputs(input, nCount, nWidth = 512, inParam = "in") {
 
 function msgToBits(msg) {
     let inn = buffer2bitArray(Buffer.from(msg))
-    const overall_len = inn.length < 448 ? 512 : (inn.length < 960 ? 1024 : 1536)
+    const blocks = Math.floor((inn.length+64)/512) + 1
+    const overall_len = blocks*512//inn.length < 448 ? 512 : (inn.length < 960 ? 1024 : 1536)
     const add_bits = overall_len - inn.length
     inn = inn.concat(Array(add_bits).fill(0));
     return inn
