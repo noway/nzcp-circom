@@ -24,6 +24,7 @@ function genSha256Inputs(input, nCount, nWidth = 512, inParam = "in") {
 describe("Sha256", function () {
     this.timeout(100000);
 
+    /*
     it ("Should generate hash for 1 block", async () => {
         const p = path.join(__dirname, "../", "circuits", "sha256Block1_test.circom")
         const cir = await wasm_tester(p);
@@ -39,6 +40,7 @@ describe("Sha256", function () {
 
         assert.equal(hash2,Sha256.hash(message))
     });
+    */
 
     /*
     it ("Should generate hash for 1 block", async () => {
@@ -65,4 +67,21 @@ describe("Sha256", function () {
 
     });
     */
+
+
+    it ("Should generate hash for 2 blocks", async () => {
+        const p = path.join(__dirname, "../", "circuits", "sha256Block2_test.circom")
+        const cir = await wasm_tester(p);
+
+        const message = "Jack,Sparrow,1960-04-16"
+        const input = genSha256Inputs(message, 1);
+        const len = message.length;
+        
+        const witness = await cir.calculateWitness({ "in": input.segments[0], len }, true);
+
+        const arrOut = witness.slice(1, 257);
+        const hash2 = bitArray2buffer(arrOut).toString("hex");
+
+        assert.equal(hash2,Sha256.hash(message))
+    });
 });
