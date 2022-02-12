@@ -50,14 +50,38 @@ template Sha256Any(BlockAddressSpace) {
     }
 
     // switch between sha256 of blocks based on (len_plus_64 >> 9)
-    component mux = MultiMux2(SHA256_LEN);
-
-    for (var j = 0; j < MaxBlockCount; j++) {
-        for (var i = 0; i < SHA256_LEN; i++) { mux.c[i][j] <== sha256_j_block[j].out[i]; }
+    component mux1 = MultiMux1(SHA256_LEN);
+    component mux2 = MultiMux2(SHA256_LEN);
+    component mux3 = MultiMux3(SHA256_LEN);
+    component mux4 = MultiMux4(SHA256_LEN);
+    if (BlockAddressSpace == 1) {
+        for (var j = 0; j < MaxBlockCount; j++) {
+            for (var i = 0; i < SHA256_LEN; i++) { mux1.c[i][j] <== sha256_j_block[j].out[i]; }
+        }
+        mux1.s <== shr.out[0];
+        for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux1.out[i]; }
     }
-    for (var k = 0; k < BlockAddressSpace; k++) { mux.s[k] <== shr.out[k]; }
-    for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux.out[i]; }
-
+    else if (BlockAddressSpace == 2) {
+        for (var j = 0; j < MaxBlockCount; j++) {
+            for (var i = 0; i < SHA256_LEN; i++) { mux2.c[i][j] <== sha256_j_block[j].out[i]; }
+        }
+        for (var k = 0; k < BlockAddressSpace; k++) { mux2.s[k] <== shr.out[k]; }
+        for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux2.out[i]; }
+    }
+    else if (BlockAddressSpace == 3) {
+        for (var j = 0; j < MaxBlockCount; j++) {
+            for (var i = 0; i < SHA256_LEN; i++) { mux3.c[i][j] <== sha256_j_block[j].out[i]; }
+        }
+        for (var k = 0; k < BlockAddressSpace; k++) { mux3.s[k] <== shr.out[k]; }
+        for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux3.out[i]; }
+    }
+    else if (BlockAddressSpace == 4) {
+        for (var j = 0; j < MaxBlockCount; j++) {
+            for (var i = 0; i < SHA256_LEN; i++) { mux3.c[i][j] <== sha256_j_block[j].out[i]; }
+        }
+        for (var k = 0; k < BlockAddressSpace; k++) { mux3.s[k] <== shr.out[k]; }
+        for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux3.out[i]; }
+    }
 
 }
 
