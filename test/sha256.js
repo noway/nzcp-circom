@@ -74,7 +74,7 @@ describe("Sha256", function () {
         const p = path.join(__dirname, "../", "circuits", "sha256Block2_test.circom")
         const cir = await wasm_tester(p);
 
-        const message = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        const message = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         const input = genSha256Inputs(message, 2);
         console.log('input.segments[0]',bitArray2buffer(input.segments[0]).toString('hex'))
         console.log('input.segments[1]',bitArray2buffer(input.segments[1]).toString('hex'))
