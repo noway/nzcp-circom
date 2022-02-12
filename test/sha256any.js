@@ -8,7 +8,7 @@ const Sha256 = require('./helpers/sha256')
 function msgToBits(msg) {
     let inn = buffer2bitArray(Buffer.from(msg))
     // const blocks = Math.floor((inn.length + 64) / 512) + 1
-    const blocks = 2;
+    const blocks = 4;
     const overall_len = blocks * 512
     const add_bits = overall_len - inn.length
     inn = inn.concat(Array(add_bits).fill(0));
