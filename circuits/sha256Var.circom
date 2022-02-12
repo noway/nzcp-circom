@@ -35,7 +35,7 @@ template Sha256Var(BlockCount) {
     var prelast_pass_count = BLOCK_LEN - L_BITS;
 
     signal input in[BLOCK_LEN * BlockCount];
-    signal input len;
+    signal input len; // TODO: make this to be in bits
     signal output out[SHA256_LEN];
 
     component sha256_unsafe = Sha256_unsafe(BlockCount);
