@@ -19,14 +19,12 @@ function pow(x, y) {
 template Sha256Any(BlockAddressSpace) {
 
     var MaxBlockCount = pow(2, BlockAddressSpace);
-    log(MaxBlockCount);
 
     var BLOCK_LEN = 512;
     var SHA256_LEN = 256;
     var ALL_BITS = BLOCK_LEN * MaxBlockCount;
 
     var LEN_MAX_BITS = 11; // can hold up to 2048 value, change if going beyond 4 blocks or if going 2 blocks
-    var MUX_SELECTORS = 2;
 
     signal input in[ALL_BITS];
     signal input len;
@@ -51,15 +49,13 @@ template Sha256Any(BlockAddressSpace) {
         shr.in[i] <== n2b.out[i];
     }
 
-    // switch between sha256 of 1 and 2 blocks based on (len_plus_64 >> 9)
+    // switch between sha256 of blocks based on (len_plus_64 >> 9)
     component mux = MultiMux2(SHA256_LEN);
 
     for (var j = 0; j < MaxBlockCount; j++) {
-        for (var i = 0; i < SHA256_LEN; i++) {
-            mux.c[i][j] <== sha256_j_block[j].out[i];
-        }
+        for (var i = 0; i < SHA256_LEN; i++) { mux.c[i][j] <== sha256_j_block[j].out[i]; }
     }
-    for (var k = 0; k < MUX_SELECTORS; k++) { mux.s[k] <== shr.out[k]; }
+    for (var k = 0; k < BlockAddressSpace; k++) { mux.s[k] <== shr.out[k]; }
     for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux.out[i]; }
 
 
