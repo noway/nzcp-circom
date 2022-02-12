@@ -6,8 +6,6 @@ include "../circomlib-master/circuits/mux2.circom";
 include "../circomlib-master/circuits/mux3.circom";
 include "../circomlib-master/circuits/mux4.circom";
 
-// limited to 2 blocks
-
 function pow(x, y) {
     if (y == 0) {
         return 1;
@@ -18,15 +16,14 @@ function pow(x, y) {
 
 template Sha256Any(BlockSpace) {
 
-    var MaxBlockCount = pow(2, BlockSpace);
-
     var BLOCK_LEN = 512;
     var SHA256_LEN = 256;
-    var ALL_BITS = BLOCK_LEN * MaxBlockCount;
 
+    var MaxBlockCount = pow(2, BlockSpace);
+    var MaxBits = BLOCK_LEN * MaxBlockCount;
     var LenMaxBits = 9 + BlockSpace; // can hold from 2 ^ 10 to 2 ^ 13
 
-    signal input in[ALL_BITS];
+    signal input in[MaxBits];
     signal input len;
     signal output out[SHA256_LEN];
 
