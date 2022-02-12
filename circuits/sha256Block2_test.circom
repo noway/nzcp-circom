@@ -10,7 +10,7 @@ template CopyOverBlock(ToCopyBits) {
 
     component ie[ToCopyBits];
     component mux[ToCopyBits];
-    for (var i=0; i<ToCopyBits; i++) {
+    for (var i = 0; i < ToCopyBits; i++) {
         ie[i] = IsEqual();
         ie[i].in[0] <== i;
         ie[i].in[1] <== L_pos;
@@ -38,6 +38,7 @@ template Sha256Block2Test(BlockCount) {
 
     component sha256_unsafe = Sha256_unsafe(BlockCount);
 
+    // copy over blocks
     component cob[BlockCount];
     for(var j = 0; j < BlockCount; j++) {
         var offset = j * BLOCK_LEN;
@@ -45,30 +46,28 @@ template Sha256Block2Test(BlockCount) {
             // copy over block j + 1
             cob[j] = CopyOverBlock(BLOCK_LEN);
             cob[j].L_pos <== len * BYTE_BITS - offset;
-            for (var i=0; i<BLOCK_LEN; i++) { cob[j].in[i] <== in[offset + i]; }
-            for (var i=0; i<BLOCK_LEN; i++) { sha256_unsafe.in[j][i] <== cob[j].out[i]; }
+            for (var i = 0; i < BLOCK_LEN; i++) { cob[j].in[i] <== in[offset + i]; }
+            for (var i = 0; i < BLOCK_LEN; i++) { sha256_unsafe.in[j][i] <== cob[j].out[i]; }
         }
         else {
             // copy over last block
             cob[j] = CopyOverBlock(prelast_pass_count);
             cob[j].L_pos <== len * BYTE_BITS - offset;
-            for (var i=0; i<prelast_pass_count; i++) { cob[j].in[i] <== in[offset + i]; }
-            for (var i=0; i<prelast_pass_count; i++) { sha256_unsafe.in[j][i] <== cob[j].out[i]; }
+            for (var i = 0; i < prelast_pass_count; i++) { cob[j].in[i] <== in[offset + i]; }
+            for (var i = 0; i < prelast_pass_count; i++) { sha256_unsafe.in[j][i] <== cob[j].out[i]; }
         }
     }
 
-    
-    
     // add L
     component n2b = Num2Bits(L_BITS);
     n2b.in <== len * BYTE_BITS;
-    for (var i=prelast_pass_count; i<BLOCK_LEN; i++) {
+    for (var i = prelast_pass_count; i < BLOCK_LEN; i++) {
         sha256_unsafe.in[BlockCount - 1][i] <== n2b.out[BLOCK_LEN - 1 - i];
     }
     sha256_unsafe.tBlock <== BlockCount;
 
     // export
-    for (var i=0; i<SHA256_LEN; i++) {
+    for (var i = 0; i < SHA256_LEN; i++) {
         out[i] <== sha256_unsafe.out[i];
     }
 }
