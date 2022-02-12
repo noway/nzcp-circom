@@ -28,13 +28,6 @@ function msgToBits(msg) {
     return inn
 }
 
-// function msgToBitsAs2Blocks(msg) {
-//     let inn = buffer2bitArray(Buffer.from(msg))
-//     const add_bits = 1024 - inn.length
-//     inn = inn.concat(Array(add_bits).fill(0));
-//     return inn
-// }
-
 describe("Sha256", function () {
     this.timeout(100000);
 
