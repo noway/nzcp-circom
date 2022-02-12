@@ -69,13 +69,13 @@ template Sha256Any(BlockSpace) {
     signal input len;
     signal output out[SHA256_LEN];
 
-    component sha256_j_block[MaxBlockCount];
+    component input_j_block[MaxBlockCount];
     for (var j = 0; j < MaxBlockCount; j++) {
         var blocks = j + 1;
-        sha256_j_block[j] = Sha256Var(blocks);
+        input_j_block[j] = Sha256Var(blocks);
         // calcualte sha256 as if it was blocks blocks
-        sha256_j_block[j].len <== len;
-        for (var i = 0; i < BLOCK_LEN * blocks; i++) { sha256_j_block[j].in[i] <== in[i]; }
+        input_j_block[j].len <== len;
+        for (var i = 0; i < BLOCK_LEN * blocks; i++) { input_j_block[j].in[i] <== in[i]; }
     }
 
     signal len_plus_64;
@@ -90,12 +90,32 @@ template Sha256Any(BlockSpace) {
 
     // switch between sha256 of blocks based on (len_plus_64 >> 9)
 
-    component mmm = MultiMultiMux(BlockSpace, SHA256_LEN);
-    for (var j = 0; j < MaxBlockCount; j++) {
-        for (var i = 0; i < SHA256_LEN; i++) { mmm.in[j][i] <== sha256_j_block[j].out[i]; }
+    component mmm = MultiMultiMux(BlockSpace, MaxBits);
+    for (var p = 0; p < MaxBlockCount; p++) {
+        for (var j = 0; j < MaxBlockCount; j++) {
+            for (var i = 0; i < BLOCK_LEN; i++) { mmm.in[p][j * BLOCK_LEN + i] <== input_j_block[j].out[i]; }
+        }
     }
     for (var k = 0; k < BlockSpace; k++) { mmm.selector[k] <== shr.out[k]; }
-    for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mmm.out[i]; }
+
+    component b2n = Bits2Num(BlockSpace);
+    for (var k = 0; k < BlockSpace; k++) { b2n.in[k] <== shr.out[k]; }
+
+
+
+
+    component sha256_unsafe = Sha256_unsafe(MaxBlockCount);
+    sha256_unsafe.tBlock <== b2n.out + 1;
+    // for (var i = 0; i < MaxBits; i++) {  }
+    for (var j = 0; j < MaxBlockCount; j++) {
+        for (var i = 0; i < BLOCK_LEN; i++) {
+            sha256_unsafe.in[j][i] <== mmm.out[j*BLOCK_LEN + i];
+        }
+    }
+
+    for (var i = 0; i < SHA256_LEN; i++) {
+        out[i] <== sha256_unsafe.out[i];
+    }
 
 }
 

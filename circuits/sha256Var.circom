@@ -36,9 +36,9 @@ template Sha256Var(BlockCount) {
 
     signal input in[BLOCK_LEN * BlockCount];
     signal input len;
-    signal output out[SHA256_LEN];
+    signal output out[BLOCK_LEN * BlockCount];
 
-    component sha256_unsafe = Sha256_unsafe(BlockCount);
+    // component sha256_unsafe = Sha256_unsafe(BlockCount);
 
     // copy over blocks
     component cob[BlockCount];
@@ -49,14 +49,14 @@ template Sha256Var(BlockCount) {
             cob[j] = CopyOverBlock(BLOCK_LEN);
             cob[j].L_pos <== len - offset;
             for (var i = 0; i < BLOCK_LEN; i++) { cob[j].in[i] <== in[offset + i]; }
-            for (var i = 0; i < BLOCK_LEN; i++) { sha256_unsafe.in[j][i] <== cob[j].out[i]; }
+            for (var i = 0; i < BLOCK_LEN; i++) { out[j * BLOCK_LEN + i] <== cob[j].out[i]; }
         }
         else {
             // copy over last block
             cob[j] = CopyOverBlock(prelast_pass_count);
             cob[j].L_pos <== len - offset;
             for (var i = 0; i < prelast_pass_count; i++) { cob[j].in[i] <== in[offset + i]; }
-            for (var i = 0; i < prelast_pass_count; i++) { sha256_unsafe.in[j][i] <== cob[j].out[i]; }
+            for (var i = 0; i < prelast_pass_count; i++) { out[j * BLOCK_LEN + i] <== cob[j].out[i]; }
         }
     }
 
@@ -64,12 +64,14 @@ template Sha256Var(BlockCount) {
     component n2b = Num2Bits(L_BITS);
     n2b.in <== len;
     for (var i = prelast_pass_count; i < BLOCK_LEN; i++) {
-        sha256_unsafe.in[BlockCount - 1][i] <== n2b.out[BLOCK_LEN - 1 - i];
+        out[(BlockCount - 1) * BLOCK_LEN + i] <== n2b.out[BLOCK_LEN - 1 - i];
     }
-    sha256_unsafe.tBlock <== BlockCount;
 
-    // export
-    for (var i = 0; i < SHA256_LEN; i++) {
-        out[i] <== sha256_unsafe.out[i];
-    }
+
+    // sha256_unsafe.tBlock <== BlockCount;
+
+    // // export
+    // for (var i = 0; i < SHA256_LEN; i++) {
+    //     out[i] <== sha256_unsafe.out[i];
+    // }
 }
