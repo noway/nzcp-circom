@@ -7,7 +7,7 @@ template Sha256Block2Test() {
     var BLOCK_LEN = 512;
     var SHA256_LEN = 256;
     var BYTE_BITS = 8;
-    var L_BITS = 16; // enough bits to hold 1024 value
+    var L_BITS = 16; // enough bits to hold 1024 value // TODO: try 64 to conform the spec?
     var first_pass_count = BLOCK_LEN - L_BITS;
 
     signal input in[BLOCK_LEN*2];
