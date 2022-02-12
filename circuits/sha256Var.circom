@@ -35,7 +35,7 @@ template Sha256Var(BlockCount) {
     var prelast_pass_count = BLOCK_LEN - L_BITS;
 
     signal input in[BLOCK_LEN * BlockCount];
-    signal input len; // TODO: make this to be in bits
+    signal input len;
     signal output out[SHA256_LEN];
 
     component sha256_unsafe = Sha256_unsafe(BlockCount);
@@ -47,14 +47,14 @@ template Sha256Var(BlockCount) {
         if (j < BlockCount - 1) {
             // copy over block j + 1
             cob[j] = CopyOverBlock(BLOCK_LEN);
-            cob[j].L_pos <== len * BYTE_BITS - offset;
+            cob[j].L_pos <== len - offset;
             for (var i = 0; i < BLOCK_LEN; i++) { cob[j].in[i] <== in[offset + i]; }
             for (var i = 0; i < BLOCK_LEN; i++) { sha256_unsafe.in[j][i] <== cob[j].out[i]; }
         }
         else {
             // copy over last block
             cob[j] = CopyOverBlock(prelast_pass_count);
-            cob[j].L_pos <== len * BYTE_BITS - offset;
+            cob[j].L_pos <== len - offset;
             for (var i = 0; i < prelast_pass_count; i++) { cob[j].in[i] <== in[offset + i]; }
             for (var i = 0; i < prelast_pass_count; i++) { sha256_unsafe.in[j][i] <== cob[j].out[i]; }
         }
@@ -62,7 +62,7 @@ template Sha256Var(BlockCount) {
 
     // add L
     component n2b = Num2Bits(L_BITS);
-    n2b.in <== len * BYTE_BITS;
+    n2b.in <== len;
     for (var i = prelast_pass_count; i < BLOCK_LEN; i++) {
         sha256_unsafe.in[BlockCount - 1][i] <== n2b.out[BLOCK_LEN - 1 - i];
     }

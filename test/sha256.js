@@ -39,7 +39,7 @@ describe("Sha256", function () {
 
         const message = "Jack,Sparrow,1960-04-16"
         const input = genSha256Inputs(message, 1);
-        const len = message.length;
+        const len = message.length * 8;
         
         const witness = await cir.calculateWitness({ "in": input.segments[0], len }, true);
 
@@ -58,7 +58,7 @@ describe("Sha256", function () {
         for(let i=0; i<56; i++) {
 
             const message = Array(i).fill("a").join("")
-            const len = message.length;
+            const len = message.length * 8;
             console.log("message", message, len)
 
             const inn = msgToBits(message)
@@ -80,7 +80,7 @@ describe("Sha256", function () {
 
         for(let i=56; i<120; i++) {
             const message = Array(i).fill("a").join("")
-            const len = message.length;
+            const len = message.length * 8;
             const inn = msgToBits(message)
             console.log("message", message, len)
             
@@ -100,7 +100,7 @@ describe("Sha256", function () {
 
         for(let i=120; i<183; i++) {
             const message = Array(i).fill("a").join("")
-            const len = message.length;
+            const len = message.length * 8;
             const inn = msgToBits(message)
             console.log("message", message, len)
             
