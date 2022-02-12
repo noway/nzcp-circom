@@ -23,8 +23,8 @@ function genSha256Inputs(input, nCount, nWidth = 512, inParam = "in") {
 
 describe("Sha256", function () {
     this.timeout(100000);
-    it ("Should parse ToBeSigned", async () => {
-        const p = path.join(__dirname, "../", "circuits", "sha256_test.circom")
+    it ("Should generate hash for 1 block", async () => {
+        const p = path.join(__dirname, "../", "circuits", "sha256Block1_test.circom")
         const cir = await wasm_tester(p);
 
         for(let i=0; i<56; i++) {
