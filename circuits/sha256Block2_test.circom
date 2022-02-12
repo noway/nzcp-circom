@@ -25,42 +25,51 @@ template CopyOverBlock(ToCopyBits) {
 
 }
 
-template Sha256Block2Test() {
+template Sha256Block2Test(BlockCount) {
     var BLOCK_LEN = 512;
     var SHA256_LEN = 256;
     var BYTE_BITS = 8;
-    var L_BITS = 64; // enough bits to hold 1024 value
-    var first_pass_count = BLOCK_LEN - L_BITS;
+    var L_BITS = 64;
+    var prelast_pass_count = BLOCK_LEN - L_BITS;
 
-    signal input in[BLOCK_LEN*2];
+    signal input in[BLOCK_LEN * BlockCount];
     signal input len;
     signal output out[SHA256_LEN];
 
-    component sha256_unsafe = Sha256_unsafe(2);
+    component sha256_unsafe = Sha256_unsafe(BlockCount);
 
-    // copy over block 1
-    component cob1 = CopyOverBlock(BLOCK_LEN);
-    cob1.L_pos <== len * BYTE_BITS;
-    for (var i=0; i<BLOCK_LEN; i++) { cob1.in[i] <== in[i]; }
-    for (var i=0; i<BLOCK_LEN; i++) { sha256_unsafe.in[0][i] <== cob1.out[i]; }
+    component cob[BlockCount];
+    for(var j = 0; j < BlockCount; j++) {
+        var offset = j * BLOCK_LEN;
+        if (j < BlockCount - 1) {
+            // copy over block j + 1
+            cob[j] = CopyOverBlock(BLOCK_LEN);
+            cob[j].L_pos <== len * BYTE_BITS - offset;
+            for (var i=0; i<BLOCK_LEN; i++) { cob[j].in[i] <== in[offset + i]; }
+            for (var i=0; i<BLOCK_LEN; i++) { sha256_unsafe.in[j][i] <== cob[j].out[i]; }
+        }
+        else {
+            // copy over last block
+            cob[j] = CopyOverBlock(prelast_pass_count);
+            cob[j].L_pos <== len * BYTE_BITS - offset;
+            for (var i=0; i<prelast_pass_count; i++) { cob[j].in[i] <== in[offset + i]; }
+            for (var i=0; i<prelast_pass_count; i++) { sha256_unsafe.in[j][i] <== cob[j].out[i]; }
+        }
+    }
+
     
-    // copy over block 2
-    component cob2 = CopyOverBlock(first_pass_count);
-    cob2.L_pos <== len * BYTE_BITS;
-    for (var i=0; i<first_pass_count; i++) { cob2.in[i] <== in[i + BLOCK_LEN]; }
-    for (var i=0; i<first_pass_count; i++) { sha256_unsafe.in[1][i] <== cob2.out[i]; }
     
     // add L
     component n2b = Num2Bits(L_BITS);
     n2b.in <== len * BYTE_BITS;
-    for (var i=first_pass_count; i<BLOCK_LEN; i++) {
-        sha256_unsafe.in[1][i] <== n2b.out[BLOCK_LEN - 1 - i];
+    for (var i=prelast_pass_count; i<BLOCK_LEN; i++) {
+        sha256_unsafe.in[BlockCount - 1][i] <== n2b.out[BLOCK_LEN - 1 - i];
     }
-    sha256_unsafe.tBlock <== 2;
+    sha256_unsafe.tBlock <== BlockCount;
 
     // export
     for (var i=0; i<SHA256_LEN; i++) {
         out[i] <== sha256_unsafe.out[i];
     }
 }
-component main = Sha256Block2Test();
+component main = Sha256Block2Test(2);
