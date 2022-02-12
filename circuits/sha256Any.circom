@@ -16,15 +16,15 @@ function pow(x, y) {
     }
 }
 
-template Sha256Any(BlockAddressSpace) {
+template Sha256Any(BlockSpace) {
 
-    var MaxBlockCount = pow(2, BlockAddressSpace);
+    var MaxBlockCount = pow(2, BlockSpace);
 
     var BLOCK_LEN = 512;
     var SHA256_LEN = 256;
     var ALL_BITS = BLOCK_LEN * MaxBlockCount;
 
-    var LenMaxBits = 9 + BlockAddressSpace; // can hold from 2 ^ 10 to 2 ^ 13
+    var LenMaxBits = 9 + BlockSpace; // can hold from 2 ^ 10 to 2 ^ 13
 
     signal input in[ALL_BITS];
     signal input len;
@@ -54,32 +54,32 @@ template Sha256Any(BlockAddressSpace) {
     component mux2 = MultiMux2(SHA256_LEN);
     component mux3 = MultiMux3(SHA256_LEN);
     component mux4 = MultiMux4(SHA256_LEN);
-    if (BlockAddressSpace == 1) {
+    if (BlockSpace == 1) {
         for (var j = 0; j < MaxBlockCount; j++) {
             for (var i = 0; i < SHA256_LEN; i++) { mux1.c[i][j] <== sha256_j_block[j].out[i]; }
         }
         mux1.s <== shr.out[0];
         for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux1.out[i]; }
     }
-    else if (BlockAddressSpace == 2) {
+    else if (BlockSpace == 2) {
         for (var j = 0; j < MaxBlockCount; j++) {
             for (var i = 0; i < SHA256_LEN; i++) { mux2.c[i][j] <== sha256_j_block[j].out[i]; }
         }
-        for (var k = 0; k < BlockAddressSpace; k++) { mux2.s[k] <== shr.out[k]; }
+        for (var k = 0; k < BlockSpace; k++) { mux2.s[k] <== shr.out[k]; }
         for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux2.out[i]; }
     }
-    else if (BlockAddressSpace == 3) {
+    else if (BlockSpace == 3) {
         for (var j = 0; j < MaxBlockCount; j++) {
             for (var i = 0; i < SHA256_LEN; i++) { mux3.c[i][j] <== sha256_j_block[j].out[i]; }
         }
-        for (var k = 0; k < BlockAddressSpace; k++) { mux3.s[k] <== shr.out[k]; }
+        for (var k = 0; k < BlockSpace; k++) { mux3.s[k] <== shr.out[k]; }
         for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux3.out[i]; }
     }
-    else if (BlockAddressSpace == 4) {
+    else if (BlockSpace == 4) {
         for (var j = 0; j < MaxBlockCount; j++) {
             for (var i = 0; i < SHA256_LEN; i++) { mux3.c[i][j] <== sha256_j_block[j].out[i]; }
         }
-        for (var k = 0; k < BlockAddressSpace; k++) { mux3.s[k] <== shr.out[k]; }
+        for (var k = 0; k < BlockSpace; k++) { mux3.s[k] <== shr.out[k]; }
         for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux3.out[i]; }
     }
 
