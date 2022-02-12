@@ -66,9 +66,6 @@ describe("Sha256", function () {
             const len = message.length;
             console.log("message", message, len)
 
-            // let inn = buffer2bitArray(Buffer.from(message))
-            // const add_bits = 512-inn.length
-            // inn = inn.concat(Array(add_bits).fill(0));
             const inn = msgToBitsAs1Block(message)
 
             const witness = await cir.calculateWitness({ "in": inn, len }, true);
