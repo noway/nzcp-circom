@@ -50,7 +50,6 @@ describe("Sha256", function () {
     */
 
     // TODO: into a separate test
-    /*
     it ("Should generate hash for 1 block", async () => {
         const p = path.join(__dirname, "../", "circuits", "sha256Block1_test.circom")
         const cir = await wasm_tester(p);
@@ -93,7 +92,6 @@ describe("Sha256", function () {
             assert.equal(actualHash, expectedHash)
         }
     });
-    */
 
     it ("Should generate hash for 120-183 len", async () => {
         const p = path.join(__dirname, "../", "circuits", "sha256Block3_test.circom")
