@@ -24,7 +24,7 @@ template Sha256Any(BlockAddressSpace) {
     var SHA256_LEN = 256;
     var ALL_BITS = BLOCK_LEN * MaxBlockCount;
 
-    var LEN_MAX_BITS = 11; // can hold up to 2048 value, change if going beyond 4 blocks or if going 2 blocks
+    var LenMaxBits = 9 + BlockAddressSpace; // can hold from 2 ^ 10 to 2 ^ 13
 
     signal input in[ALL_BITS];
     signal input len;
@@ -42,10 +42,10 @@ template Sha256Any(BlockAddressSpace) {
     signal len_plus_64;
     len_plus_64 <== len + 64;
 
-    component n2b = Num2Bits(LEN_MAX_BITS);
+    component n2b = Num2Bits(LenMaxBits);
     n2b.in <== len_plus_64;
-    component shr = ShR(LEN_MAX_BITS, 9); // len_plus_64 >> 9
-    for (var i = 0; i < LEN_MAX_BITS; i++) {
+    component shr = ShR(LenMaxBits, 9); // len_plus_64 >> 9
+    for (var i = 0; i < LenMaxBits; i++) {
         shr.in[i] <== n2b.out[i];
     }
 
