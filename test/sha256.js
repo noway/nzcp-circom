@@ -42,6 +42,7 @@ describe("Sha256", function () {
     });
     */
 
+    // TODO: into a separate test
     /*
     it ("Should generate hash for 1 block", async () => {
         const p = path.join(__dirname, "../", "circuits", "sha256Block1_test.circom")
@@ -73,7 +74,7 @@ describe("Sha256", function () {
         const p = path.join(__dirname, "../", "circuits", "sha256Block2_test.circom")
         const cir = await wasm_tester(p);
 
-        const message = "Jack,Sparrow,1960-04-16"
+        const message = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         const input = genSha256Inputs(message, 1);
         const len = message.length;
         
