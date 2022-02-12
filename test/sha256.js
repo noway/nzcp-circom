@@ -20,19 +20,20 @@ function genSha256Inputs(input, nCount, nWidth = 512, inParam = "in") {
     return { segments, "tBlock": tBlock }; 
 }
 
-function msgToBitsAs1Block(msg) {
+function msgToBits(msg) {
     let inn = buffer2bitArray(Buffer.from(msg))
-    const add_bits = 512 - inn.length
+    const overall_len = inn.length < 448 ? 512 : 1024
+    const add_bits = overall_len - inn.length
     inn = inn.concat(Array(add_bits).fill(0));
     return inn
 }
 
-function msgToBitsAs2Blocks(msg) {
-    let inn = buffer2bitArray(Buffer.from(msg))
-    const add_bits = 1024 - inn.length
-    inn = inn.concat(Array(add_bits).fill(0));
-    return inn
-}
+// function msgToBitsAs2Blocks(msg) {
+//     let inn = buffer2bitArray(Buffer.from(msg))
+//     const add_bits = 1024 - inn.length
+//     inn = inn.concat(Array(add_bits).fill(0));
+//     return inn
+// }
 
 describe("Sha256", function () {
     this.timeout(100000);
@@ -66,7 +67,7 @@ describe("Sha256", function () {
             const len = message.length;
             console.log("message", message, len)
 
-            const inn = msgToBitsAs1Block(message)
+            const inn = msgToBits(message)
 
             const witness = await cir.calculateWitness({ "in": inn, len }, true);
 
@@ -86,7 +87,7 @@ describe("Sha256", function () {
         for(let i=56; i<120; i++) {
             const message = Array(i).fill("a").join("")
             const len = message.length;
-            const inn = msgToBitsAs2Blocks(message)
+            const inn = msgToBits(message)
             console.log("message", message, len)
             
             const witness = await cir.calculateWitness({ "in": inn, len }, true);
