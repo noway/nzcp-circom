@@ -26,12 +26,6 @@ template Sha256Any() {
     sha256_2block.len <== len;
     for (var i = 0; i < BLOCK_LEN * 2; i++) { sha256_2block.in[i] <== in[i]; }
 
-    component mux1 = MultiMux1(SHA256_LEN);
-    for(var i = 0; i < SHA256_LEN; i++) {
-        mux1.c[i][0] <== sha256_1block.out[i];
-        mux1.c[i][1] <== sha256_2block.out[i];
-    }
-
     signal len_plus_64;
     len_plus_64 <== len + 64;
 
@@ -42,9 +36,13 @@ template Sha256Any() {
         shr.in[i] <== n2b.out[i];
     }
 
-    log(42);
+    // switch between sha256 of 1 and 2 blocks based on (len_plus_64 >> 9)
+    component mux1 = MultiMux1(SHA256_LEN);
+    for(var i = 0; i < SHA256_LEN; i++) {
+        mux1.c[i][0] <== sha256_1block.out[i];
+        mux1.c[i][1] <== sha256_2block.out[i];
+    }
     mux1.s <== shr.out[0];
-    log(mux1.s);
     for(var i = 0; i < SHA256_LEN; i++) {
         out[i] <== mux1.out[i];
     }
