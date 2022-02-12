@@ -84,23 +84,23 @@ describe("Sha256", function () {
     */
 
 
-    it ("Should generate hash for 2 blocks", async () => {
+    it ("Should generate hash for 56-119 len", async () => {
         const p = path.join(__dirname, "../", "circuits", "sha256Block2_test.circom")
         const cir = await wasm_tester(p);
 
-        const message = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        // const input = genSha256Inputs(message, 2);
-        // console.log('input.segments[0]',bitArray2buffer(input.segments[0]).toString('hex'))
-        // console.log('input.segments[1]',bitArray2buffer(input.segments[1]).toString('hex'))
-        const len = message.length;
-        const inn = msgToBitsAs2Blocks(message)
-        
-        const witness = await cir.calculateWitness({ "in": inn, len }, true);
+        for(let i=56; i<120; i++) {
+            const message = Array(i).fill("a").join("")
+            const len = message.length;
+            const inn = msgToBitsAs2Blocks(message)
+            console.log("message", message, len)
+            
+            const witness = await cir.calculateWitness({ "in": inn, len }, true);
 
-        const arrOut = witness.slice(1, 257);
-        const actualHash = bitArray2buffer(arrOut).toString("hex");
-        const expectedHash = Sha256.hash(message)
-        
-        assert.equal(actualHash, expectedHash)
+            const arrOut = witness.slice(1, 257);
+            const actualHash = bitArray2buffer(arrOut).toString("hex");
+            const expectedHash = Sha256.hash(message)
+            
+            assert.equal(actualHash, expectedHash)
+        }
     });
 });
