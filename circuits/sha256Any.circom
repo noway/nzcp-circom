@@ -14,6 +14,48 @@ function pow(x, y) {
     }
 }
 
+template MultiMultiMux(MuxSpace, n) {
+    var MaxVariants = pow(2, MuxSpace);
+
+    signal input in[MaxVariants][n];
+    signal input selector[MuxSpace];
+    signal output out[n];
+
+    component mux1 = MultiMux1(n);
+    component mux2 = MultiMux2(n);
+    component mux3 = MultiMux3(n);
+    component mux4 = MultiMux4(n);
+
+    if (MuxSpace == 1) {
+        for (var j = 0; j < MaxVariants; j++) {
+            for (var i = 0; i < n; i++) { mux1.c[i][j] <== in[j][i]; }
+        }
+        mux1.s <== selector[0];
+        for (var i = 0; i < n; i++) { out[i] <== mux1.out[i]; }
+    } 
+    else if (MuxSpace == 2) {
+        for (var j = 0; j < MaxVariants; j++) {
+            for (var i = 0; i < n; i++) { mux2.c[i][j] <== in[j][i]; }
+        }
+        for (var k = 0; k < MuxSpace; k++) { mux2.s[k] <== selector[k]; }
+        for (var i = 0; i < n; i++) { out[i] <== mux2.out[i]; }
+    }
+    else if (MuxSpace == 3) {
+        for (var j = 0; j < MaxVariants; j++) {
+            for (var i = 0; i < n; i++) { mux3.c[i][j] <== in[j][i]; }
+        }
+        for (var k = 0; k < MuxSpace; k++) { mux3.s[k] <== selector[k]; }
+        for (var i = 0; i < n; i++) { out[i] <== mux3.out[i]; }
+    }
+    else if (MuxSpace == 4) {
+        for (var j = 0; j < MaxVariants; j++) {
+            for (var i = 0; i < n; i++) { mux4.c[i][j] <== in[j][i]; }
+        }
+        for (var k = 0; k < MuxSpace; k++) { mux4.s[k] <== selector[k]; }
+        for (var i = 0; i < n; i++) { out[i] <== mux4.out[i]; }
+    }
+}
+
 template Sha256Any(BlockSpace) {
 
     var BLOCK_LEN = 512;
@@ -47,38 +89,13 @@ template Sha256Any(BlockSpace) {
     }
 
     // switch between sha256 of blocks based on (len_plus_64 >> 9)
-    component mux1 = MultiMux1(SHA256_LEN);
-    component mux2 = MultiMux2(SHA256_LEN);
-    component mux3 = MultiMux3(SHA256_LEN);
-    component mux4 = MultiMux4(SHA256_LEN);
-    if (BlockSpace == 1) {
-        for (var j = 0; j < MaxBlockCount; j++) {
-            for (var i = 0; i < SHA256_LEN; i++) { mux1.c[i][j] <== sha256_j_block[j].out[i]; }
-        }
-        mux1.s <== shr.out[0];
-        for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux1.out[i]; }
+
+    component mmm = MultiMultiMux(BlockSpace, SHA256_LEN);
+    for (var j = 0; j < MaxBlockCount; j++) {
+        for (var i = 0; i < SHA256_LEN; i++) { mmm.in[j][i] <== sha256_j_block[j].out[i]; }
     }
-    else if (BlockSpace == 2) {
-        for (var j = 0; j < MaxBlockCount; j++) {
-            for (var i = 0; i < SHA256_LEN; i++) { mux2.c[i][j] <== sha256_j_block[j].out[i]; }
-        }
-        for (var k = 0; k < BlockSpace; k++) { mux2.s[k] <== shr.out[k]; }
-        for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux2.out[i]; }
-    }
-    else if (BlockSpace == 3) {
-        for (var j = 0; j < MaxBlockCount; j++) {
-            for (var i = 0; i < SHA256_LEN; i++) { mux3.c[i][j] <== sha256_j_block[j].out[i]; }
-        }
-        for (var k = 0; k < BlockSpace; k++) { mux3.s[k] <== shr.out[k]; }
-        for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux3.out[i]; }
-    }
-    else if (BlockSpace == 4) {
-        for (var j = 0; j < MaxBlockCount; j++) {
-            for (var i = 0; i < SHA256_LEN; i++) { mux3.c[i][j] <== sha256_j_block[j].out[i]; }
-        }
-        for (var k = 0; k < BlockSpace; k++) { mux3.s[k] <== shr.out[k]; }
-        for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mux3.out[i]; }
-    }
+    for (var k = 0; k < BlockSpace; k++) { mmm.selector[k] <== shr.out[k]; }
+    for(var i = 0; i < SHA256_LEN; i++) { out[i] <== mmm.out[i]; }
 
 }
 
