@@ -33,7 +33,7 @@ describe("Sha256", function () {
     this.timeout(100000);
 
     it ("Should generate input for 0-55 len (1 block)", async () => {
-        const p = path.join(__dirname, "../", "circuits", "sha256Block1_test.circom")
+        const p = path.join(__dirname, "../", "circuits", "sha256InputBlock1_test.circom")
         const cir = await wasm_tester(p);
 
         for(let i=0; i<56; i++) {
@@ -57,7 +57,7 @@ describe("Sha256", function () {
 
 
     it ("Should generate input for 56-119 len (2 blocks)", async () => {
-        const p = path.join(__dirname, "../", "circuits", "sha256Block2_test.circom")
+        const p = path.join(__dirname, "../", "circuits", "sha256InputBlock2_test.circom")
         const cir = await wasm_tester(p);
 
         for(let i=56; i<120; i++) {
@@ -79,7 +79,7 @@ describe("Sha256", function () {
     });
 
     it ("Should generate input for 120-183 len (3 blocks)", async () => {
-        const p = path.join(__dirname, "../", "circuits", "sha256Block3_test.circom")
+        const p = path.join(__dirname, "../", "circuits", "sha256InputBlock3_test.circom")
         const cir = await wasm_tester(p);
 
         for(let i=120; i<183; i++) {
