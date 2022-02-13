@@ -453,11 +453,14 @@ template NZCP() {
         }
     }
 
+    signal concatLen;
+    concatLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
+
     // var CONCAT_LEN = 23; // TODO: dynamic
     // var CONCAT_LEN_BITS = CONCAT_LEN * 8;
 
     component sha256 = Sha256Var(1);
-    sha256.len <== 23 * 8; // TODO: dynamic
+    sha256.len <== concatLen * 8;
     for (k=0; k<CONCAT_MAX_LEN_BITS; k++) {
         sha256.in[k] <== bits[k];
     }
