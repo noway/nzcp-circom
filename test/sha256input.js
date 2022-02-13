@@ -1,9 +1,9 @@
 const chai = require("chai");
 const path = require("path");
 const wasm_tester = require("circom_tester").wasm;
-const {buffer2bitArray, bitArray2buffer, arrayChunk, padMessage} = require("./helpers/utils");
 const assert = chai.assert;
-const Sha256 = require('./helpers/sha256')
+
+const {buffer2bitArray, bitArray2buffer, arrayChunk, padMessage} = require("./helpers/utils");
 
 function genSha256Inputs(input, nCount, nWidth = 512, inParam = "in") {
     var segments = arrayChunk(padMessage(buffer2bitArray(Buffer.from(input))), nWidth);

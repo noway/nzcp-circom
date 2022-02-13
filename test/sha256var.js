@@ -1,8 +1,9 @@
 const chai = require("chai");
 const path = require("path");
 const wasm_tester = require("circom_tester").wasm;
-const {buffer2bitArray, bitArray2buffer, arrayChunk, padMessage} = require("./helpers/utils");
 const assert = chai.assert;
+
+const {buffer2bitArray, bitArray2buffer} = require("./helpers/utils");
 const Sha256 = require('./helpers/sha256')
 
 function msgToBits(msg, blocks) {
