@@ -18,7 +18,7 @@ async function testBlockSpace(block_space) {
     const max_len = (blocks * 512 - 64) / 8;
     console.log('block_space', block_space, 'blocks', blocks, 'max_len', max_len);
 
-    const p = path.join(__dirname, `../circuits/sha256AnyMax${block_space}_test.circom`)
+    const p = path.join(__dirname, `../circuits/Sha256VarSpace${block_space}_test.circom`)
     const cir = await wasm_tester(p);
 
     for(let i = 0; i < max_len; i++) {
