@@ -1,5 +1,5 @@
 pragma circom 2.0.0;
 
-include "./sha256Var.circom";
+include "./Sha256Input.circom";
 
-component main = Sha256Var(1);
+component main = Sha256Input(1);

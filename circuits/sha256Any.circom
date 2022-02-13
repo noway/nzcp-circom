@@ -1,6 +1,6 @@
 pragma circom 2.0.0;
 
-include "./sha256Var.circom";
+include "./Sha256Input.circom";
 include "../circomlib-master/circuits/mux1.circom";
 include "../circomlib-master/circuits/mux2.circom";
 include "../circomlib-master/circuits/mux3.circom";
@@ -81,7 +81,7 @@ template Sha256Any(BlockSpace) {
     component input_j_block[MaxBlockCount];
     for (var p = 0; p < MaxBlockCount; p++) {
         var blocks = p + 1;
-        input_j_block[p] = Sha256Var(blocks);
+        input_j_block[p] = Sha256Input(blocks);
         input_j_block[p].len <== len;
         for (var j = 0; j < blocks; j++) {
             for (var i = 0; i < BLOCK_LEN; i++) {

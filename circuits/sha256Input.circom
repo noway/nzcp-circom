@@ -27,7 +27,7 @@ template CopyOverBlock(ToCopyBits) {
 }
 
 // Prepare sha256 input for Sha256_unsafe as if it had BlockCount blocks
-template Sha256Var(BlockCount) {
+template Sha256Input(BlockCount) {
 
     // constants
     var BLOCK_LEN = 512;
