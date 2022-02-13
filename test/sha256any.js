@@ -43,17 +43,17 @@ describe("Sha256", function () {
         await testBlockSpace(1);
     });
 
-    // it ("Should generate hash for 2 block space", async () => {
-    //     await testBlockSpace(2);
-    // });
+    it ("Should generate hash for 2 block space", async () => {
+        await testBlockSpace(2);
+    });
 
-    // it ("Should generate hash for 3 block space", async () => {
-    //     await testBlockSpace(3);
-    // });
+    it ("Should generate hash for 3 block space", async () => {
+        await testBlockSpace(3);
+    });
 
-    // it ("Should generate hash for 4 block space", async () => {
-    //     await testBlockSpace(4);
-    // });
+    it ("Should generate hash for 4 block space", async () => {
+        await testBlockSpace(4);
+    });
 
 
 });
