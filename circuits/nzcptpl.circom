@@ -1,8 +1,9 @@
 pragma circom 2.0.0;
 
-include "../circomlib-master/circuits/sha256/sha256.circom";
+// include "../circomlib-master/circuits/sha256/sha256.circom";
 include "../circomlib-master/circuits/comparators.circom";
-include "./incrementalQuinTree.circom";
+// include "./incrementalQuinTree.circom";
+include "./sha256Var.circom";
 include "./cbor.circom";
 
 // TODO: only use <== not ==>
@@ -184,7 +185,6 @@ template NZCP() {
     //     c[k] <== sha256.out[k];
     // }
 
-    /*
     // convert bits to bytes
     // TODO: use bits2num?
     signal ToBeSigned[ToBeSignedBytes];
@@ -427,8 +427,8 @@ template NZCP() {
         credSubj_concatString[k] <== credSubj_givenNameChar[k] + credSubj_sep1Char[k] + credSubj_familyNameChar[k] + credSubj_sep2Char[k] + credSubj_dobChar[k];
         
     }
-    */
 
+    /*
     var STRINGS_TO_CONCAT = 3;
     var CONCAT_MAX_LEN = STRINGS_TO_CONCAT*STRING_MAX_LEN;
     signal credSubj_concatString[CONCAT_MAX_LEN];
@@ -439,10 +439,12 @@ template NZCP() {
     for(var i = 0; i < CONCAT_MAX_LEN; i++) {
         credSubj_concatString[i] <== concatstr[i];
     }
+    */
 
 
+    var CONCAT_MAX_LEN_BITS = CONCAT_MAX_LEN * 8;
     component n2b[CONCAT_MAX_LEN];
-    signal bits[CONCAT_MAX_LEN*8];
+    signal bits[CONCAT_MAX_LEN_BITS];
     for(k = 0; k < CONCAT_MAX_LEN; k++) {
         n2b[k] = Num2Bits(8);
         n2b[k].in <== credSubj_concatString[k];
@@ -451,15 +453,23 @@ template NZCP() {
         }
     }
 
+    // var CONCAT_LEN = 23; // TODO: dynamic
+    // var CONCAT_LEN_BITS = CONCAT_LEN * 8;
 
-    var CONCAT_LEN = 23; // TODO: dynamic
-    var CONCAT_LEN_BITS = CONCAT_LEN * 8;
-
-    component sha256 = Sha256(CONCAT_LEN_BITS);
-
-    for (k=0; k<CONCAT_LEN_BITS; k++) {
+    component sha256 = Sha256Var(1);
+    sha256.len <== 23 * 8; // TODO: dynamic
+    for (k=0; k<CONCAT_MAX_LEN_BITS; k++) {
         sha256.in[k] <== bits[k];
     }
+    for (k = CONCAT_MAX_LEN_BITS; k < 512*2; k++) {
+        sha256.in[k] <== 0;
+    }
+
+
+
+
+    // component sha256 = Sha256(CONCAT_LEN_BITS);
+
 
     for (k=0; k<256; k++) {
         c[k] <== sha256.out[k];
