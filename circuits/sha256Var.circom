@@ -61,6 +61,7 @@ template MultiMultiMux(MuxSpace, n) {
 
 // Caclulate sha256 of input of any length within (64 * (2 ^ BlockSpace)) characters
 // Takes in array of bits and length of the string in bits
+// If any of the bits after len are not 0, the result is undefined behavior
 template Sha256Var(BlockSpace) {
 
     // constants
