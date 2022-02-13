@@ -32,25 +32,6 @@ function msgToBits(msg) {
 describe("Sha256", function () {
     this.timeout(100000);
 
-    /*
-    it ("Should generate input for 1 block", async () => {
-        const p = path.join(__dirname, "../", "circuits", "sha256Block1_test.circom")
-        const cir = await wasm_tester(p);
-
-        const message = "Jack,Sparrow,1960-04-16"
-        const input = genSha256Inputs(message, 1);
-        const len = message.length * 8;
-        
-        const witness = await cir.calculateWitness({ "in": input.segments[0], len }, true);
-
-        const arrOut = witness.slice(1, 257);
-        const hash2 = bitArray2buffer(arrOut).toString("hex");
-
-        assert.equal(hash2,Sha256.hash(message))
-    });
-    */
-
-    // TODO: into a separate test
     it ("Should generate input for 0-55 len (1 block)", async () => {
         const p = path.join(__dirname, "../", "circuits", "sha256Block1_test.circom")
         const cir = await wasm_tester(p);
@@ -70,10 +51,8 @@ describe("Sha256", function () {
 
             const expected = bitArray2buffer(genSha256Inputs(message, 1).segments[0]).toString('hex')
 
-            // console.log('expected',expected)
             assert.equal(actual, expected)
         }
-
     });
 
 
@@ -117,7 +96,6 @@ describe("Sha256", function () {
             const segments = genSha256Inputs(message, 3).segments
             const expected = bitArray2buffer(segments[0].concat(segments[1]).concat(segments[2])).toString('hex')
 
-            
             assert.equal(actual, expected)
         }
     });
