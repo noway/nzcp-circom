@@ -75,7 +75,7 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     signal pos_loop_2[MAX_CWT_MAP_LEN];
     signal pos_loop_3[MAX_CWT_MAP_LEN];
 
-    component calculateTotal_foundpos = CalculateTotal(MAX_CWT_MAP_LEN);
+    component calculateTotal_foundpos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
 
     pos_loop_1[0] <== pos;
 
@@ -127,7 +127,7 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
         // should we select this vc pos candidate?
         mapval_isAccepted[k] <== mapval_isNeedle[k] * mapval_withinMaplen[k].out;
 
-        // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
+        // put a vc pos candidate into NZCPCalculateTotal to be able to get vc pos outside of the loop
         calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (pos_loop_3[k] + mapval_value[k]);
     }
 
@@ -307,7 +307,7 @@ template NZCP() {
     // assign givenName
     component givenName_charsCalculateTotal[STRING_MAX_LEN];
     for(var h = 0; h<STRING_MAX_LEN; h++) {
-        givenName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        givenName_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
             givenName_charsCalculateTotal[h].nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].outbytes[h];
         }
@@ -315,7 +315,7 @@ template NZCP() {
     }
     for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { givenName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
     component givenName_lenCalculateTotal;
-    givenName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    givenName_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
         givenName_lenCalculateTotal.nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].len;
     }
@@ -325,7 +325,7 @@ template NZCP() {
     // assign familyName
     component familyName_charsCalculateTotal[STRING_MAX_LEN];
     for(var h = 0; h<STRING_MAX_LEN; h++) {
-        familyName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        familyName_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
             familyName_charsCalculateTotal[h].nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].outbytes[h];
         }
@@ -333,7 +333,7 @@ template NZCP() {
     }
     for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { familyName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
     component familyName_lenCalculateTotal;
-    familyName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    familyName_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
         familyName_lenCalculateTotal.nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].len;
     }
@@ -343,7 +343,7 @@ template NZCP() {
     // assign dob
     component dob_charsCalculateTotal[STRING_MAX_LEN];
     for(var h = 0; h<STRING_MAX_LEN; h++) {
-        dob_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        dob_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
             dob_charsCalculateTotal[h].nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].outbytes[h];
         }
@@ -351,7 +351,7 @@ template NZCP() {
     }
     for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { dob[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
     component dob_lenCalculateTotal;
-    dob_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    dob_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
         dob_lenCalculateTotal.nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].len;
     }

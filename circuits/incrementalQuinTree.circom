@@ -2,7 +2,7 @@ pragma circom 2.0.0;
 
 // https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/calculateTotal.circom
 // License: MIT
-template CalculateTotal(n) {
+template NZCPCalculateTotal(n) {
     signal input nums[n];
     signal output sum;
 

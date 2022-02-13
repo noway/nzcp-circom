@@ -186,14 +186,14 @@ template DecodeUint(ToBeSignedBytes) {
 
 
     // return
-    component calculateTotal_value = CalculateTotal(4);
+    component calculateTotal_value = NZCPCalculateTotal(4);
     calculateTotal_value.nums[0] <== condition_23 * value_23;
     calculateTotal_value.nums[1] <== condition_24 * value_24;
     calculateTotal_value.nums[2] <== condition_25 * value_25;
     calculateTotal_value.nums[3] <== condition_26 * value_26;
     value <== calculateTotal_value.sum;
 
-    component calculateTotal_nextpos = CalculateTotal(4);
+    component calculateTotal_nextpos = NZCPCalculateTotal(4);
     calculateTotal_nextpos.nums[0] <== condition_23 * nextpos_23;
     calculateTotal_nextpos.nums[1] <== condition_24 * nextpos_24;
     calculateTotal_nextpos.nums[2] <== condition_25 * nextpos_25;
@@ -260,7 +260,7 @@ template SkipValueScalar(ToBeSignedBytes) {
     isString.in[0] <== type;
     isString.in[1] <== MAJOR_TYPE_STRING;
 
-    component calculateTotal = CalculateTotal(2);
+    component calculateTotal = NZCPCalculateTotal(2);
     calculateTotal.nums[0] <== isInt.out * nextnextpos;
     calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
     finalpos <== calculateTotal.sum;
@@ -335,7 +335,7 @@ template SkipValue(ToBeSignedBytes) {
     isArray.in[0] <== type;
     isArray.in[1] <== MAJOR_TYPE_ARRAY;
 
-    component calculateTotal = CalculateTotal(3);
+    component calculateTotal = NZCPCalculateTotal(3);
     calculateTotal.nums[0] <== isInt.out * nextnextpos;
     calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
     calculateTotal.nums[2] <== isArray.out * array_final_pos;
