@@ -51,7 +51,7 @@ describe("Sha256", function () {
     */
 
     // TODO: into a separate test
-    it ("Should generate input for 1 block", async () => {
+    it ("Should generate input for 0-55 len (1 block)", async () => {
         const p = path.join(__dirname, "../", "circuits", "sha256Block1_test.circom")
         const cir = await wasm_tester(p);
 
@@ -99,7 +99,7 @@ describe("Sha256", function () {
         }
     });
 
-    it ("Should generate input for 120-183 len", async () => {
+    it ("Should generate input for 120-183 len (3 blocks)", async () => {
         const p = path.join(__dirname, "../", "circuits", "sha256Block3_test.circom")
         const cir = await wasm_tester(p);
 
