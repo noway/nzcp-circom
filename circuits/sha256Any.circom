@@ -59,6 +59,8 @@ template MultiMultiMux(MuxSpace, n) {
     }
 }
 
+// Caclulate sha256 of input of any length within (512 * (2 ^ BlockSpace)) bits
+// Takes in array of bits and length of the string in bits
 template Sha256Any(BlockSpace) {
 
     // constants
