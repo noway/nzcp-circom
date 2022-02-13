@@ -428,20 +428,8 @@ template NZCP() {
         
     }
 
-    /*
-    var STRINGS_TO_CONCAT = 3;
-    var CONCAT_MAX_LEN = STRINGS_TO_CONCAT*STRING_MAX_LEN;
-    signal credSubj_concatString[CONCAT_MAX_LEN];
-    var concatstr[CONCAT_MAX_LEN] = [
-        74, 97, 99, 107, 44, 83, 112, 97, 114, 114, 111, 119, 44, 49, 57, 54, 48, 45, 48, 52, 45, 49, 54,
-        0,0,0,0,0,0,0
-    ];
-    for(var i = 0; i < CONCAT_MAX_LEN; i++) {
-        credSubj_concatString[i] <== concatstr[i];
-    }
-    */
 
-
+    // convert concat string into bits
     var CONCAT_MAX_LEN_BITS = CONCAT_MAX_LEN * 8;
     component n2b[CONCAT_MAX_LEN];
     signal bits[CONCAT_MAX_LEN_BITS];
@@ -453,11 +441,9 @@ template NZCP() {
         }
     }
 
+    // calculate sha256 of the concat string
     signal concatLen;
     concatLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
-
-    // var CONCAT_LEN = 23; // TODO: dynamic
-    // var CONCAT_LEN_BITS = CONCAT_LEN * 8;
 
     component sha256 = Sha256Var(1);
     sha256.len <== concatLen * 8;
@@ -468,18 +454,10 @@ template NZCP() {
         sha256.in[k] <== 0;
     }
 
-
-
-
-    // component sha256 = Sha256(CONCAT_LEN_BITS);
-
-
+    // export the sha256 hash
     for (k=0; k<256; k++) {
         c[k] <== sha256.out[k];
     }
-
-
-
 
 }
 
