@@ -6,6 +6,7 @@ include "../circomlib-master/circuits/mux2.circom";
 include "../circomlib-master/circuits/mux3.circom";
 include "../circomlib-master/circuits/mux4.circom";
 
+// Calculate power of x ^ y
 function pow(x, y) {
     if (y == 0) {
         return 1;
@@ -14,6 +15,8 @@ function pow(x, y) {
     }
 }
 
+// Switch between MultiMux[1-4] dynamically during compile time
+// MuxSpace is only supported to be between 1 and 4
 template MultiMultiMux(MuxSpace, n) {
     var MaxVariants = pow(2, MuxSpace);
 
@@ -58,7 +61,7 @@ template MultiMultiMux(MuxSpace, n) {
 
 template Sha256Any(BlockSpace) {
 
-    // consts
+    // constants
     var BLOCK_LEN = 512;
     var SHA256_LEN = 256;
 
@@ -131,6 +134,5 @@ template Sha256Any(BlockSpace) {
     for (var i = 0; i < SHA256_LEN; i++) {
         out[i] <== sha256_unsafe.out[i];
     }
-
 }
 

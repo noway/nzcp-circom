@@ -3,6 +3,8 @@ pragma circom 2.0.0;
 include "../snark-jwt-verify-master/circuits/sha256.circom";
 include "../circomlib-master/circuits/mux1.circom";
 
+// Copy over 1 block of sha256 input
+// Sets bit to 1 at L_pos
 template CopyOverBlock(ToCopyBits) {
     signal input L_pos;
     signal input in[ToCopyBits];
@@ -22,56 +24,48 @@ template CopyOverBlock(ToCopyBits) {
 
         out[i] <== mux[i].out;
     }
-
 }
 
-// Variable sha256
-// BlockCount SHOULD match the number of blocks in the message
+// Prepare sha256 input for Sha256_unsafe as if it had BlockCount blocks
 template Sha256Var(BlockCount) {
-    var BLOCK_LEN = 512;
-    var SHA256_LEN = 256;
-    var BYTE_BITS = 8;
-    var L_BITS = 64;
-    var prelast_pass_count = BLOCK_LEN - L_BITS;
 
+    // constants
+    var BLOCK_LEN = 512;
+    var L_BITS = 64;
+
+    // variables
+    var PreLBlockLen = BLOCK_LEN - L_BITS;
+
+    // signas
     signal input in[BLOCK_LEN * BlockCount];
     signal input len;
     signal output out[BLOCK_LEN * BlockCount];
-
-    // component sha256_unsafe = Sha256_unsafe(BlockCount);
 
     // copy over blocks
     component cob[BlockCount];
     for(var j = 0; j < BlockCount; j++) {
         var offset = j * BLOCK_LEN;
         if (j < BlockCount - 1) {
-            // copy over block j + 1
+            // copy over block number j
             cob[j] = CopyOverBlock(BLOCK_LEN);
             cob[j].L_pos <== len - offset;
             for (var i = 0; i < BLOCK_LEN; i++) { cob[j].in[i] <== in[offset + i]; }
             for (var i = 0; i < BLOCK_LEN; i++) { out[j * BLOCK_LEN + i] <== cob[j].out[i]; }
         }
         else {
-            // copy over last block
-            cob[j] = CopyOverBlock(prelast_pass_count);
+            // copy over pre-L block (last block before L)
+            // this block is clipped because 64 bits are reserved for L
+            cob[j] = CopyOverBlock(PreLBlockLen);
             cob[j].L_pos <== len - offset;
-            for (var i = 0; i < prelast_pass_count; i++) { cob[j].in[i] <== in[offset + i]; }
-            for (var i = 0; i < prelast_pass_count; i++) { out[j * BLOCK_LEN + i] <== cob[j].out[i]; }
+            for (var i = 0; i < PreLBlockLen; i++) { cob[j].in[i] <== in[offset + i]; }
+            for (var i = 0; i < PreLBlockLen; i++) { out[j * BLOCK_LEN + i] <== cob[j].out[i]; }
         }
     }
 
     // add L
     component n2b = Num2Bits(L_BITS);
     n2b.in <== len;
-    for (var i = prelast_pass_count; i < BLOCK_LEN; i++) {
+    for (var i = PreLBlockLen; i < BLOCK_LEN; i++) {
         out[(BlockCount - 1) * BLOCK_LEN + i] <== n2b.out[BLOCK_LEN - 1 - i];
     }
-
-
-    // sha256_unsafe.tBlock <== BlockCount;
-
-    // // export
-    // for (var i = 0; i < SHA256_LEN; i++) {
-    //     out[i] <== sha256_unsafe.out[i];
-    // }
 }
