@@ -226,11 +226,11 @@ template SkipValueScalar(ToBeSignedBytes) {
     signal input bytes[ToBeSignedBytes];
     signal input pos;
 
-    signal output finalpos;
+    signal output nextpos;
 
     signal v;
     signal type;
-    signal nextpos;
+    // signal nextpos;
 
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
@@ -238,12 +238,12 @@ template SkipValueScalar(ToBeSignedBytes) {
 
     v <== readType.v;
     type <== readType.type;
-    nextpos <== readType.nextpos;
+    // nextpos <== readType.nextpos;
 
     component decodeUint = DecodeUint(ToBeSignedBytes);
     decodeUint.v <== v;
     copyBytes(bytes, decodeUint)
-    decodeUint.pos <== nextpos;
+    decodeUint.pos <== readType.nextpos;
 
     signal nextnextpos;
     nextnextpos <== decodeUint.nextpos;
@@ -261,7 +261,7 @@ template SkipValueScalar(ToBeSignedBytes) {
     component calculateTotal = NZCPCalculateTotal(2);
     calculateTotal.nums[0] <== isInt.out * nextnextpos;
     calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
-    finalpos <== calculateTotal.sum;
+    nextpos <== calculateTotal.sum;
 
 
 }
@@ -311,8 +311,8 @@ template SkipValue(ToBeSignedBytes) {
         skipValue[i] = SkipValueScalar(ToBeSignedBytes);
         copyBytes(bytes, skipValue[i])
         skipValue[i].pos <== i == 0 ? nextnextpos : nextposarray[i - 1];
-        skipValue[i].finalpos ==> nextposarray[i];
-        qs.in[i] <== skipValue[i].finalpos;
+        skipValue[i].nextpos ==> nextposarray[i];
+        qs.in[i] <== skipValue[i].nextpos;
     }
     qs.index <== value - 1;
     signal array_final_pos;
