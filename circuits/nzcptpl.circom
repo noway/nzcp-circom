@@ -127,8 +127,8 @@ template ReadMapLength(ToBeSignedBytes) {
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
     readType.pos <== pos; // 27 bytes initial skip for example MoH pass
-    readType.v ==> v;
-    readType.type ==> type;
+    v <== readType.v;
+    type <== readType.type;
     nextpos <== readType.nextpos;
     hardcore_assert(type, MAJOR_TYPE_MAP);
 
@@ -136,7 +136,7 @@ template ReadMapLength(ToBeSignedBytes) {
     signal x;
     component getX = GetX();
     getX.v <== v;
-    getX.x ==> x;
+    x <== getX.x;
     // TODO: should this be more generic and allow for x more than 23?
     assert(x <= 23); // only supporting maps with 23 or less entries
 
@@ -180,7 +180,7 @@ template NZCP() {
             e2 = e2 + e2;
         }
 
-        lc1 ==> ToBeSigned[k];
+        ToBeSigned[k] <== lc1;
     }
 
     component readMapLength = ReadMapLength(ToBeSignedBytes);
@@ -271,14 +271,14 @@ template NZCP() {
         mapval_readType[k] = ReadType(ToBeSignedBytes);
         copyBytes(ToBeSigned, mapval_readType[k])
         mapval_readType[k].pos <== k == 0 ? readMapLength3.nextpos : mapval_decodeString[k - 1].nextpos; // 27 bytes initial skip for example MoH pass
-        mapval_readType[k].v ==> mapval_v[k];
-        mapval_readType[k].type ==> mapval_type[k];
+        mapval_v[k] <== mapval_readType[k].v;
+        mapval_type[k] <== mapval_readType[k].type;
         // hardcore_assert(mapval_type[k], MAJOR_TYPE_MAP);
 
         // read map length
         mapval_getX[k] = GetX();
         mapval_getX[k].v <== mapval_v[k];
-        mapval_getX[k].x ==> mapval_x[k];
+        mapval_x[k] <== mapval_getX[k].x;
         // TODO: should this be more generic and allow for string keys with length of more than 23? (but we DO now it won't be more than 9!)
         assert(mapval_x[k] <= 23); // only supporting strings with 23 or less entries
 

@@ -56,7 +56,7 @@ template GetX() {
         lc1 += vbits[i] * e2;
         e2 = e2 + e2;
     }
-    lc1 ==> x;
+    x <== lc1;
 }
 
 template GetV(ToBeSignedBytes) {
@@ -84,7 +84,7 @@ template DecodeUint(ToBeSignedBytes) {
     signal x;
     component getX = GetX();
     getX.v <== v;
-    getX.x ==> x;
+    x <== getX.x;
 
     // if (x <= 23)
     signal value_23;
@@ -161,25 +161,25 @@ template DecodeUint(ToBeSignedBytes) {
     lessThan.in[0] <== x;
     lessThan.in[1] <== 24;
     signal condition_23;
-    lessThan.out ==> condition_23;
+    condition_23 <== lessThan.out;
 
     component isEqual24 = IsEqual();
     isEqual24.in[0] <== x;
     isEqual24.in[1] <== 24;
     signal condition_24;
-    isEqual24.out ==> condition_24;
+    condition_24 <== isEqual24.out;
 
     component isEqual25 = IsEqual();
     isEqual25.in[0] <== x;
     isEqual25.in[1] <== 25;
     signal condition_25;
-    isEqual25.out ==> condition_25;
+    condition_25 <== isEqual25.out;
 
     component isEqual26 = IsEqual();
     isEqual26.in[0] <== x;
     isEqual26.in[1] <== 26;
     signal condition_26;
-    isEqual26.out ==> condition_26;
+    condition_26 <== isEqual26.out;
 
 
     // return
@@ -210,11 +210,11 @@ template ReadType(ToBeSignedBytes) {
     component getV = GetV(ToBeSignedBytes);
     copyBytes(bytes, getV)
     getV.pos <== pos;
-    getV.v ==> v;
+    v <== getV.v;
 
     component getType = GetType();
     getType.v <== v;
-    getType.type ==> type;
+    type <== getType.type;
 
     pos + 1 ==> nextpos;
 }
@@ -291,7 +291,7 @@ template SkipValue(ToBeSignedBytes) {
         skipValue[i] = SkipValueScalar(ToBeSignedBytes);
         copyBytes(bytes, skipValue[i])
         skipValue[i].pos <== i == 0 ? decodeUint.nextpos : nextposarray[i - 1];
-        skipValue[i].nextpos ==> nextposarray[i];
+        nextposarray[i] <== skipValue[i].nextpos;
         qs.in[i] <== skipValue[i].nextpos;
     }
     qs.index <== decodeUint.value - 1;
@@ -342,7 +342,7 @@ template StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
         getV[i] = GetV(ToBeSignedBytes);
         copyBytes(bytes, getV[i])
         getV[i].pos <== pos + i;
-        getV[i].v ==> isEqual[i].in[1];
+        isEqual[i].in[1] <== getV[i].v;
 
         conditionsSum = conditionsSum + isEqual[i].out;
     }
@@ -383,7 +383,7 @@ template DecodeString(ToBeSignedBytes, MaxLen) {
         getV[i] = GetV(ToBeSignedBytes);
         copyBytes(bytes, getV[i])
         getV[i].pos <== decodeUint.nextpos + i;
-        getV[i].v ==> outbytes[i];
+        outbytes[i] <== getV[i].v;
     }
 
     // return
