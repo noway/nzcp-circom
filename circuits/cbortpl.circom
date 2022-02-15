@@ -278,7 +278,7 @@ template SkipValue(ToBeSignedBytes) {
 
     signal v;
     signal type;
-    signal nextpos;
+    // signal nextpos;
 
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
@@ -286,12 +286,12 @@ template SkipValue(ToBeSignedBytes) {
 
     v <== readType.v;
     type <== readType.type;
-    nextpos <== readType.nextpos;
+    // nextpos <== readType.nextpos;
 
     component decodeUint = DecodeUint(ToBeSignedBytes);
     decodeUint.v <== v;
     copyBytes(bytes, decodeUint)
-    decodeUint.pos <== nextpos;
+    decodeUint.pos <== readType.nextpos;
 
     signal nextnextpos;
     nextnextpos <== decodeUint.nextpos;
