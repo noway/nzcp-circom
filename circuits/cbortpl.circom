@@ -1,6 +1,7 @@
 pragma circom 2.0.0;
 
 include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/comparators.circom";
+include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/sha256/shift.circom";
 include "./incrementalQuinTree.circom";
 
 /* assert through constraint and assert */
@@ -21,20 +22,32 @@ include "./incrementalQuinTree.circom";
 
 // returns the value of v bit shifted to the right by 5 bits
 template GetType() {
-    // TODO: use Num2Bits?
     // TODO: assert 8 bits here and in all other places
+    // constants
+    var InputBits = 8;
+    var ShiftBits = 5;
+    var ResultBits = InputBits - ShiftBits;
+
+    // i/o signals
     signal input v;
     signal output type;
-    // assign type signal
-    // shift 0bXXXYYYYY to 0b00000XXX
-    type <-- v >> 5;
-    signal check_v;
-    check_v <== type * 32;
-    // we need full 8 bits to check, otherwise in[0] might get stripped
-    component lessThan = LessThan(8); 
-    lessThan.in[0] <== v - check_v;
-    lessThan.in[1] <== 32;
-    lessThan.out === 1;
+
+    // convert v to bits
+    component n2b = Num2Bits(InputBits);
+    n2b.in <== v;
+
+    // shift
+    component shr = ShR(InputBits, ShiftBits); // v >> 5
+    for (var i = 0; i < InputBits; i++) {
+        shr.in[i] <== n2b.out[i];
+    }
+
+    // convert back to number
+    component b2n = Bits2Num(ResultBits);
+    for (var i = 0; i < ResultBits; i++) {
+        b2n.in[i] <== shr.out[i];
+    }
+    type <== b2n.out;
 }
 
 // returns the 5 lowest bits of v
