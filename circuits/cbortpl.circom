@@ -216,7 +216,7 @@ template ReadType(ToBeSignedBytes) {
     getType.v <== v;
     type <== getType.type;
 
-    pos + 1 ==> nextpos;
+    nextpos <== pos + 1;
 }
 
 // TODO: test
