@@ -223,42 +223,37 @@ template ReadType(ToBeSignedBytes) {
 // TODO: test
 // Skips a scalar value, only ints and strings are supported atm.
 template SkipValueScalar(ToBeSignedBytes) {
+
+    // signals
     signal input bytes[ToBeSignedBytes];
     signal input pos;
 
     signal output nextpos;
 
-    signal v;
-    signal type;
-
+    // read type
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
     readType.pos <== pos;
 
-    v <== readType.v;
-    type <== readType.type;
-
+    // decode uint
     component decodeUint = DecodeUint(ToBeSignedBytes);
-    decodeUint.v <== v;
+    decodeUint.v <== readType.v;
     copyBytes(bytes, decodeUint)
     decodeUint.pos <== readType.nextpos;
 
-    signal nextnextpos;
-    nextnextpos <== decodeUint.nextpos;
-    signal value;
-    value <== decodeUint.value;
-
+    // decide between int and string
     component isInt = IsEqual();
-    isInt.in[0] <== type;
+    isInt.in[0] <== readType.type;
     isInt.in[1] <== MAJOR_TYPE_INT;
 
     component isString = IsEqual();
-    isString.in[0] <== type;
+    isString.in[0] <== readType.type;
     isString.in[1] <== MAJOR_TYPE_STRING;
 
+    // return
     component calculateTotal = NZCPCalculateTotal(2);
-    calculateTotal.nums[0] <== isInt.out * nextnextpos;
-    calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
+    calculateTotal.nums[0] <== isInt.out * decodeUint.nextpos;
+    calculateTotal.nums[1] <== isString.out * (decodeUint.nextpos + decodeUint.value);
     nextpos <== calculateTotal.sum;
 }
 
@@ -268,9 +263,11 @@ template SkipValueScalar(ToBeSignedBytes) {
 // TODO: rename ToBeSignedBytes to byteslen or len
 template SkipValue(ToBeSignedBytes) {
 
+    // constants
     // TODO: bigger?
     var MAX_ARRAY_LEN = 4;
 
+    // i/o signals
     signal input bytes[ToBeSignedBytes];
     signal input pos;
 
@@ -279,6 +276,7 @@ template SkipValue(ToBeSignedBytes) {
     signal v;
     signal type;
 
+    // read type
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
     readType.pos <== pos;
@@ -286,6 +284,7 @@ template SkipValue(ToBeSignedBytes) {
     v <== readType.v;
     type <== readType.type;
 
+    // decode uint
     component decodeUint = DecodeUint(ToBeSignedBytes);
     decodeUint.v <== v;
     copyBytes(bytes, decodeUint)
@@ -329,14 +328,12 @@ template SkipValue(ToBeSignedBytes) {
     isArray.in[0] <== type;
     isArray.in[1] <== MAJOR_TYPE_ARRAY;
 
+    // return
     component calculateTotal = NZCPCalculateTotal(3);
     calculateTotal.nums[0] <== isInt.out * nextnextpos;
     calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
     calculateTotal.nums[2] <== isArray.out * array_final_pos;
     nextpos <== calculateTotal.sum;
-
-
-
 }
 
 // TODO: test
