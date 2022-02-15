@@ -421,9 +421,7 @@ template DecodeString(ToBeSignedBytes, MaxLen) {
         copyBytes(bytes, getV[i])
         getV[i].pos <== nextnextpos + i;
         getV[i].v ==> outbytes[i];
-        // log(outbytes[i]);
     }
-    // log(420);
 
     finalpos <== nextnextpos + value;
     len <== value;
