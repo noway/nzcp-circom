@@ -230,7 +230,6 @@ template SkipValueScalar(ToBeSignedBytes) {
 
     signal v;
     signal type;
-    // signal nextpos;
 
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
@@ -238,7 +237,6 @@ template SkipValueScalar(ToBeSignedBytes) {
 
     v <== readType.v;
     type <== readType.type;
-    // nextpos <== readType.nextpos;
 
     component decodeUint = DecodeUint(ToBeSignedBytes);
     decodeUint.v <== v;
@@ -262,8 +260,6 @@ template SkipValueScalar(ToBeSignedBytes) {
     calculateTotal.nums[0] <== isInt.out * nextnextpos;
     calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
     nextpos <== calculateTotal.sum;
-
-
 }
 
 
