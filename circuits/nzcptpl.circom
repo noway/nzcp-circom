@@ -270,7 +270,7 @@ template NZCP() {
         // TODO: make this a template "ReadStringLength"
         mapval_readType[k] = ReadType(ToBeSignedBytes);
         copyBytes(ToBeSigned, mapval_readType[k])
-        mapval_readType[k].pos <== k == 0 ? readMapLength3.nextpos : mapval_decodeString[k - 1].finalpos; // 27 bytes initial skip for example MoH pass
+        mapval_readType[k].pos <== k == 0 ? readMapLength3.nextpos : mapval_decodeString[k - 1].nextpos; // 27 bytes initial skip for example MoH pass
         mapval_readType[k].v ==> mapval_v[k];
         mapval_readType[k].type ==> mapval_type[k];
         // hardcore_assert(mapval_type[k], MAJOR_TYPE_MAP);

@@ -385,12 +385,11 @@ template DecodeString(ToBeSignedBytes, MaxLen) {
     signal input pos;
 
     signal output outbytes[MaxLen];
-    signal output finalpos; // TODO: rename to nextpos
+    signal output nextpos; // TODO: rename to nextpos
     signal output len;
 
     signal v;
     signal type;
-    signal nextpos;
 
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
@@ -398,31 +397,25 @@ template DecodeString(ToBeSignedBytes, MaxLen) {
 
     v <== readType.v;
     type <== readType.type;
-    nextpos <== readType.nextpos;
 
     component decodeUint = DecodeUint(ToBeSignedBytes);
     decodeUint.v <== v;
     copyBytes(bytes, decodeUint)
-    decodeUint.pos <== nextpos;
+    decodeUint.pos <== readType.nextpos;
 
-    signal nextnextpos;
-    nextnextpos <== decodeUint.nextpos;
     signal value;
     value <== decodeUint.value;
 
-
     hardcore_assert(type, MAJOR_TYPE_STRING);
-
-
 
     component getV[MaxLen];
     for (var i = 0; i < MaxLen; i++) {
         getV[i] = GetV(ToBeSignedBytes);
         copyBytes(bytes, getV[i])
-        getV[i].pos <== nextnextpos + i;
+        getV[i].pos <== decodeUint.nextpos + i;
         getV[i].v ==> outbytes[i];
     }
 
-    finalpos <== nextnextpos + value;
+    nextpos <== decodeUint.nextpos + value;
     len <== value;
 }
