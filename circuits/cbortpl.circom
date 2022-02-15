@@ -273,66 +273,51 @@ template SkipValue(ToBeSignedBytes) {
 
     signal output nextpos;
 
-    signal v;
-    signal type;
-
     // read type
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
     readType.pos <== pos;
 
-    v <== readType.v;
-    type <== readType.type;
-
     // decode uint
     component decodeUint = DecodeUint(ToBeSignedBytes);
-    decodeUint.v <== v;
+    decodeUint.v <== readType.v;
     copyBytes(bytes, decodeUint)
     decodeUint.pos <== readType.nextpos;
 
-    signal nextnextpos;
-    nextnextpos <== decodeUint.nextpos;
-    signal value;
-    value <== decodeUint.value;
 
-
-
+    // calculate nextpos if an array
     signal nextposarray[MAX_ARRAY_LEN];
     component skipValue[MAX_ARRAY_LEN];
     component qs = QuinSelectorUnchecked(MAX_ARRAY_LEN);
     for (var i = 0; i < MAX_ARRAY_LEN; i++) {
         skipValue[i] = SkipValueScalar(ToBeSignedBytes);
         copyBytes(bytes, skipValue[i])
-        skipValue[i].pos <== i == 0 ? nextnextpos : nextposarray[i - 1];
+        skipValue[i].pos <== i == 0 ? decodeUint.nextpos : nextposarray[i - 1];
         skipValue[i].nextpos ==> nextposarray[i];
         qs.in[i] <== skipValue[i].nextpos;
     }
-    qs.index <== value - 1;
-    signal array_final_pos;
-    array_final_pos <== qs.out;
-
-
+    qs.index <== decodeUint.value - 1;
 
     // if (cbortype == MAJOR_TYPE_INT) 
     component isInt = IsEqual();
-    isInt.in[0] <== type;
+    isInt.in[0] <== readType.type;
     isInt.in[1] <== MAJOR_TYPE_INT;
 
     // else if (cbortype == MAJOR_TYPE_STRING)
     component isString = IsEqual();
-    isString.in[0] <== type;
+    isString.in[0] <== readType.type;
     isString.in[1] <== MAJOR_TYPE_STRING;
 
     // else if (cbortype == MAJOR_TYPE_ARRAY)
     component isArray = IsEqual();
-    isArray.in[0] <== type;
+    isArray.in[0] <== readType.type;
     isArray.in[1] <== MAJOR_TYPE_ARRAY;
 
     // return
     component calculateTotal = NZCPCalculateTotal(3);
-    calculateTotal.nums[0] <== isInt.out * nextnextpos;
-    calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
-    calculateTotal.nums[2] <== isArray.out * array_final_pos;
+    calculateTotal.nums[0] <== isInt.out * decodeUint.nextpos;
+    calculateTotal.nums[1] <== isString.out * (decodeUint.nextpos + decodeUint.value);
+    calculateTotal.nums[2] <== isArray.out * qs.out;
     nextpos <== calculateTotal.sum;
 }
 
