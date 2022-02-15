@@ -381,6 +381,7 @@ template StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
 
 // TODO: test
 template DecodeString(ToBeSignedBytes, MaxLen) {
+    // i/o signals
     signal input bytes[ToBeSignedBytes];
     signal input pos;
 
@@ -388,26 +389,21 @@ template DecodeString(ToBeSignedBytes, MaxLen) {
     signal output nextpos;
     signal output len;
 
-    signal v;
-    signal type;
-
+    // read type
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
     readType.pos <== pos;
 
-    v <== readType.v;
-    type <== readType.type;
+    // assert that it is a string
+    hardcore_assert(readType.type, MAJOR_TYPE_STRING);
 
+    // decode uint
     component decodeUint = DecodeUint(ToBeSignedBytes);
-    decodeUint.v <== v;
+    decodeUint.v <== readType.v;
     copyBytes(bytes, decodeUint)
     decodeUint.pos <== readType.nextpos;
 
-    signal value;
-    value <== decodeUint.value;
-
-    hardcore_assert(type, MAJOR_TYPE_STRING);
-
+    // read bytes
     component getV[MaxLen];
     for (var i = 0; i < MaxLen; i++) {
         getV[i] = GetV(ToBeSignedBytes);
@@ -416,6 +412,7 @@ template DecodeString(ToBeSignedBytes, MaxLen) {
         getV[i].v ==> outbytes[i];
     }
 
-    nextpos <== decodeUint.nextpos + value;
-    len <== value;
+    // return
+    nextpos <== decodeUint.nextpos + decodeUint.value;
+    len <== decodeUint.value;
 }
