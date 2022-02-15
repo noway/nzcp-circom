@@ -24,22 +24,6 @@ include "./cbor.circom";
 /* assign bytes to a signal in one go */
 #define copyBytes(b, a) for(var z = 0; z<ToBeSignedBytes; z++) { a.bytes[z] <== b[z]; }
 
-
-#define CREDENTIAL_SUBJECT_MAP_LEN 3
-
-#define GIVEN_NAME_STR [103, 105, 118, 101, 110, 78, 97, 109, 101]
-#define GIVEN_NAME_LEN 9
-
-#define FAMILY_NAME_STR [102, 97, 109, 105, 108, 121, 78, 97, 109, 101]
-#define FAMILY_NAME_LEN 10
-
-#define DOB_STR [100, 111, 98]
-#define DOB_LEN 3
-
-#define COMMA_CHAR 44
-
-#define STRING_MAX_LEN 10
-
 #define NOT(in) (1 + in - 2*in)
 
 
@@ -226,6 +210,26 @@ template NZCP() {
     log(credSubj_pos);
 
     // credSubj_pos <== 246;
+
+
+
+
+    var CREDENTIAL_SUBJECT_MAP_LEN = 3;
+
+    var GIVEN_NAME_LEN = 9;
+    var GIVEN_NAME_STR[GIVEN_NAME_LEN] = [103, 105, 118, 101, 110, 78, 97, 109, 101];
+
+    var FAMILY_NAME_LEN = 10;
+    var FAMILY_NAME_STR[FAMILY_NAME_LEN] = [102, 97, 109, 105, 108, 121, 78, 97, 109, 101];
+
+    var DOB_LEN = 3;
+    var DOB_STR[DOB_LEN] = [100, 111, 98];
+
+    var COMMA_CHAR = 44;
+
+    var STRING_MAX_LEN = 10; // TODO: make bigger
+
+
 
     component readMapLength3 = ReadMapLength(ToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength3)
