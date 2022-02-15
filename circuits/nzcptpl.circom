@@ -6,8 +6,6 @@ include "./cbor.circom";
 
 // TODO: only use <== not ==>
 
-#define CLAIMS_SKIP_EXAMPLE 27 
-
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
 #define MAJOR_TYPE_NEGATIVE_INT 1
@@ -18,12 +16,7 @@ include "./cbor.circom";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
-#define CREDENTIAL_SUBJECT_PATH_LEN 2
-
 #define TO_BE_SIGNED_BITS 2512
-
-// usually is 5. TODO: allow for more?
-#define MAX_CWT_MAP_LEN 8
 
 /* assert through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)
@@ -51,12 +44,18 @@ include "./cbor.circom";
 
 
 template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
+    // constants
+    // usually is 5. TODO: allow for more?
+    var MAX_CWT_MAP_LEN = 8;
+
+    // i/o signals
     signal input maplen;
     signal input bytes[ToBeSignedBytes];
     signal input pos;
 
     signal output needlepos;
 
+    // signals
     signal mapval_v[MAX_CWT_MAP_LEN];
     signal mapval_type[MAX_CWT_MAP_LEN];
     signal mapval_value[MAX_CWT_MAP_LEN];
@@ -164,6 +163,9 @@ template ReadMapLength(ToBeSignedBytes) {
 
 // TODO: check that inputs are bytes
 template NZCP() {
+    // constants
+    var CLAIMS_SKIP_EXAMPLE = 27;
+
     // TODO: dynamic
     var ToBeSignedBytes = TO_BE_SIGNED_BITS/8;
 
