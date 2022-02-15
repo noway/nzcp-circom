@@ -443,12 +443,16 @@ template NZCP() {
     signal concatLen;
     concatLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 
-    component sha256 = Sha256Var(1);
+    var BlockSpace = 1;
+    var BLOCK_SIZE = 512;
+    var BlockCount = pow(2, BlockSpace);
+    var MaxBits = BLOCK_SIZE * BlockCount;
+    component sha256 = Sha256Var(BlockSpace);
     sha256.len <== concatLen * 8;
     for (k=0; k<CONCAT_MAX_LEN_BITS; k++) {
         sha256.in[k] <== bits[k];
     }
-    for (k = CONCAT_MAX_LEN_BITS; k < 512*2; k++) {
+    for (k = CONCAT_MAX_LEN_BITS; k < MaxBits; k++) {
         sha256.in[k] <== 0;
     }
 
