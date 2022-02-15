@@ -87,7 +87,7 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
         mapval_skipValue[k].pos <== pos_loop_3[k] + (mapval_value[k] * mapval_isString[k].out);
         copyBytes(bytes, mapval_skipValue[k])
         if (k != MAX_CWT_MAP_LEN - 1) {
-            pos_loop_1[k + 1] <== mapval_skipValue[k].finalpos;
+            pos_loop_1[k + 1] <== mapval_skipValue[k].nextpos;
         }
 
 

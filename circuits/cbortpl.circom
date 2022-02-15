@@ -274,11 +274,10 @@ template SkipValue(ToBeSignedBytes) {
     signal input bytes[ToBeSignedBytes];
     signal input pos;
 
-    signal output finalpos;
+    signal output nextpos;
 
     signal v;
     signal type;
-    // signal nextpos;
 
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType)
@@ -286,7 +285,6 @@ template SkipValue(ToBeSignedBytes) {
 
     v <== readType.v;
     type <== readType.type;
-    // nextpos <== readType.nextpos;
 
     component decodeUint = DecodeUint(ToBeSignedBytes);
     decodeUint.v <== v;
@@ -335,7 +333,7 @@ template SkipValue(ToBeSignedBytes) {
     calculateTotal.nums[0] <== isInt.out * nextnextpos;
     calculateTotal.nums[1] <== isString.out * (nextnextpos + value);
     calculateTotal.nums[2] <== isArray.out * array_final_pos;
-    finalpos <== calculateTotal.sum;
+    nextpos <== calculateTotal.sum;
 
 
 
