@@ -4,8 +4,6 @@ include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/comparato
 include "../sha256-var-circom-main/circuits/sha256Var.circom";
 include "./cbor.circom";
 
-// TODO: only use <== not ==>
-
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
 #define MAJOR_TYPE_NEGATIVE_INT 1
@@ -402,7 +400,6 @@ template NZCP() {
         credSubj_isUnderSep2[k].in[0] <== k;
         credSubj_isUnderSep2[k].in[1] <== givenNameLen + 1 + familyNameLen + 1;
 
-        // TODO: use mux?
         credSubj_givenNameSelector[k] = QuinSelector(CONCAT_MAX_LEN);
         for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_givenNameSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
         credSubj_givenNameSelector[k].index <== k;
