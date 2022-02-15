@@ -18,6 +18,7 @@ include "./incrementalQuinTree.circom";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
+// TODO: bigger?
 #define MAX_ARRAY_LEN 4
 
 
