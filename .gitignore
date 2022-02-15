@@ -7,5 +7,5 @@ circomlib-master
 nzcp_js
 nzcp.circom
 cbor.circom
-snark-jwt-verify.zip
-snark-jwt-verify-master
+sha256-var-circom.zip
+sha256-var-circom-main

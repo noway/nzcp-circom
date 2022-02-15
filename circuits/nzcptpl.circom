@@ -1,9 +1,7 @@
 pragma circom 2.0.0;
 
-// include "../circomlib-master/circuits/sha256/sha256.circom";
-include "../circomlib-master/circuits/comparators.circom";
-// include "./incrementalQuinTree.circom";
-include "./sha256Var.circom";
+include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/comparators.circom";
+include "../sha256-var-circom-main/circuits/sha256Var.circom";
 include "./cbor.circom";
 
 // TODO: only use <== not ==>

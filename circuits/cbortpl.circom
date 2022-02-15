@@ -1,6 +1,6 @@
 pragma circom 2.0.0;
 
-include "../circomlib-master/circuits/comparators.circom";
+include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/comparators.circom";
 include "./incrementalQuinTree.circom";
 
 /* assert through constraint and assert */
