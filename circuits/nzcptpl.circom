@@ -16,8 +16,6 @@ include "./cbor.circom";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
-#define TO_BE_SIGNED_BITS 2512
-
 /* assert through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
@@ -151,9 +149,10 @@ template NZCP() {
     var CLAIMS_SKIP_EXAMPLE = 27;
 
     // TODO: dynamic
-    var ToBeSignedBytes = TO_BE_SIGNED_BITS/8;
+    var ToBeSignedBytes = 314;
+    var ToBeSignedBits = 314 * 8;
 
-    signal input a[TO_BE_SIGNED_BITS];
+    signal input a[ToBeSignedBits];
     signal output c[256];
     signal output d;
 
