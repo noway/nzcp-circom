@@ -18,9 +18,6 @@ include "./incrementalQuinTree.circom";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
-// TODO: bigger?
-#define MAX_ARRAY_LEN 4
-
 
 // returns the value of v bit shifted to the right by 5 bits
 template GetType() {
@@ -274,6 +271,9 @@ template SkipValueScalar(ToBeSignedBytes) {
 // TODO: rename finalpos to nextpos
 // TODO: rename ToBeSignedBytes to byteslen or len
 template SkipValue(ToBeSignedBytes) {
+
+    // TODO: bigger?
+    var MAX_ARRAY_LEN = 4;
 
     signal input bytes[ToBeSignedBytes];
     signal input pos;
