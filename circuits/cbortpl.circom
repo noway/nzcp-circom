@@ -385,7 +385,7 @@ template DecodeString(ToBeSignedBytes, MaxLen) {
     signal input pos;
 
     signal output outbytes[MaxLen];
-    signal output nextpos; // TODO: rename to nextpos
+    signal output nextpos;
     signal output len;
 
     signal v;
