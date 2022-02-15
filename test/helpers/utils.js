@@ -20,26 +20,8 @@ function bitArray2buffer (a) {
     return b;
 }
 
-function arrayChunk (array, chunk_size) {
-    return Array(Math.ceil(array.length / chunk_size)).fill().map((_, index) => index * chunk_size).map(begin => array.slice(begin, begin + chunk_size));
-}
-
-function padMessage(bits) {
-    const L = bits.length;
-    const K = (512 + 448 - (L % 512 + 1)) % 512;
-
-    bits = bits.concat([1]);
-    if(K > 0) {
-        bits = bits.concat(Array(K).fill(0));
-    }
-    bits = bits.concat(buffer2bitArray(Buffer.from(L.toString(16).padStart(16, '0'), 'hex')))
-    
-    return bits;
-}
 
 module.exports = {
     buffer2bitArray,
     bitArray2buffer,
-    arrayChunk,
-    padMessage,
 }
