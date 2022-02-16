@@ -148,7 +148,7 @@ template NZCP() {
 
     // TODO: dynamic
     var ToBeSignedBytes = 314;
-    var ToBeSignedBits = 314 * 8;
+    var ToBeSignedBits = ToBeSignedBytes * 8;
 
     signal input a[ToBeSignedBits];
     signal output c[256];
