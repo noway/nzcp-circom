@@ -457,20 +457,8 @@ template NZCP() {
     copyBytes(ToBeSigned, readCredSubj)
     readCredSubj.pos <== readMapLength3.nextpos;
     readCredSubj.maplen <== readMapLength3.len;
-    // signal givenName[MaxBufferLen];
-    // signal givenNameLen;
-    // signal familyName[MaxBufferLen];
-    // signal familyNameLen;
-    // signal dob[MaxBufferLen];
-    // signal dobLen;
-    // givenNameLen <== readCredSubj.givenNameLen;
-    // familyNameLen <== readCredSubj.familyNameLen;
-    // dobLen <== readCredSubj.dobLen;
-    // for (var i = 0; i < MaxBufferLen; i++) { givenName[i] <== readCredSubj.givenName[i]; }
-    // for (var i = 0; i < MaxBufferLen; i++) { familyName[i] <== readCredSubj.familyName[i]; }
-    // for (var i = 0; i < MaxBufferLen; i++) { dob[i] <== readCredSubj.dob[i]; }
 
-
+    // concat given name, family name and dob
     component concatCredSubj = ConcatCredSubj(MaxBufferLen);
     concatCredSubj.givenNameLen <== readCredSubj.givenNameLen;
     concatCredSubj.familyNameLen <== readCredSubj.familyNameLen;
@@ -480,12 +468,10 @@ template NZCP() {
     for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.dob[i] <== readCredSubj.dob[i]; }
     
 
-
-
     // convert concat string into bits
-    var CONCAT_MAX_LEN_BITS = MaxBufferLen * 8;
+    var MaxBufferLenBits = MaxBufferLen * 8;
     component n2b[MaxBufferLen];
-    signal bits[CONCAT_MAX_LEN_BITS];
+    signal bits[MaxBufferLenBits];
     for(k = 0; k < MaxBufferLen; k++) {
         n2b[k] = Num2Bits(8);
         n2b[k].in <== concatCredSubj.result[k];
@@ -500,12 +486,14 @@ template NZCP() {
     var BLOCK_SIZE = 512;
     var BlockCount = pow(2, BlockSpace);
     var MaxBits = BLOCK_SIZE * BlockCount;
+    assert(MaxBufferLenBits <= MaxBits);
+
     component sha256 = Sha256Var(BlockSpace);
     sha256.len <== concatCredSubj.resultLen * 8;
-    for (k=0; k<CONCAT_MAX_LEN_BITS; k++) {
+    for (k=0; k<MaxBufferLenBits; k++) {
         sha256.in[k] <== bits[k];
     }
-    for (k = CONCAT_MAX_LEN_BITS; k < MaxBits; k++) {
+    for (k = MaxBufferLenBits; k < MaxBits; k++) {
         sha256.in[k] <== 0;
     }
 
