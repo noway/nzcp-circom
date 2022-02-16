@@ -112,6 +112,162 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     needlepos <== calculateTotal_foundpos.sum;
 }
 
+// function pow(x, y) {
+//     if (y == 0) {
+//         return 1;
+//     } else {
+//         return x * pow(x, y - 1);
+//     }
+// }
+
+
+template ReadCredSubj(ToBeSignedBytes, MaxBufferLen, MaxStringLen) {
+
+    // constants
+    var CREDENTIAL_SUBJECT_MAP_LEN = 3;
+
+    // strings
+    var GIVEN_NAME_LEN = 9;
+    var GIVEN_NAME_STR[GIVEN_NAME_LEN] = [103, 105, 118, 101, 110, 78, 97, 109, 101];
+    var FAMILY_NAME_LEN = 10;
+    var FAMILY_NAME_STR[FAMILY_NAME_LEN] = [102, 97, 109, 105, 108, 121, 78, 97, 109, 101];
+    var DOB_LEN = 3;
+    var DOB_STR[DOB_LEN] = [100, 111, 98];
+
+    // TODO: pull out of template?
+
+    // i/o signals
+    signal input maplen;
+    signal input bytes[ToBeSignedBytes];
+    signal input pos;
+
+    signal output givenName[MaxBufferLen];
+    signal output givenNameLen;
+    signal output familyName[MaxBufferLen];
+    signal output familyNameLen;
+    signal output dob[MaxBufferLen];
+    signal output dobLen;
+
+
+
+    // check that map length is exactly as per NZCP spec
+    hardcore_assert(maplen, CREDENTIAL_SUBJECT_MAP_LEN);
+
+
+
+
+    signal mapval_pos[CREDENTIAL_SUBJECT_MAP_LEN];
+    signal mapval_v[CREDENTIAL_SUBJECT_MAP_LEN];
+    signal mapval_type[CREDENTIAL_SUBJECT_MAP_LEN];
+    signal mapval_nextpos[CREDENTIAL_SUBJECT_MAP_LEN];
+    signal mapval_x[CREDENTIAL_SUBJECT_MAP_LEN];
+
+    component mapval_readType[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_getX[CREDENTIAL_SUBJECT_MAP_LEN];
+
+    component mapval_isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_isFamilyName[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_isDOB[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_decodeString[CREDENTIAL_SUBJECT_MAP_LEN];
+
+    var z;
+    for(var k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
+
+        // TODO: make this a template "ReadStringLength"
+        mapval_readType[k] = ReadType(ToBeSignedBytes);
+        copyBytes(bytes, mapval_readType[k])
+        mapval_readType[k].pos <== k == 0 ? pos : mapval_decodeString[k - 1].nextpos; // 27 bytes initial skip for example MoH pass
+        mapval_v[k] <== mapval_readType[k].v;
+        mapval_type[k] <== mapval_readType[k].type;
+        // hardcore_assert(mapval_type[k], MAJOR_TYPE_MAP);
+
+        // read map length
+        mapval_getX[k] = GetX();
+        mapval_getX[k].v <== mapval_v[k];
+        mapval_x[k] <== mapval_getX[k].x;
+        // TODO: should this be more generic and allow for string keys with length of more than 23? (but we DO now it won't be more than 9!)
+        assert(mapval_x[k] <= 23); // only supporting strings with 23 or less entries
+
+
+        
+
+        mapval_isGivenName[k] = StringEquals(ToBeSignedBytes, GIVEN_NAME_STR, GIVEN_NAME_LEN);
+        copyBytes(bytes, mapval_isGivenName[k])
+        mapval_isGivenName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
+        mapval_isGivenName[k].len <== mapval_x[k];
+
+        mapval_isFamilyName[k] = StringEquals(ToBeSignedBytes, FAMILY_NAME_STR, FAMILY_NAME_LEN);
+        copyBytes(bytes, mapval_isFamilyName[k])
+        mapval_isFamilyName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
+        mapval_isFamilyName[k].len <== mapval_x[k];
+
+        mapval_isDOB[k] = StringEquals(ToBeSignedBytes, DOB_STR, DOB_LEN);
+        copyBytes(bytes, mapval_isDOB[k])
+        mapval_isDOB[k].pos <== mapval_readType[k].nextpos; // pos before skipping
+        mapval_isDOB[k].len <== mapval_x[k];
+
+        mapval_decodeString[k] = DecodeString(ToBeSignedBytes, MaxStringLen); // TODO: dynamic length? or sane default which can't crash
+        copyBytes(bytes, mapval_decodeString[k])
+        mapval_decodeString[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
+
+    }
+
+
+    // assign givenName
+    component givenName_charsCalculateTotal[MaxStringLen];
+    for(var h = 0; h<MaxStringLen; h++) {
+        givenName_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+            givenName_charsCalculateTotal[h].nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].outbytes[h];
+        }
+        givenName[h] <== givenName_charsCalculateTotal[h].sum;
+    }
+    for(var h = MaxStringLen; h < MaxBufferLen; h++) { givenName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
+    component givenName_lenCalculateTotal;
+    givenName_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+        givenName_lenCalculateTotal.nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].len;
+    }
+    givenNameLen <== givenName_lenCalculateTotal.sum;
+
+
+    // assign familyName
+    component familyName_charsCalculateTotal[MaxStringLen];
+    for(var h = 0; h<MaxStringLen; h++) {
+        familyName_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+            familyName_charsCalculateTotal[h].nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].outbytes[h];
+        }
+        familyName[h] <== familyName_charsCalculateTotal[h].sum;
+    }
+    for(var h = MaxStringLen; h < MaxBufferLen; h++) { familyName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
+    component familyName_lenCalculateTotal;
+    familyName_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+        familyName_lenCalculateTotal.nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].len;
+    }
+    familyNameLen <== familyName_lenCalculateTotal.sum;
+
+
+    // assign dob
+    component dob_charsCalculateTotal[MaxStringLen];
+    for(var h = 0; h<MaxStringLen; h++) {
+        dob_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+            dob_charsCalculateTotal[h].nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].outbytes[h];
+        }
+        dob[h] <== dob_charsCalculateTotal[h].sum;
+    }
+    for(var h = MaxStringLen; h < MaxBufferLen; h++) { dob[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
+    component dob_lenCalculateTotal;
+    dob_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
+        dob_lenCalculateTotal.nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].len;
+    }
+    dobLen <== dob_lenCalculateTotal.sum;
+
+}
+
 template ReadMapLength(ToBeSignedBytes) {
     // read type
     signal input pos;
@@ -205,180 +361,65 @@ template NZCP() {
 
 
 
-
-    var CREDENTIAL_SUBJECT_MAP_LEN = 3;
-
-    var GIVEN_NAME_LEN = 9;
-    var GIVEN_NAME_STR[GIVEN_NAME_LEN] = [103, 105, 118, 101, 110, 78, 97, 109, 101];
-
-    var FAMILY_NAME_LEN = 10;
-    var FAMILY_NAME_STR[FAMILY_NAME_LEN] = [102, 97, 109, 105, 108, 121, 78, 97, 109, 101];
-
-    var DOB_LEN = 3;
-    var DOB_STR[DOB_LEN] = [100, 111, 98];
-
-    var COMMA_CHAR = 44;
-
-    var STRING_MAX_LEN = 10; // TODO: make bigger
-
-
-
+    // read cred subj map length
     component readMapLength3 = ReadMapLength(ToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength3)
     readMapLength3.pos <== credSubj_pos;
 
-    hardcore_assert(readMapLength3.len, CREDENTIAL_SUBJECT_MAP_LEN);
+
+    // read cred subj map
+    var CONCAT_SIZE_BITS = 5; // TODO: make bigger?
+    var MaxBufferLen = pow(2, CONCAT_SIZE_BITS);
+    var MaxStringLen = MaxBufferLen \ 3;
+
+    component readCredSubj = ReadCredSubj(ToBeSignedBytes, MaxBufferLen, MaxStringLen);
+    copyBytes(ToBeSigned, readCredSubj)
+    readCredSubj.pos <== readMapLength3.nextpos;
+    readCredSubj.maplen <== readMapLength3.len;
 
 
-    // TODO: this bellow should be its own template
-    var STRINGS_TO_CONCAT = 3;
-    var CONCAT_MAX_LEN = STRINGS_TO_CONCAT*STRING_MAX_LEN;
-    // TODO: calculate during compile time?
-    var CONCAT_SIZE_BITS = 5; // 2**CONCAT_SIZE_BITS should be > CONCAT_MAX_LEN
 
-
-    signal mapval_pos[CREDENTIAL_SUBJECT_MAP_LEN];
-    signal mapval_v[CREDENTIAL_SUBJECT_MAP_LEN];
-    signal mapval_type[CREDENTIAL_SUBJECT_MAP_LEN];
-    signal mapval_nextpos[CREDENTIAL_SUBJECT_MAP_LEN];
-    signal mapval_x[CREDENTIAL_SUBJECT_MAP_LEN];
-
-    signal givenName[CONCAT_MAX_LEN];
+    signal givenName[MaxBufferLen];
     signal givenNameLen;
-    signal familyName[CONCAT_MAX_LEN];
+    signal familyName[MaxBufferLen];
     signal familyNameLen;
-    signal dob[CONCAT_MAX_LEN];
+    signal dob[MaxBufferLen];
     signal dobLen;
-
-    component mapval_readType[CREDENTIAL_SUBJECT_MAP_LEN];
-    component mapval_getX[CREDENTIAL_SUBJECT_MAP_LEN];
-
-    component mapval_isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
-    component mapval_isFamilyName[CREDENTIAL_SUBJECT_MAP_LEN];
-    component mapval_isDOB[CREDENTIAL_SUBJECT_MAP_LEN];
-    component mapval_decodeString[CREDENTIAL_SUBJECT_MAP_LEN];
-
-    for(k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
-
-        // TODO: make this a template "ReadStringLength"
-        mapval_readType[k] = ReadType(ToBeSignedBytes);
-        copyBytes(ToBeSigned, mapval_readType[k])
-        mapval_readType[k].pos <== k == 0 ? readMapLength3.nextpos : mapval_decodeString[k - 1].nextpos; // 27 bytes initial skip for example MoH pass
-        mapval_v[k] <== mapval_readType[k].v;
-        mapval_type[k] <== mapval_readType[k].type;
-        // hardcore_assert(mapval_type[k], MAJOR_TYPE_MAP);
-
-        // read map length
-        mapval_getX[k] = GetX();
-        mapval_getX[k].v <== mapval_v[k];
-        mapval_x[k] <== mapval_getX[k].x;
-        // TODO: should this be more generic and allow for string keys with length of more than 23? (but we DO now it won't be more than 9!)
-        assert(mapval_x[k] <= 23); // only supporting strings with 23 or less entries
-
-
-        
-
-        mapval_isGivenName[k] = StringEquals(ToBeSignedBytes, GIVEN_NAME_STR, GIVEN_NAME_LEN);
-        copyBytes(ToBeSigned, mapval_isGivenName[k])
-        mapval_isGivenName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
-        mapval_isGivenName[k].len <== mapval_x[k];
-
-        mapval_isFamilyName[k] = StringEquals(ToBeSignedBytes, FAMILY_NAME_STR, FAMILY_NAME_LEN);
-        copyBytes(ToBeSigned, mapval_isFamilyName[k])
-        mapval_isFamilyName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
-        mapval_isFamilyName[k].len <== mapval_x[k];
-
-        mapval_isDOB[k] = StringEquals(ToBeSignedBytes, DOB_STR, DOB_LEN);
-        copyBytes(ToBeSigned, mapval_isDOB[k])
-        mapval_isDOB[k].pos <== mapval_readType[k].nextpos; // pos before skipping
-        mapval_isDOB[k].len <== mapval_x[k];
-
-        mapval_decodeString[k] = DecodeString(ToBeSignedBytes, STRING_MAX_LEN); // TODO: dynamic length? or sane default which can't crash
-        copyBytes(ToBeSigned, mapval_decodeString[k])
-        mapval_decodeString[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
-
-    }
-
-
-    // assign givenName
-    component givenName_charsCalculateTotal[STRING_MAX_LEN];
-    for(var h = 0; h<STRING_MAX_LEN; h++) {
-        givenName_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
-        for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            givenName_charsCalculateTotal[h].nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].outbytes[h];
-        }
-        givenName[h] <== givenName_charsCalculateTotal[h].sum;
-    }
-    for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { givenName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
-    component givenName_lenCalculateTotal;
-    givenName_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
-    for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        givenName_lenCalculateTotal.nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].len;
-    }
-    givenNameLen <== givenName_lenCalculateTotal.sum;
-
-
-    // assign familyName
-    component familyName_charsCalculateTotal[STRING_MAX_LEN];
-    for(var h = 0; h<STRING_MAX_LEN; h++) {
-        familyName_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
-        for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            familyName_charsCalculateTotal[h].nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].outbytes[h];
-        }
-        familyName[h] <== familyName_charsCalculateTotal[h].sum;
-    }
-    for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { familyName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
-    component familyName_lenCalculateTotal;
-    familyName_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
-    for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        familyName_lenCalculateTotal.nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].len;
-    }
-    familyNameLen <== familyName_lenCalculateTotal.sum;
-
-
-    // assign dob
-    component dob_charsCalculateTotal[STRING_MAX_LEN];
-    for(var h = 0; h<STRING_MAX_LEN; h++) {
-        dob_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
-        for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            dob_charsCalculateTotal[h].nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].outbytes[h];
-        }
-        dob[h] <== dob_charsCalculateTotal[h].sum;
-    }
-    for(var h = STRING_MAX_LEN; h < CONCAT_MAX_LEN; h++) { dob[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
-    component dob_lenCalculateTotal;
-    dob_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
-    for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        dob_lenCalculateTotal.nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].len;
-    }
-    dobLen <== dob_lenCalculateTotal.sum;
+    givenNameLen <== readCredSubj.givenNameLen;
+    familyNameLen <== readCredSubj.familyNameLen;
+    dobLen <== readCredSubj.dobLen;
+    for (var i = 0; i < MaxBufferLen; i++) { givenName[i] <== readCredSubj.givenName[i]; }
+    for (var i = 0; i < MaxBufferLen; i++) { familyName[i] <== readCredSubj.familyName[i]; }
+    for (var i = 0; i < MaxBufferLen; i++) { dob[i] <== readCredSubj.dob[i]; }
 
 
     // concat givenName, familyName, dob
-    signal credSubj_concatString[CONCAT_MAX_LEN];
+    var COMMA_CHAR = 44;
 
-    component credSubj_isGivenName[CONCAT_MAX_LEN];
-    component credSubj_isUnderSep1[CONCAT_MAX_LEN];
-    component credSubj_isUnderFamilyName[CONCAT_MAX_LEN];
-    component credSubj_isUnderSep2[CONCAT_MAX_LEN];
+    signal credSubj_concatString[MaxBufferLen];
 
-    component credSubj_givenNameSelector[CONCAT_MAX_LEN];
-    component credSubj_familyNameSelector[CONCAT_MAX_LEN];
-    component credSubj_dobSelector[CONCAT_MAX_LEN];
+    component credSubj_isGivenName[MaxBufferLen];
+    component credSubj_isUnderSep1[MaxBufferLen];
+    component credSubj_isUnderFamilyName[MaxBufferLen];
+    component credSubj_isUnderSep2[MaxBufferLen];
 
-    signal credSubj_notGivenName[CONCAT_MAX_LEN];
-    signal credSubj_isSep1[CONCAT_MAX_LEN];
-    signal credSubj_isFamilyName[CONCAT_MAX_LEN];
-    signal credSubj_isSep2[CONCAT_MAX_LEN];
-    signal credSubj_isDOB[CONCAT_MAX_LEN];
+    component credSubj_givenNameSelector[MaxBufferLen];
+    component credSubj_familyNameSelector[MaxBufferLen];
+    component credSubj_dobSelector[MaxBufferLen];
 
-    signal credSubj_givenNameChar[CONCAT_MAX_LEN];
-    signal credSubj_sep1Char[CONCAT_MAX_LEN];
-    signal credSubj_familyNameChar[CONCAT_MAX_LEN];
-    signal credSubj_sep2Char[CONCAT_MAX_LEN];
-    signal credSubj_dobChar[CONCAT_MAX_LEN];
+    signal credSubj_notGivenName[MaxBufferLen];
+    signal credSubj_isSep1[MaxBufferLen];
+    signal credSubj_isFamilyName[MaxBufferLen];
+    signal credSubj_isSep2[MaxBufferLen];
+    signal credSubj_isDOB[MaxBufferLen];
+
+    signal credSubj_givenNameChar[MaxBufferLen];
+    signal credSubj_sep1Char[MaxBufferLen];
+    signal credSubj_familyNameChar[MaxBufferLen];
+    signal credSubj_sep2Char[MaxBufferLen];
+    signal credSubj_dobChar[MaxBufferLen];
     
-    for(k = 0; k < CONCAT_MAX_LEN; k++) {
+    for(k = 0; k < MaxBufferLen; k++) {
         credSubj_isGivenName[k] = LessThan(CONCAT_SIZE_BITS);
         credSubj_isGivenName[k].in[0] <== k;
         credSubj_isGivenName[k].in[1] <== givenNameLen;
@@ -395,16 +436,16 @@ template NZCP() {
         credSubj_isUnderSep2[k].in[0] <== k;
         credSubj_isUnderSep2[k].in[1] <== givenNameLen + 1 + familyNameLen + 1;
 
-        credSubj_givenNameSelector[k] = QuinSelector(CONCAT_MAX_LEN);
-        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_givenNameSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
+        credSubj_givenNameSelector[k] = QuinSelector(MaxBufferLen);
+        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_givenNameSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
         credSubj_givenNameSelector[k].index <== k;
 
-        credSubj_familyNameSelector[k] = QuinSelector(CONCAT_MAX_LEN);
-        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_familyNameSelector[k].in[z] <== familyName[z]; } // TODO: macro for this?
+        credSubj_familyNameSelector[k] = QuinSelector(MaxBufferLen);
+        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_familyNameSelector[k].in[z] <== familyName[z]; } // TODO: macro for this?
         credSubj_familyNameSelector[k].index <== k - givenNameLen - 1;
 
-        credSubj_dobSelector[k] = QuinSelector(CONCAT_MAX_LEN);
-        for(var z = 0; z<CONCAT_MAX_LEN; z++) {  credSubj_dobSelector[k].in[z] <== dob[z]; } // TODO: macro for this?
+        credSubj_dobSelector[k] = QuinSelector(MaxBufferLen);
+        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_dobSelector[k].in[z] <== dob[z]; } // TODO: macro for this?
         credSubj_dobSelector[k].index <== k - givenNameLen - 1 - familyNameLen - 1;
         
         credSubj_notGivenName[k] <== NOT(credSubj_isGivenName[k].out);
@@ -425,10 +466,10 @@ template NZCP() {
 
 
     // convert concat string into bits
-    var CONCAT_MAX_LEN_BITS = CONCAT_MAX_LEN * 8;
-    component n2b[CONCAT_MAX_LEN];
+    var CONCAT_MAX_LEN_BITS = MaxBufferLen * 8;
+    component n2b[MaxBufferLen];
     signal bits[CONCAT_MAX_LEN_BITS];
-    for(k = 0; k < CONCAT_MAX_LEN; k++) {
+    for(k = 0; k < MaxBufferLen; k++) {
         n2b[k] = Num2Bits(8);
         n2b[k].in <== credSubj_concatString[k];
         for (var j = 0; j < 8; j++) {
