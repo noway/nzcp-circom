@@ -1,5 +1,8 @@
 pragma circom 2.0.0;
 
+include "./log2.circom";
+
+
 // https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/calculateTotal.circom
 // License: MIT
 template NZCPCalculateTotal(n) {
@@ -18,14 +21,14 @@ template NZCPCalculateTotal(n) {
 
 // https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/incrementalQuinTree.circom
 // License: MIT
-// TODO: specify bits as input
 template QuinSelector(choices) {
     signal input in[choices];
     signal input index;
     signal output out;
     
     // Ensure that index < choices
-    component lessThan = LessThan(9); // changed 3 to 9
+    var bits = log2(choices) + 1;
+    component lessThan = LessThan(bits); // changed 3 to 9
     lessThan.in[0] <== index;
     lessThan.in[1] <== choices;
     lessThan.out === 1;
