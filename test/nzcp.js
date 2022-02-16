@@ -75,6 +75,34 @@ describe("CBOR getV(4)", function () {
     });
 });
 
+describe("CBOR getV(5)", function () {
+    const p = path.join(__dirname, "../circuits/getV5_test.circom")
+    let cir
+    before(async () => {
+        cir = await wasm_tester(p);
+    })
+    it ("getV([1, 2, 3, 4, 5], 0) == 1", async () => {
+        const witness = await cir.calculateWitness({ "bytes": [1, 2, 3, 4, 5], pos: 0 }, true);
+        assert.equal(witness[1], 1);
+    });
+    it ("getV([1, 2, 3, 4, 5], 1) == 2", async () => {
+        const witness = await cir.calculateWitness({ "bytes": [1, 2, 3, 4, 5], pos: 1 }, true);
+        assert.equal(witness[1], 2);
+    });
+    it ("getV([1, 2, 3, 4, 5], 2) == 3", async () => {
+        const witness = await cir.calculateWitness({ "bytes": [1, 2, 3, 4, 5], pos: 2 }, true);
+        assert.equal(witness[1], 3);
+    });
+    it ("getV([1, 2, 3, 4, 5], 3) == 4", async () => {
+        const witness = await cir.calculateWitness({ "bytes": [1, 2, 3, 4, 5], pos: 3 }, true);
+        assert.equal(witness[1], 4);
+    });
+    it ("getV([1, 2, 3, 4, 5], 4) == 5", async () => {
+        const witness = await cir.calculateWitness({ "bytes": [1, 2, 3, 4, 5], pos: 4 }, true);
+        assert.equal(witness[1], 5);
+    });
+});
+
 
 describe("CBOR DecodeUint", function () {
     const p = path.join(__dirname, "../circuits/decodeUint_test.circom")
