@@ -282,6 +282,7 @@ template ConcatCredSubj(MaxBufferLen) {
     signal input dob[MaxBufferLen];
     signal input dobLen;
     signal output result[MaxBufferLen];
+    signal output resultLen;
 
     component credSubj_isGivenName[MaxBufferLen];
     component credSubj_isUnderSep1[MaxBufferLen];
@@ -347,6 +348,7 @@ template ConcatCredSubj(MaxBufferLen) {
 
         result[k] <== credSubj_givenNameChar[k] + credSubj_sep1Char[k] + credSubj_familyNameChar[k] + credSubj_sep2Char[k] + credSubj_dobChar[k];
     }
+    resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
 template ReadMapLength(ToBeSignedBytes) {
@@ -455,27 +457,27 @@ template NZCP() {
     copyBytes(ToBeSigned, readCredSubj)
     readCredSubj.pos <== readMapLength3.nextpos;
     readCredSubj.maplen <== readMapLength3.len;
-    signal givenName[MaxBufferLen];
-    signal givenNameLen;
-    signal familyName[MaxBufferLen];
-    signal familyNameLen;
-    signal dob[MaxBufferLen];
-    signal dobLen;
-    givenNameLen <== readCredSubj.givenNameLen;
-    familyNameLen <== readCredSubj.familyNameLen;
-    dobLen <== readCredSubj.dobLen;
-    for (var i = 0; i < MaxBufferLen; i++) { givenName[i] <== readCredSubj.givenName[i]; }
-    for (var i = 0; i < MaxBufferLen; i++) { familyName[i] <== readCredSubj.familyName[i]; }
-    for (var i = 0; i < MaxBufferLen; i++) { dob[i] <== readCredSubj.dob[i]; }
+    // signal givenName[MaxBufferLen];
+    // signal givenNameLen;
+    // signal familyName[MaxBufferLen];
+    // signal familyNameLen;
+    // signal dob[MaxBufferLen];
+    // signal dobLen;
+    // givenNameLen <== readCredSubj.givenNameLen;
+    // familyNameLen <== readCredSubj.familyNameLen;
+    // dobLen <== readCredSubj.dobLen;
+    // for (var i = 0; i < MaxBufferLen; i++) { givenName[i] <== readCredSubj.givenName[i]; }
+    // for (var i = 0; i < MaxBufferLen; i++) { familyName[i] <== readCredSubj.familyName[i]; }
+    // for (var i = 0; i < MaxBufferLen; i++) { dob[i] <== readCredSubj.dob[i]; }
 
 
     component concatCredSubj = ConcatCredSubj(MaxBufferLen);
-    concatCredSubj.givenNameLen <== givenNameLen;
-    concatCredSubj.familyNameLen <== familyNameLen;
-    concatCredSubj.dobLen <== dobLen;
-    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.givenName[i] <== givenName[i]; }
-    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.familyName[i] <== familyName[i]; }
-    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.dob[i] <== dob[i]; }
+    concatCredSubj.givenNameLen <== readCredSubj.givenNameLen;
+    concatCredSubj.familyNameLen <== readCredSubj.familyNameLen;
+    concatCredSubj.dobLen <== readCredSubj.dobLen;
+    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.givenName[i] <== readCredSubj.givenName[i]; }
+    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.familyName[i] <== readCredSubj.familyName[i]; }
+    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.dob[i] <== readCredSubj.dob[i]; }
     
 
 
@@ -493,15 +495,13 @@ template NZCP() {
     }
 
     // calculate sha256 of the concat string
-    signal concatLen;
-    concatLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 
     var BlockSpace = 1;
     var BLOCK_SIZE = 512;
     var BlockCount = pow(2, BlockSpace);
     var MaxBits = BLOCK_SIZE * BlockCount;
     component sha256 = Sha256Var(BlockSpace);
-    sha256.len <== concatLen * 8;
+    sha256.len <== concatCredSubj.resultLen * 8;
     for (k=0; k<CONCAT_MAX_LEN_BITS; k++) {
         sha256.in[k] <== bits[k];
     }
