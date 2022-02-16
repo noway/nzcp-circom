@@ -27,7 +27,7 @@ template QuinSelector(choices) {
     signal output out;
     
     // Ensure that index < choices
-    var bits = log2(choices) + 1;
+    var bits = log2ceil(choices);
     component lessThan = LessThan(bits); // changed 3 to 9
     lessThan.in[0] <== index;
     lessThan.in[1] <== choices;
