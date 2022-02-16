@@ -1,6 +1,7 @@
 pragma circom 2.0.0;
 
 include "./log2.circom";
+include "./pow.circom";
 
 template Main() {
     for (var i = 0; i < 100; i++) {
