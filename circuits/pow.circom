@@ -1,9 +1,9 @@
 pragma circom 2.0.0;
 
-function NZCPpow(x, y) {
+function pow(x, y) {
     if (y == 0) {
         return 1;
     } else {
-        return x * NZCPpow(x, y - 1);
+        return x * pow(x, y - 1);
     }
 }
