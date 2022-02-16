@@ -63,13 +63,15 @@ template GetX() {
     for(var k = 0; k < 8; k++) {
         vbits[k] <== num2Bits.out[k];
     }
-    var lc1=0;
-    var e2 = 1;
+    component b2n = Bits2Num(5);
+    // var lc1=0;
+    // var e2 = 1;
     for (var i = 0; i<5; i++) {
-        lc1 += vbits[i] * e2;
-        e2 = e2 + e2;
+        b2n.in[i] <== vbits[i];
+        // lc1 += vbits[i] * e2;
+        // e2 = e2 + e2;
     }
-    x <== lc1;
+    x <== b2n.out;
 }
 
 template GetV(ToBeSignedBytes) {
