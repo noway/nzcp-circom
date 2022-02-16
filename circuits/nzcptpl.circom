@@ -284,69 +284,69 @@ template ConcatCredSubj(MaxBufferLen) {
     signal output result[MaxBufferLen];
     signal output resultLen;
 
-    component credSubj_isGivenName[MaxBufferLen];
-    component credSubj_isUnderSep1[MaxBufferLen];
-    component credSubj_isUnderFamilyName[MaxBufferLen];
-    component credSubj_isUnderSep2[MaxBufferLen];
+    component isGivenName[MaxBufferLen];
+    component isUnderSep1[MaxBufferLen];
+    component isUnderFamilyName[MaxBufferLen];
+    component isUnderSep2[MaxBufferLen];
 
-    component credSubj_givenNameSelector[MaxBufferLen];
-    component credSubj_familyNameSelector[MaxBufferLen];
-    component credSubj_dobSelector[MaxBufferLen];
+    component givenNameSelector[MaxBufferLen];
+    component familyNameSelector[MaxBufferLen];
+    component dobSelector[MaxBufferLen];
 
-    signal credSubj_notGivenName[MaxBufferLen];
-    signal credSubj_isSep1[MaxBufferLen];
-    signal credSubj_isFamilyName[MaxBufferLen];
-    signal credSubj_isSep2[MaxBufferLen];
-    signal credSubj_isDOB[MaxBufferLen];
+    signal notGivenName[MaxBufferLen];
+    signal isSep1[MaxBufferLen];
+    signal isFamilyName[MaxBufferLen];
+    signal isSep2[MaxBufferLen];
+    signal isDOB[MaxBufferLen];
 
-    signal credSubj_givenNameChar[MaxBufferLen];
-    signal credSubj_sep1Char[MaxBufferLen];
-    signal credSubj_familyNameChar[MaxBufferLen];
-    signal credSubj_sep2Char[MaxBufferLen];
-    signal credSubj_dobChar[MaxBufferLen];
+    signal givenNameChar[MaxBufferLen];
+    signal sep1Char[MaxBufferLen];
+    signal familyNameChar[MaxBufferLen];
+    signal sep2Char[MaxBufferLen];
+    signal dobChar[MaxBufferLen];
     
     for(var k = 0; k < MaxBufferLen; k++) {
-        credSubj_isGivenName[k] = LessThan(ConcatSizeBits);
-        credSubj_isGivenName[k].in[0] <== k;
-        credSubj_isGivenName[k].in[1] <== givenNameLen;
+        isGivenName[k] = LessThan(ConcatSizeBits);
+        isGivenName[k].in[0] <== k;
+        isGivenName[k].in[1] <== givenNameLen;
 
-        credSubj_isUnderSep1[k] = LessThan(ConcatSizeBits);
-        credSubj_isUnderSep1[k].in[0] <== k;
-        credSubj_isUnderSep1[k].in[1] <== givenNameLen + 1;
+        isUnderSep1[k] = LessThan(ConcatSizeBits);
+        isUnderSep1[k].in[0] <== k;
+        isUnderSep1[k].in[1] <== givenNameLen + 1;
 
-        credSubj_isUnderFamilyName[k] = LessThan(ConcatSizeBits);
-        credSubj_isUnderFamilyName[k].in[0] <== k;
-        credSubj_isUnderFamilyName[k].in[1] <== givenNameLen + 1 + familyNameLen;
+        isUnderFamilyName[k] = LessThan(ConcatSizeBits);
+        isUnderFamilyName[k].in[0] <== k;
+        isUnderFamilyName[k].in[1] <== givenNameLen + 1 + familyNameLen;
 
-        credSubj_isUnderSep2[k] = LessThan(ConcatSizeBits);
-        credSubj_isUnderSep2[k].in[0] <== k;
-        credSubj_isUnderSep2[k].in[1] <== givenNameLen + 1 + familyNameLen + 1;
+        isUnderSep2[k] = LessThan(ConcatSizeBits);
+        isUnderSep2[k].in[0] <== k;
+        isUnderSep2[k].in[1] <== givenNameLen + 1 + familyNameLen + 1;
 
-        credSubj_givenNameSelector[k] = QuinSelector(MaxBufferLen);
-        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_givenNameSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
-        credSubj_givenNameSelector[k].index <== k;
+        givenNameSelector[k] = QuinSelector(MaxBufferLen);
+        for(var z = 0; z < MaxBufferLen; z++) { givenNameSelector[k].in[z] <== givenName[z]; }
+        givenNameSelector[k].index <== k;
 
-        credSubj_familyNameSelector[k] = QuinSelector(MaxBufferLen);
-        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_familyNameSelector[k].in[z] <== familyName[z]; } // TODO: macro for this?
-        credSubj_familyNameSelector[k].index <== k - givenNameLen - 1;
+        familyNameSelector[k] = QuinSelector(MaxBufferLen);
+        for(var z = 0; z < MaxBufferLen; z++) { familyNameSelector[k].in[z] <== familyName[z]; }
+        familyNameSelector[k].index <== k - givenNameLen - 1;
 
-        credSubj_dobSelector[k] = QuinSelector(MaxBufferLen);
-        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_dobSelector[k].in[z] <== dob[z]; } // TODO: macro for this?
-        credSubj_dobSelector[k].index <== k - givenNameLen - 1 - familyNameLen - 1;
+        dobSelector[k] = QuinSelector(MaxBufferLen);
+        for(var z = 0; z < MaxBufferLen; z++) { dobSelector[k].in[z] <== dob[z]; }
+        dobSelector[k].index <== k - givenNameLen - 1 - familyNameLen - 1;
         
-        credSubj_notGivenName[k] <== NOT(credSubj_isGivenName[k].out);
-        credSubj_isSep1[k] <== credSubj_isUnderSep1[k].out * credSubj_notGivenName[k];
-        credSubj_isFamilyName[k] <== credSubj_isUnderFamilyName[k].out * NOT(credSubj_isUnderSep1[k].out);
-        credSubj_isSep2[k] <== credSubj_isUnderSep2[k].out * NOT(credSubj_isUnderFamilyName[k].out);
-        credSubj_isDOB[k] <== NOT(credSubj_isUnderSep2[k].out);
+        notGivenName[k] <== NOT(isGivenName[k].out);
+        isSep1[k] <== isUnderSep1[k].out * notGivenName[k];
+        isFamilyName[k] <== isUnderFamilyName[k].out * NOT(isUnderSep1[k].out);
+        isSep2[k] <== isUnderSep2[k].out * NOT(isUnderFamilyName[k].out);
+        isDOB[k] <== NOT(isUnderSep2[k].out);
 
-        credSubj_givenNameChar[k] <== credSubj_isGivenName[k].out * credSubj_givenNameSelector[k].out;
-        credSubj_sep1Char[k] <== credSubj_isSep1[k] * COMMA_CHAR;
-        credSubj_familyNameChar[k] <== credSubj_isFamilyName[k] * credSubj_familyNameSelector[k].out;
-        credSubj_sep2Char[k] <== credSubj_isSep2[k] * COMMA_CHAR;
-        credSubj_dobChar[k] <== credSubj_isDOB[k] * credSubj_dobSelector[k].out;
+        givenNameChar[k] <== isGivenName[k].out * givenNameSelector[k].out;
+        sep1Char[k] <== isSep1[k] * COMMA_CHAR;
+        familyNameChar[k] <== isFamilyName[k] * familyNameSelector[k].out;
+        sep2Char[k] <== isSep2[k] * COMMA_CHAR;
+        dobChar[k] <== isDOB[k] * dobSelector[k].out;
 
-        result[k] <== credSubj_givenNameChar[k] + credSubj_sep1Char[k] + credSubj_familyNameChar[k] + credSubj_sep2Char[k] + credSubj_dobChar[k];
+        result[k] <== givenNameChar[k] + sep1Char[k] + familyNameChar[k] + sep2Char[k] + dobChar[k];
     }
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
