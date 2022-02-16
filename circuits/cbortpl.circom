@@ -64,12 +64,8 @@ template GetX() {
         vbits[k] <== num2Bits.out[k];
     }
     component b2n = Bits2Num(5);
-    // var lc1=0;
-    // var e2 = 1;
-    for (var i = 0; i<5; i++) {
+    for (var i = 0; i < 5; i++) {
         b2n.in[i] <== vbits[i];
-        // lc1 += vbits[i] * e2;
-        // e2 = e2 + e2;
     }
     x <== b2n.out;
 }
