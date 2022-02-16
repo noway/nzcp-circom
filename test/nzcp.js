@@ -57,15 +57,15 @@ describe("CBOR getV(4)", function () {
     before(async () => {
         cir = await wasm_tester(p);
     })
-    it ("getV([1, 2, 3, 4], 0) == 4", async () => {
+    it ("getV([1, 2, 3, 4], 0) == 1", async () => {
         const witness = await cir.calculateWitness({ "bytes": [1, 2, 3, 4], pos: 0 }, true);
         assert.equal(witness[1], 1);
     });
-    it ("getV([1, 2, 3, 4], 1) == 4", async () => {
+    it ("getV([1, 2, 3, 4], 1) == 2", async () => {
         const witness = await cir.calculateWitness({ "bytes": [1, 2, 3, 4], pos: 1 }, true);
         assert.equal(witness[1], 2);
     });
-    it ("getV([1, 2, 3, 4], 2) == 4", async () => {
+    it ("getV([1, 2, 3, 4], 2) == 3", async () => {
         const witness = await cir.calculateWitness({ "bytes": [1, 2, 3, 4], pos: 2 }, true);
         assert.equal(witness[1], 3);
     });
