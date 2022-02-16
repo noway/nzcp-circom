@@ -19,6 +19,7 @@ template NZCPCalculateTotal(n) {
     sum <== sums[n - 1];
 }
 
+
 // https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/incrementalQuinTree.circom
 // License: MIT
 template QuinSelector(choices) {
@@ -27,7 +28,9 @@ template QuinSelector(choices) {
     signal output out;
     
     // Ensure that index < choices
-    var bits = log2ceil(choices);
+    var bits = log2(choices) + 1;
+    log(bits);
+    log(choices);
     component lessThan = LessThan(bits); // changed 3 to 9
     lessThan.in[0] <== index;
     lessThan.in[1] <== choices;
