@@ -6,7 +6,7 @@ include "./pow.circom";
 template Main() {
     // log2
     for (var i = 1; i < 100; i++) {
-        var power = pow(2, i);
+        var power = NZCPpow(2, i);
         assert(log2(power) == i);
         assert(log2(power + 1) == i);
     }
@@ -21,7 +21,7 @@ template Main() {
 
     // log2ceil
     for (var i = 1; i < 100; i++) {
-        var power = pow(2, i);
+        var power = NZCPpow(2, i);
         assert(log2ceil(power) == i);
         assert(log2ceil(power + 1) == i + 1);
     }

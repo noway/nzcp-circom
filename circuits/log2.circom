@@ -13,7 +13,7 @@ function log2(x) {
 }
 
 function log2ceil(x) {
-    var z = pow(2, log2(x)) == x ? -1 : 0;
+    var z = NZCPpow(2, log2(x)) == x ? -1 : 0;
     while (x) {
         z = z + 1;
         x = x \ 2;
