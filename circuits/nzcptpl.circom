@@ -394,21 +394,13 @@ template NZCP() {
     signal output d;
 
     // convert bits to bytes
-    // TODO: use bits2num?
     signal ToBeSigned[ToBeSignedBytes];
     component b2n[ToBeSignedBytes];
-    for (var k=0; k<ToBeSignedBytes; k++) {
-        // var lc1=0;
-
-        // var e2 = 1;
+    for (var k = 0; k < ToBeSignedBytes; k++) {
         b2n[k] = Bits2Num(8);
-
-        for (var i = 7; i>=0; i--) {
-            // lc1 += a[k*8+i] * e2;
-            // e2 = e2 + e2;
-            b2n[k].in[7-i] <== a[k * 8 + i];
+        for (var i = 0; i < 8; i++) {
+            b2n[k].in[7 - i] <== a[k * 8 + i];
         }
-
         ToBeSigned[k] <== b2n[k].out;
     }
 
