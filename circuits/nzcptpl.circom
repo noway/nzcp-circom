@@ -393,13 +393,10 @@ template NZCP() {
     signal output c[256];
     signal output d;
 
-    var k;
-
-
     // convert bits to bytes
     // TODO: use bits2num?
     signal ToBeSigned[ToBeSignedBytes];
-    for (k=0; k<ToBeSignedBytes; k++) {
+    for (var k=0; k<ToBeSignedBytes; k++) {
         var lc1=0;
 
         var e2 = 1;
@@ -472,7 +469,7 @@ template NZCP() {
     var MaxBufferLenBits = MaxBufferLen * 8;
     component n2b[MaxBufferLen];
     signal bits[MaxBufferLenBits];
-    for(k = 0; k < MaxBufferLen; k++) {
+    for(var k = 0; k < MaxBufferLen; k++) {
         n2b[k] = Num2Bits(8);
         n2b[k].in <== concatCredSubj.result[k];
         for (var j = 0; j < 8; j++) {
@@ -490,16 +487,16 @@ template NZCP() {
 
     component sha256 = Sha256Var(BlockSpace);
     sha256.len <== concatCredSubj.resultLen * 8;
-    for (k=0; k<MaxBufferLenBits; k++) {
-        sha256.in[k] <== bits[k];
+    for (var i = 0; i < MaxBufferLenBits; i++) {
+        sha256.in[i] <== bits[i];
     }
-    for (k = MaxBufferLenBits; k < MaxBits; k++) {
-        sha256.in[k] <== 0;
+    for (var i = MaxBufferLenBits; i < MaxBits; i++) {
+        sha256.in[i] <== 0;
     }
 
     // export the sha256 hash
-    for (k=0; k<256; k++) {
-        c[k] <== sha256.out[k];
+    for (var i = 0; i < 256; i++) {
+        c[i] <== sha256.out[i];
     }
 
 }
