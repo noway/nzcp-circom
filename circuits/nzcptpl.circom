@@ -399,7 +399,7 @@ template NZCP() {
     for (var k = 0; k < ToBeSignedBytes; k++) {
         b2n[k] = Bits2Num(8);
         for (var i = 0; i < 8; i++) {
-            b2n[k].in[7 - i] <== a[k * 8 + i];
+            b2n[k].in[i] <== a[k * 8 + (7 - i)];
         }
         ToBeSigned[k] <== b2n[k].out;
     }
