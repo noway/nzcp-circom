@@ -127,8 +127,6 @@ template ReadCredSubj(ToBeSignedBytes, MaxBufferLen) {
     var DOB_LEN = 3;
     var DOB_STR[DOB_LEN] = [100, 111, 98];
 
-    // TODO: pull out of template?
-
     // i/o signals
     signal input maplen;
     signal input bytes[ToBeSignedBytes];
