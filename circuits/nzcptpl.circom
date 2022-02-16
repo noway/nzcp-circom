@@ -23,6 +23,17 @@ include "./cbor.circom";
 #define NOT(in) (1 + in - 2*in)
 
 
+function log2(x) {
+    var z = -1;
+    while (x) {
+        z = z + 1;
+        x = x \ 2;
+    }
+    return z;
+}
+
+
+
 template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     // constants
     // usually is 5. TODO: allow for more?
@@ -258,6 +269,86 @@ template ReadCredSubj(ToBeSignedBytes, MaxBufferLen) {
 
 }
 
+// concat givenName, familyName and dob with comma as separator
+template ConcatCredSubj(MaxBufferLen) {
+    var COMMA_CHAR = 44;
+    var ConcatSizeBits = log2(MaxBufferLen);
+    log(ConcatSizeBits);
+
+    signal input givenName[MaxBufferLen];
+    signal input givenNameLen;
+    signal input familyName[MaxBufferLen];
+    signal input familyNameLen;
+    signal input dob[MaxBufferLen];
+    signal input dobLen;
+    signal output result[MaxBufferLen];
+
+    component credSubj_isGivenName[MaxBufferLen];
+    component credSubj_isUnderSep1[MaxBufferLen];
+    component credSubj_isUnderFamilyName[MaxBufferLen];
+    component credSubj_isUnderSep2[MaxBufferLen];
+
+    component credSubj_givenNameSelector[MaxBufferLen];
+    component credSubj_familyNameSelector[MaxBufferLen];
+    component credSubj_dobSelector[MaxBufferLen];
+
+    signal credSubj_notGivenName[MaxBufferLen];
+    signal credSubj_isSep1[MaxBufferLen];
+    signal credSubj_isFamilyName[MaxBufferLen];
+    signal credSubj_isSep2[MaxBufferLen];
+    signal credSubj_isDOB[MaxBufferLen];
+
+    signal credSubj_givenNameChar[MaxBufferLen];
+    signal credSubj_sep1Char[MaxBufferLen];
+    signal credSubj_familyNameChar[MaxBufferLen];
+    signal credSubj_sep2Char[MaxBufferLen];
+    signal credSubj_dobChar[MaxBufferLen];
+    
+    for(var k = 0; k < MaxBufferLen; k++) {
+        credSubj_isGivenName[k] = LessThan(ConcatSizeBits);
+        credSubj_isGivenName[k].in[0] <== k;
+        credSubj_isGivenName[k].in[1] <== givenNameLen;
+
+        credSubj_isUnderSep1[k] = LessThan(ConcatSizeBits);
+        credSubj_isUnderSep1[k].in[0] <== k;
+        credSubj_isUnderSep1[k].in[1] <== givenNameLen + 1;
+
+        credSubj_isUnderFamilyName[k] = LessThan(ConcatSizeBits);
+        credSubj_isUnderFamilyName[k].in[0] <== k;
+        credSubj_isUnderFamilyName[k].in[1] <== givenNameLen + 1 + familyNameLen;
+
+        credSubj_isUnderSep2[k] = LessThan(ConcatSizeBits);
+        credSubj_isUnderSep2[k].in[0] <== k;
+        credSubj_isUnderSep2[k].in[1] <== givenNameLen + 1 + familyNameLen + 1;
+
+        credSubj_givenNameSelector[k] = QuinSelector(MaxBufferLen);
+        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_givenNameSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
+        credSubj_givenNameSelector[k].index <== k;
+
+        credSubj_familyNameSelector[k] = QuinSelector(MaxBufferLen);
+        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_familyNameSelector[k].in[z] <== familyName[z]; } // TODO: macro for this?
+        credSubj_familyNameSelector[k].index <== k - givenNameLen - 1;
+
+        credSubj_dobSelector[k] = QuinSelector(MaxBufferLen);
+        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_dobSelector[k].in[z] <== dob[z]; } // TODO: macro for this?
+        credSubj_dobSelector[k].index <== k - givenNameLen - 1 - familyNameLen - 1;
+        
+        credSubj_notGivenName[k] <== NOT(credSubj_isGivenName[k].out);
+        credSubj_isSep1[k] <== credSubj_isUnderSep1[k].out * credSubj_notGivenName[k];
+        credSubj_isFamilyName[k] <== credSubj_isUnderFamilyName[k].out * NOT(credSubj_isUnderSep1[k].out);
+        credSubj_isSep2[k] <== credSubj_isUnderSep2[k].out * NOT(credSubj_isUnderFamilyName[k].out);
+        credSubj_isDOB[k] <== NOT(credSubj_isUnderSep2[k].out);
+
+        credSubj_givenNameChar[k] <== credSubj_isGivenName[k].out * credSubj_givenNameSelector[k].out;
+        credSubj_sep1Char[k] <== credSubj_isSep1[k] * COMMA_CHAR;
+        credSubj_familyNameChar[k] <== credSubj_isFamilyName[k] * credSubj_familyNameSelector[k].out;
+        credSubj_sep2Char[k] <== credSubj_isSep2[k] * COMMA_CHAR;
+        credSubj_dobChar[k] <== credSubj_isDOB[k] * credSubj_dobSelector[k].out;
+
+        result[k] <== credSubj_givenNameChar[k] + credSubj_sep1Char[k] + credSubj_familyNameChar[k] + credSubj_sep2Char[k] + credSubj_dobChar[k];
+    }
+}
+
 template ReadMapLength(ToBeSignedBytes) {
     // read type
     signal input pos;
@@ -378,76 +469,15 @@ template NZCP() {
     for (var i = 0; i < MaxBufferLen; i++) { dob[i] <== readCredSubj.dob[i]; }
 
 
-    // concat givenName, familyName, dob
-    var COMMA_CHAR = 44;
-
-    signal credSubj_concatString[MaxBufferLen];
-
-    component credSubj_isGivenName[MaxBufferLen];
-    component credSubj_isUnderSep1[MaxBufferLen];
-    component credSubj_isUnderFamilyName[MaxBufferLen];
-    component credSubj_isUnderSep2[MaxBufferLen];
-
-    component credSubj_givenNameSelector[MaxBufferLen];
-    component credSubj_familyNameSelector[MaxBufferLen];
-    component credSubj_dobSelector[MaxBufferLen];
-
-    signal credSubj_notGivenName[MaxBufferLen];
-    signal credSubj_isSep1[MaxBufferLen];
-    signal credSubj_isFamilyName[MaxBufferLen];
-    signal credSubj_isSep2[MaxBufferLen];
-    signal credSubj_isDOB[MaxBufferLen];
-
-    signal credSubj_givenNameChar[MaxBufferLen];
-    signal credSubj_sep1Char[MaxBufferLen];
-    signal credSubj_familyNameChar[MaxBufferLen];
-    signal credSubj_sep2Char[MaxBufferLen];
-    signal credSubj_dobChar[MaxBufferLen];
+    component concatCredSubj = ConcatCredSubj(MaxBufferLen);
+    concatCredSubj.givenNameLen <== givenNameLen;
+    concatCredSubj.familyNameLen <== familyNameLen;
+    concatCredSubj.dobLen <== dobLen;
+    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.givenName[i] <== givenName[i]; }
+    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.familyName[i] <== familyName[i]; }
+    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.dob[i] <== dob[i]; }
     
-    for(k = 0; k < MaxBufferLen; k++) {
-        credSubj_isGivenName[k] = LessThan(CONCAT_SIZE_BITS);
-        credSubj_isGivenName[k].in[0] <== k;
-        credSubj_isGivenName[k].in[1] <== givenNameLen;
 
-        credSubj_isUnderSep1[k] = LessThan(CONCAT_SIZE_BITS);
-        credSubj_isUnderSep1[k].in[0] <== k;
-        credSubj_isUnderSep1[k].in[1] <== givenNameLen + 1;
-
-        credSubj_isUnderFamilyName[k] = LessThan(CONCAT_SIZE_BITS);
-        credSubj_isUnderFamilyName[k].in[0] <== k;
-        credSubj_isUnderFamilyName[k].in[1] <== givenNameLen + 1 + familyNameLen;
-
-        credSubj_isUnderSep2[k] = LessThan(CONCAT_SIZE_BITS);
-        credSubj_isUnderSep2[k].in[0] <== k;
-        credSubj_isUnderSep2[k].in[1] <== givenNameLen + 1 + familyNameLen + 1;
-
-        credSubj_givenNameSelector[k] = QuinSelector(MaxBufferLen);
-        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_givenNameSelector[k].in[z] <== givenName[z]; } // TODO: macro for this?
-        credSubj_givenNameSelector[k].index <== k;
-
-        credSubj_familyNameSelector[k] = QuinSelector(MaxBufferLen);
-        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_familyNameSelector[k].in[z] <== familyName[z]; } // TODO: macro for this?
-        credSubj_familyNameSelector[k].index <== k - givenNameLen - 1;
-
-        credSubj_dobSelector[k] = QuinSelector(MaxBufferLen);
-        for(var z = 0; z<MaxBufferLen; z++) {  credSubj_dobSelector[k].in[z] <== dob[z]; } // TODO: macro for this?
-        credSubj_dobSelector[k].index <== k - givenNameLen - 1 - familyNameLen - 1;
-        
-        credSubj_notGivenName[k] <== NOT(credSubj_isGivenName[k].out);
-        credSubj_isSep1[k] <== credSubj_isUnderSep1[k].out * credSubj_notGivenName[k];
-        credSubj_isFamilyName[k] <== credSubj_isUnderFamilyName[k].out * NOT(credSubj_isUnderSep1[k].out);
-        credSubj_isSep2[k] <== credSubj_isUnderSep2[k].out * NOT(credSubj_isUnderFamilyName[k].out);
-        credSubj_isDOB[k] <== NOT(credSubj_isUnderSep2[k].out);
-
-        credSubj_givenNameChar[k] <== credSubj_isGivenName[k].out * credSubj_givenNameSelector[k].out;
-        credSubj_sep1Char[k] <== credSubj_isSep1[k] * COMMA_CHAR;
-        credSubj_familyNameChar[k] <== credSubj_isFamilyName[k] * credSubj_familyNameSelector[k].out;
-        credSubj_sep2Char[k] <== credSubj_isSep2[k] * COMMA_CHAR;
-        credSubj_dobChar[k] <== credSubj_isDOB[k] * credSubj_dobSelector[k].out;
-
-        credSubj_concatString[k] <== credSubj_givenNameChar[k] + credSubj_sep1Char[k] + credSubj_familyNameChar[k] + credSubj_sep2Char[k] + credSubj_dobChar[k];
-        
-    }
 
 
     // convert concat string into bits
@@ -456,7 +486,7 @@ template NZCP() {
     signal bits[CONCAT_MAX_LEN_BITS];
     for(k = 0; k < MaxBufferLen; k++) {
         n2b[k] = Num2Bits(8);
-        n2b[k].in <== credSubj_concatString[k];
+        n2b[k].in <== concatCredSubj.result[k];
         for (var j = 0; j < 8; j++) {
             bits[k*8 + (7 - j)] <== n2b[k].out[j];
         }
