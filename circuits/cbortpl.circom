@@ -87,7 +87,6 @@ template GetV(ToBeSignedBytes) {
 
 // Supports <=23 integers as well as 8bit, 16bit and 32bit integers
 template DecodeUint(ToBeSignedBytes) {
-    // TODO: only copy over 4 bytes for the lookahead
     signal input v;
     signal input bytes[ToBeSignedBytes];
     signal input pos;
