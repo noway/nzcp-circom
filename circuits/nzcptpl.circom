@@ -23,14 +23,14 @@ include "./cbor.circom";
 #define NOT(in) (1 + in - 2*in)
 
 
-function log2(x) {
-    var z = -1;
-    while (x) {
-        z = z + 1;
-        x = x \ 2;
-    }
-    return z;
-}
+// function log2(x) {
+//     var z = -1;
+//     while (x) {
+//         z = z + 1;
+//         x = x \ 2;
+//     }
+//     return z;
+// }
 
 
 
