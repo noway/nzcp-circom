@@ -112,19 +112,12 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     needlepos <== calculateTotal_foundpos.sum;
 }
 
-// function pow(x, y) {
-//     if (y == 0) {
-//         return 1;
-//     } else {
-//         return x * pow(x, y - 1);
-//     }
-// }
 
-
-template ReadCredSubj(ToBeSignedBytes, MaxBufferLen, MaxStringLen) {
+template ReadCredSubj(ToBeSignedBytes, MaxBufferLen) {
 
     // constants
     var CREDENTIAL_SUBJECT_MAP_LEN = 3;
+    var MaxStringLen = MaxBufferLen \ CREDENTIAL_SUBJECT_MAP_LEN;
 
     // strings
     var GIVEN_NAME_LEN = 9;
@@ -170,7 +163,6 @@ template ReadCredSubj(ToBeSignedBytes, MaxBufferLen, MaxStringLen) {
     component mapval_isDOB[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_decodeString[CREDENTIAL_SUBJECT_MAP_LEN];
 
-    var z;
     for(var k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
 
         // TODO: make this a template "ReadStringLength"
@@ -370,15 +362,10 @@ template NZCP() {
     // read cred subj map
     var CONCAT_SIZE_BITS = 5; // TODO: make bigger?
     var MaxBufferLen = pow(2, CONCAT_SIZE_BITS);
-    var MaxStringLen = MaxBufferLen \ 3;
-
-    component readCredSubj = ReadCredSubj(ToBeSignedBytes, MaxBufferLen, MaxStringLen);
+    component readCredSubj = ReadCredSubj(ToBeSignedBytes, MaxBufferLen);
     copyBytes(ToBeSigned, readCredSubj)
     readCredSubj.pos <== readMapLength3.nextpos;
     readCredSubj.maplen <== readMapLength3.len;
-
-
-
     signal givenName[MaxBufferLen];
     signal givenNameLen;
     signal familyName[MaxBufferLen];
