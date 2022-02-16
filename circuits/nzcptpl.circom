@@ -156,15 +156,6 @@ template NZCP() {
 
     var k;
 
-    // component sha256 = Sha256(TO_BE_SIGNED_BITS);
-
-    // for (k=0; k<TO_BE_SIGNED_BITS; k++) {
-    //     sha256.in[k] <== a[k];
-    // }
-
-    // for (k=0; k<256; k++) {
-    //     c[k] <== sha256.out[k];
-    // }
 
     // convert bits to bytes
     // TODO: use bits2num?
