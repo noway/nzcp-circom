@@ -268,7 +268,6 @@ template SkipValueScalar(BytesLen) {
 
 
 // TODO: test
-// TODO: rename BytesLen to byteslen or len
 template SkipValue(BytesLen) {
 
     // constants
