@@ -18,7 +18,7 @@ include "./cbor.circom";
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
 /* assign bytes to a signal in one go */
-#define copyBytes(b, a, c) for(var z = 0; z<c; z++) { a.bytes[z] <== b[z]; }
+#define copyBytes(b, a, c) for(var z = 0; z<c; z++) { a[z] <== b[z]; }
 
 #define NOT(in) (1 + in - 2*in)
 
@@ -72,7 +72,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
 
         // read type
         mapval_readType[k] = ReadType(BytesLen);
-        copyBytes(bytes, mapval_readType[k], BytesLen)
+        copyBytes(bytes, mapval_readType[k].bytes, BytesLen)
         mapval_readType[k].pos <== pos_loop_1[k];
         mapval_v[k] <== mapval_readType[k].v;
         mapval_type[k] <== mapval_readType[k].type;
@@ -81,7 +81,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         // decode uint
         mapval_decodeUint[k] = DecodeUint(BytesLen);
         mapval_decodeUint[k].v <== mapval_v[k];
-        copyBytes(bytes, mapval_decodeUint[k], BytesLen)
+        copyBytes(bytes, mapval_decodeUint[k].bytes, BytesLen)
         mapval_decodeUint[k].pos <== pos_loop_2[k];
         pos_loop_3[k] <== mapval_decodeUint[k].nextpos;
         mapval_value[k] <== mapval_decodeUint[k].value;
@@ -94,7 +94,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         // skip value for next iteration
         mapval_skipValue[k] = SkipValue(BytesLen);
         mapval_skipValue[k].pos <== pos_loop_3[k] + (mapval_value[k] * mapval_isString[k].out);
-        copyBytes(bytes, mapval_skipValue[k], BytesLen)
+        copyBytes(bytes, mapval_skipValue[k].bytes, BytesLen)
         if (k != MAX_CWT_MAP_LEN - 1) {
             pos_loop_1[k + 1] <== mapval_skipValue[k].nextpos;
         }
@@ -102,7 +102,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
 
         // is current value interpreted as a string is a "vc" string?
         mapval_isNeedleString[k] = StringEquals(BytesLen, ConstBytes, ConstBytesLen);
-        copyBytes(bytes, mapval_isNeedleString[k], BytesLen)
+        copyBytes(bytes, mapval_isNeedleString[k].bytes, BytesLen)
         mapval_isNeedleString[k].pos <== pos_loop_3[k]; // pos before skipping
         mapval_isNeedleString[k].len <== mapval_value[k];
 
@@ -176,7 +176,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
         // TODO: make this a template "ReadStringLength"
         mapval_readType[k] = ReadType(BytesLen);
-        copyBytes(bytes, mapval_readType[k], BytesLen)
+        copyBytes(bytes, mapval_readType[k].bytes, BytesLen)
         mapval_readType[k].pos <== k == 0 ? pos : mapval_decodeString[k - 1].nextpos; // 27 bytes initial skip for example MoH pass
         mapval_v[k] <== mapval_readType[k].v;
         mapval_type[k] <== mapval_readType[k].type;
@@ -193,22 +193,22 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
         
 
         mapval_isGivenName[k] = StringEquals(BytesLen, GIVEN_NAME_STR, GIVEN_NAME_LEN);
-        copyBytes(bytes, mapval_isGivenName[k], BytesLen)
+        copyBytes(bytes, mapval_isGivenName[k].bytes, BytesLen)
         mapval_isGivenName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
         mapval_isGivenName[k].len <== mapval_x[k];
 
         mapval_isFamilyName[k] = StringEquals(BytesLen, FAMILY_NAME_STR, FAMILY_NAME_LEN);
-        copyBytes(bytes, mapval_isFamilyName[k], BytesLen)
+        copyBytes(bytes, mapval_isFamilyName[k].bytes, BytesLen)
         mapval_isFamilyName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
         mapval_isFamilyName[k].len <== mapval_x[k];
 
         mapval_isDOB[k] = StringEquals(BytesLen, DOB_STR, DOB_LEN);
-        copyBytes(bytes, mapval_isDOB[k], BytesLen)
+        copyBytes(bytes, mapval_isDOB[k].bytes, BytesLen)
         mapval_isDOB[k].pos <== mapval_readType[k].nextpos; // pos before skipping
         mapval_isDOB[k].len <== mapval_x[k];
 
         mapval_decodeString[k] = DecodeString(BytesLen, MaxStringLen); // TODO: dynamic length? or sane default which can't crash
-        copyBytes(bytes, mapval_decodeString[k], BytesLen)
+        copyBytes(bytes, mapval_decodeString[k].bytes, BytesLen)
         mapval_decodeString[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
 
     }
@@ -362,7 +362,7 @@ template ReadMapLength(ToBeSignedBytes) {
     signal type;
     
     component readType = ReadType(ToBeSignedBytes);
-    copyBytes(bytes, readType, ToBeSignedBytes)
+    copyBytes(bytes, readType.bytes, ToBeSignedBytes)
     readType.pos <== pos; // 27 bytes initial skip for example MoH pass
     v <== readType.v;
     type <== readType.type;
@@ -405,25 +405,25 @@ template NZCP() {
     }
 
     component readMapLength = ReadMapLength(ToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength, ToBeSignedBytes)
+    copyBytes(ToBeSigned, readMapLength.bytes, ToBeSignedBytes)
     readMapLength.pos <== CLAIMS_SKIP_EXAMPLE;
 
     // find "vc" key pos in the map
     signal vc_pos;
     component findVC = FindMapKey(ToBeSignedBytes, [118, 99], 2);
-    copyBytes(ToBeSigned, findVC, ToBeSignedBytes)
+    copyBytes(ToBeSigned, findVC.bytes, ToBeSignedBytes)
     findVC.pos <== readMapLength.nextpos;
     findVC.maplen <== readMapLength.len;
     vc_pos <== findVC.needlepos;
     log(vc_pos);
 
     component readMapLength2 = ReadMapLength(ToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength2, ToBeSignedBytes)
+    copyBytes(ToBeSigned, readMapLength2.bytes, ToBeSignedBytes)
     readMapLength2.pos <== 76;
 
     signal credSubj_pos;
     component findCredSubj = FindMapKey(ToBeSignedBytes, [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116], 17);
-    copyBytes(ToBeSigned, findCredSubj, ToBeSignedBytes)
+    copyBytes(ToBeSigned, findCredSubj.bytes, ToBeSignedBytes)
     findCredSubj.pos <== readMapLength2.nextpos;
     findCredSubj.maplen <== readMapLength2.len;
     credSubj_pos <== findCredSubj.needlepos;
@@ -437,7 +437,7 @@ template NZCP() {
 
     // read cred subj map length
     component readMapLength3 = ReadMapLength(ToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength3, ToBeSignedBytes)
+    copyBytes(ToBeSigned, readMapLength3.bytes, ToBeSignedBytes)
     readMapLength3.pos <== credSubj_pos;
 
 
@@ -445,7 +445,7 @@ template NZCP() {
     var CONCAT_SIZE_BITS = 5; // TODO: make bigger?
     var MaxBufferLen = pow(2, CONCAT_SIZE_BITS);
     component readCredSubj = ReadCredSubj(ToBeSignedBytes, MaxBufferLen);
-    copyBytes(ToBeSigned, readCredSubj, ToBeSignedBytes)
+    copyBytes(ToBeSigned, readCredSubj.bytes, ToBeSignedBytes)
     readCredSubj.pos <== readMapLength3.nextpos;
     readCredSubj.maplen <== readMapLength3.len;
 
