@@ -34,14 +34,14 @@ include "./cbor.circom";
 
 
 
-template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
+template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     // constants
     // usually is 5. TODO: allow for more?
     var MAX_CWT_MAP_LEN = 8;
 
     // i/o signals
     signal input maplen;
-    signal input bytes[ToBeSignedBytes];
+    signal input bytes[BytesLen];
     signal input pos;
 
     signal output needlepos;
@@ -71,17 +71,17 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
     for (var k = 0; k < MAX_CWT_MAP_LEN; k++) { 
 
         // read type
-        mapval_readType[k] = ReadType(ToBeSignedBytes);
-        copyBytes(bytes, mapval_readType[k], ToBeSignedBytes)
+        mapval_readType[k] = ReadType(BytesLen);
+        copyBytes(bytes, mapval_readType[k], BytesLen)
         mapval_readType[k].pos <== pos_loop_1[k];
         mapval_v[k] <== mapval_readType[k].v;
         mapval_type[k] <== mapval_readType[k].type;
         pos_loop_2[k] <== mapval_readType[k].nextpos;
 
         // decode uint
-        mapval_decodeUint[k] = DecodeUint(ToBeSignedBytes);
+        mapval_decodeUint[k] = DecodeUint(BytesLen);
         mapval_decodeUint[k].v <== mapval_v[k];
-        copyBytes(bytes, mapval_decodeUint[k], ToBeSignedBytes)
+        copyBytes(bytes, mapval_decodeUint[k], BytesLen)
         mapval_decodeUint[k].pos <== pos_loop_2[k];
         pos_loop_3[k] <== mapval_decodeUint[k].nextpos;
         mapval_value[k] <== mapval_decodeUint[k].value;
@@ -92,17 +92,17 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
         mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
 
         // skip value for next iteration
-        mapval_skipValue[k] = SkipValue(ToBeSignedBytes);
+        mapval_skipValue[k] = SkipValue(BytesLen);
         mapval_skipValue[k].pos <== pos_loop_3[k] + (mapval_value[k] * mapval_isString[k].out);
-        copyBytes(bytes, mapval_skipValue[k], ToBeSignedBytes)
+        copyBytes(bytes, mapval_skipValue[k], BytesLen)
         if (k != MAX_CWT_MAP_LEN - 1) {
             pos_loop_1[k + 1] <== mapval_skipValue[k].nextpos;
         }
 
 
         // is current value interpreted as a string is a "vc" string?
-        mapval_isNeedleString[k] = StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen);
-        copyBytes(bytes, mapval_isNeedleString[k], ToBeSignedBytes)
+        mapval_isNeedleString[k] = StringEquals(BytesLen, ConstBytes, ConstBytesLen);
+        copyBytes(bytes, mapval_isNeedleString[k], BytesLen)
         mapval_isNeedleString[k].pos <== pos_loop_3[k]; // pos before skipping
         mapval_isNeedleString[k].len <== mapval_value[k];
 
@@ -124,7 +124,7 @@ template FindMapKey(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
 }
 
 
-template ReadCredSubj(ToBeSignedBytes, MaxBufferLen) {
+template ReadCredSubj(BytesLen, MaxBufferLen) {
 
     // constants
     var CREDENTIAL_SUBJECT_MAP_LEN = 3;
@@ -140,7 +140,7 @@ template ReadCredSubj(ToBeSignedBytes, MaxBufferLen) {
 
     // i/o signals
     signal input maplen;
-    signal input bytes[ToBeSignedBytes];
+    signal input bytes[BytesLen];
     signal input pos;
 
     signal output givenName[MaxBufferLen];
@@ -175,8 +175,8 @@ template ReadCredSubj(ToBeSignedBytes, MaxBufferLen) {
     for(var k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
 
         // TODO: make this a template "ReadStringLength"
-        mapval_readType[k] = ReadType(ToBeSignedBytes);
-        copyBytes(bytes, mapval_readType[k], ToBeSignedBytes)
+        mapval_readType[k] = ReadType(BytesLen);
+        copyBytes(bytes, mapval_readType[k], BytesLen)
         mapval_readType[k].pos <== k == 0 ? pos : mapval_decodeString[k - 1].nextpos; // 27 bytes initial skip for example MoH pass
         mapval_v[k] <== mapval_readType[k].v;
         mapval_type[k] <== mapval_readType[k].type;
@@ -192,23 +192,23 @@ template ReadCredSubj(ToBeSignedBytes, MaxBufferLen) {
 
         
 
-        mapval_isGivenName[k] = StringEquals(ToBeSignedBytes, GIVEN_NAME_STR, GIVEN_NAME_LEN);
-        copyBytes(bytes, mapval_isGivenName[k], ToBeSignedBytes)
+        mapval_isGivenName[k] = StringEquals(BytesLen, GIVEN_NAME_STR, GIVEN_NAME_LEN);
+        copyBytes(bytes, mapval_isGivenName[k], BytesLen)
         mapval_isGivenName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
         mapval_isGivenName[k].len <== mapval_x[k];
 
-        mapval_isFamilyName[k] = StringEquals(ToBeSignedBytes, FAMILY_NAME_STR, FAMILY_NAME_LEN);
-        copyBytes(bytes, mapval_isFamilyName[k], ToBeSignedBytes)
+        mapval_isFamilyName[k] = StringEquals(BytesLen, FAMILY_NAME_STR, FAMILY_NAME_LEN);
+        copyBytes(bytes, mapval_isFamilyName[k], BytesLen)
         mapval_isFamilyName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
         mapval_isFamilyName[k].len <== mapval_x[k];
 
-        mapval_isDOB[k] = StringEquals(ToBeSignedBytes, DOB_STR, DOB_LEN);
-        copyBytes(bytes, mapval_isDOB[k], ToBeSignedBytes)
+        mapval_isDOB[k] = StringEquals(BytesLen, DOB_STR, DOB_LEN);
+        copyBytes(bytes, mapval_isDOB[k], BytesLen)
         mapval_isDOB[k].pos <== mapval_readType[k].nextpos; // pos before skipping
         mapval_isDOB[k].len <== mapval_x[k];
 
-        mapval_decodeString[k] = DecodeString(ToBeSignedBytes, MaxStringLen); // TODO: dynamic length? or sane default which can't crash
-        copyBytes(bytes, mapval_decodeString[k], ToBeSignedBytes)
+        mapval_decodeString[k] = DecodeString(BytesLen, MaxStringLen); // TODO: dynamic length? or sane default which can't crash
+        copyBytes(bytes, mapval_decodeString[k], BytesLen)
         mapval_decodeString[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
 
     }
