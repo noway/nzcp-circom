@@ -404,7 +404,6 @@ template NZCP() {
         ToBeSigned[k] <== b2n[k].out;
     }
 
-    /*
     component readMapLength = ReadMapLength(ToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength)
     readMapLength.pos <== CLAIMS_SKIP_EXAMPLE;
@@ -430,10 +429,9 @@ template NZCP() {
     credSubj_pos <== findCredSubj.needlepos;
     log(credSubj_pos);
 
-    */
 
-    signal credSubj_pos;
-    credSubj_pos <== 246;
+    // signal credSubj_pos;
+    // credSubj_pos <== 246;
 
 
 

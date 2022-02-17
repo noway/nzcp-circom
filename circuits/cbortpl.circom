@@ -7,7 +7,7 @@ include "./incrementalQuinTree.circom";
 /* assert through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
-#define copyBytes(b, a) for(var z = 0; z<ToBeSignedBytes; z++) { a.bytes[z] <== b[z]; }
+#define copyBytes(b, a, c) for(var z = 0; z<c; z++) { a.bytes[z] <== b[z]; }
 
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
@@ -70,13 +70,13 @@ template GetX() {
     x <== b2n.out;
 }
 
-template GetV(ToBeSignedBytes) {
-    signal input bytes[ToBeSignedBytes];
+template GetV(BytesLen) {
+    signal input bytes[BytesLen];
     signal input pos;
     signal output v;
 
-    component quinSelector = QuinSelector(ToBeSignedBytes);
-    for (var k=0; k<ToBeSignedBytes; k++) {
+    component quinSelector = QuinSelector(BytesLen);
+    for (var k=0; k<BytesLen; k++) {
         quinSelector.in[k] <== bytes[k];
     }
     quinSelector.index <== pos;
@@ -84,9 +84,9 @@ template GetV(ToBeSignedBytes) {
 }
 
 // Supports <=23 integers as well as 8bit, 16bit and 32bit integers
-template DecodeUint(ToBeSignedBytes) {
+template DecodeUint(BytesLen) {
     signal input v;
-    signal input bytes[ToBeSignedBytes];
+    signal input bytes[BytesLen];
     signal input pos;
     signal output value;
     signal output nextpos;
@@ -103,9 +103,9 @@ template DecodeUint(ToBeSignedBytes) {
     nextpos_23 <== pos;
 
     // if(x == 24)
-    component getV_24 = GetV(ToBeSignedBytes);
+    component getV_24 = GetV(BytesLen);
 
-    copyBytes(bytes, getV_24)
+    copyBytes(bytes, getV_24, BytesLen)
     getV_24.pos <== pos;
     signal value_24;
     value_24 <== getV_24.v;
@@ -113,10 +113,10 @@ template DecodeUint(ToBeSignedBytes) {
     nextpos_24 <== pos + 1;
 
     // if(x == 25)
-    component getV1_25 = GetV(ToBeSignedBytes);
-    component getV2_25 = GetV(ToBeSignedBytes);
-    copyBytes(bytes, getV1_25)
-    copyBytes(bytes, getV2_25)
+    component getV1_25 = GetV(BytesLen);
+    component getV2_25 = GetV(BytesLen);
+    copyBytes(bytes, getV1_25, BytesLen)
+    copyBytes(bytes, getV2_25, BytesLen)
 
     getV1_25.pos <== pos;
     signal value_1_25;
@@ -133,15 +133,15 @@ template DecodeUint(ToBeSignedBytes) {
     nextpos_25 <== pos + 2;
 
     // if(x == 26)
-    component getV1_26 = GetV(ToBeSignedBytes);
-    component getV2_26 = GetV(ToBeSignedBytes);
-    component getV3_26 = GetV(ToBeSignedBytes);
-    component getV4_26 = GetV(ToBeSignedBytes);
+    component getV1_26 = GetV(BytesLen);
+    component getV2_26 = GetV(BytesLen);
+    component getV3_26 = GetV(BytesLen);
+    component getV4_26 = GetV(BytesLen);
 
-    copyBytes(bytes, getV1_26)
-    copyBytes(bytes, getV2_26)
-    copyBytes(bytes, getV3_26)
-    copyBytes(bytes, getV4_26)
+    copyBytes(bytes, getV1_26, BytesLen)
+    copyBytes(bytes, getV2_26, BytesLen)
+    copyBytes(bytes, getV3_26, BytesLen)
+    copyBytes(bytes, getV4_26, BytesLen)
 
     getV1_26.pos <== pos;
     signal value_1_26;
@@ -209,16 +209,16 @@ template DecodeUint(ToBeSignedBytes) {
 }
 
 // TODO: test
-template ReadType(ToBeSignedBytes) {
+template ReadType(BytesLen) {
 
-    signal input bytes[ToBeSignedBytes];
+    signal input bytes[BytesLen];
     signal input pos;
     signal output nextpos;
     signal output type;
     signal output v;
 
-    component getV = GetV(ToBeSignedBytes);
-    copyBytes(bytes, getV)
+    component getV = GetV(BytesLen);
+    copyBytes(bytes, getV, BytesLen)
     getV.pos <== pos;
     v <== getV.v;
 
@@ -231,23 +231,23 @@ template ReadType(ToBeSignedBytes) {
 
 // TODO: test
 // Skips a scalar value, only ints and strings are supported atm.
-template SkipValueScalar(ToBeSignedBytes) {
+template SkipValueScalar(BytesLen) {
 
     // signals
-    signal input bytes[ToBeSignedBytes];
+    signal input bytes[BytesLen];
     signal input pos;
 
     signal output nextpos;
 
     // read type
-    component readType = ReadType(ToBeSignedBytes);
-    copyBytes(bytes, readType)
+    component readType = ReadType(BytesLen);
+    copyBytes(bytes, readType, BytesLen)
     readType.pos <== pos;
 
     // decode uint
-    component decodeUint = DecodeUint(ToBeSignedBytes);
+    component decodeUint = DecodeUint(BytesLen);
     decodeUint.v <== readType.v;
-    copyBytes(bytes, decodeUint)
+    copyBytes(bytes, decodeUint, BytesLen)
     decodeUint.pos <== readType.nextpos;
 
     // decide between int and string
@@ -268,28 +268,28 @@ template SkipValueScalar(ToBeSignedBytes) {
 
 
 // TODO: test
-// TODO: rename ToBeSignedBytes to byteslen or len
-template SkipValue(ToBeSignedBytes) {
+// TODO: rename BytesLen to byteslen or len
+template SkipValue(BytesLen) {
 
     // constants
     // TODO: bigger?
     var MAX_ARRAY_LEN = 4;
 
     // i/o signals
-    signal input bytes[ToBeSignedBytes];
+    signal input bytes[BytesLen];
     signal input pos;
 
     signal output nextpos;
 
     // read type
-    component readType = ReadType(ToBeSignedBytes);
-    copyBytes(bytes, readType)
+    component readType = ReadType(BytesLen);
+    copyBytes(bytes, readType, BytesLen)
     readType.pos <== pos;
 
     // decode uint
-    component decodeUint = DecodeUint(ToBeSignedBytes);
+    component decodeUint = DecodeUint(BytesLen);
     decodeUint.v <== readType.v;
-    copyBytes(bytes, decodeUint)
+    copyBytes(bytes, decodeUint, BytesLen)
     decodeUint.pos <== readType.nextpos;
 
 
@@ -298,8 +298,8 @@ template SkipValue(ToBeSignedBytes) {
     component skipValue[MAX_ARRAY_LEN];
     component qs = QuinSelectorUnchecked(MAX_ARRAY_LEN);
     for (var i = 0; i < MAX_ARRAY_LEN; i++) {
-        skipValue[i] = SkipValueScalar(ToBeSignedBytes);
-        copyBytes(bytes, skipValue[i])
+        skipValue[i] = SkipValueScalar(BytesLen);
+        copyBytes(bytes, skipValue[i], BytesLen)
         skipValue[i].pos <== i == 0 ? decodeUint.nextpos : nextposarray[i - 1];
         nextposarray[i] <== skipValue[i].nextpos;
         qs.in[i] <== skipValue[i].nextpos;
@@ -331,8 +331,8 @@ template SkipValue(ToBeSignedBytes) {
 
 // TODO: test
 // check if a string is equal to a given string
-template StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
-    signal input bytes[ToBeSignedBytes];
+template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
+    signal input bytes[BytesLen];
     signal input pos;
     signal input len;
     
@@ -349,8 +349,8 @@ template StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
         isEqual[i] = IsEqual();
         isEqual[i].in[0] <== ConstBytes[i];
 
-        getV[i] = GetV(ToBeSignedBytes);
-        copyBytes(bytes, getV[i])
+        getV[i] = GetV(BytesLen);
+        copyBytes(bytes, getV[i], BytesLen)
         getV[i].pos <== pos + i;
         isEqual[i].in[1] <== getV[i].v;
 
@@ -364,9 +364,9 @@ template StringEquals(ToBeSignedBytes, ConstBytes, ConstBytesLen) {
 }
 
 // TODO: test
-template DecodeString(ToBeSignedBytes, MaxLen) {
+template DecodeString(BytesLen, MaxLen) {
     // i/o signals
-    signal input bytes[ToBeSignedBytes];
+    signal input bytes[BytesLen];
     signal input pos;
 
     signal output outbytes[MaxLen];
@@ -374,24 +374,24 @@ template DecodeString(ToBeSignedBytes, MaxLen) {
     signal output len;
 
     // read type
-    component readType = ReadType(ToBeSignedBytes);
-    copyBytes(bytes, readType)
+    component readType = ReadType(BytesLen);
+    copyBytes(bytes, readType, BytesLen)
     readType.pos <== pos;
 
     // assert that it is a string
     hardcore_assert(readType.type, MAJOR_TYPE_STRING);
 
     // decode uint
-    component decodeUint = DecodeUint(ToBeSignedBytes);
+    component decodeUint = DecodeUint(BytesLen);
     decodeUint.v <== readType.v;
-    copyBytes(bytes, decodeUint)
+    copyBytes(bytes, decodeUint, BytesLen)
     decodeUint.pos <== readType.nextpos;
 
     // read bytes
     component getV[MaxLen];
     for (var i = 0; i < MaxLen; i++) {
-        getV[i] = GetV(ToBeSignedBytes);
-        copyBytes(bytes, getV[i])
+        getV[i] = GetV(BytesLen);
+        copyBytes(bytes, getV[i], BytesLen)
         getV[i].pos <== decodeUint.nextpos + i;
         outbytes[i] <== getV[i].v;
     }
