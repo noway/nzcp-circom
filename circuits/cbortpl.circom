@@ -7,7 +7,7 @@ include "./incrementalQuinTree.circom";
 /* assert through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
-#define copyBytes(b, a, c) for(var z = 0; z<c; z++) { a.bytes[z] <== b[z]; }
+#define copyBytes(b, a, c) for(var z = 0; z<c; z++) { a[z] <== b[z]; }
 
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
@@ -105,7 +105,7 @@ template DecodeUint(BytesLen) {
     // if(x == 24)
     component getV_24 = GetV(BytesLen);
 
-    copyBytes(bytes, getV_24, BytesLen)
+    copyBytes(bytes, getV_24.bytes, BytesLen)
     getV_24.pos <== pos;
     signal value_24;
     value_24 <== getV_24.v;
@@ -115,8 +115,8 @@ template DecodeUint(BytesLen) {
     // if(x == 25)
     component getV1_25 = GetV(BytesLen);
     component getV2_25 = GetV(BytesLen);
-    copyBytes(bytes, getV1_25, BytesLen)
-    copyBytes(bytes, getV2_25, BytesLen)
+    copyBytes(bytes, getV1_25.bytes, BytesLen)
+    copyBytes(bytes, getV2_25.bytes, BytesLen)
 
     getV1_25.pos <== pos;
     signal value_1_25;
@@ -138,10 +138,10 @@ template DecodeUint(BytesLen) {
     component getV3_26 = GetV(BytesLen);
     component getV4_26 = GetV(BytesLen);
 
-    copyBytes(bytes, getV1_26, BytesLen)
-    copyBytes(bytes, getV2_26, BytesLen)
-    copyBytes(bytes, getV3_26, BytesLen)
-    copyBytes(bytes, getV4_26, BytesLen)
+    copyBytes(bytes, getV1_26.bytes, BytesLen)
+    copyBytes(bytes, getV2_26.bytes, BytesLen)
+    copyBytes(bytes, getV3_26.bytes, BytesLen)
+    copyBytes(bytes, getV4_26.bytes, BytesLen)
 
     getV1_26.pos <== pos;
     signal value_1_26;
@@ -218,7 +218,7 @@ template ReadType(BytesLen) {
     signal output v;
 
     component getV = GetV(BytesLen);
-    copyBytes(bytes, getV, BytesLen)
+    copyBytes(bytes, getV.bytes, BytesLen)
     getV.pos <== pos;
     v <== getV.v;
 
@@ -241,13 +241,13 @@ template SkipValueScalar(BytesLen) {
 
     // read type
     component readType = ReadType(BytesLen);
-    copyBytes(bytes, readType, BytesLen)
+    copyBytes(bytes, readType.bytes, BytesLen)
     readType.pos <== pos;
 
     // decode uint
     component decodeUint = DecodeUint(BytesLen);
     decodeUint.v <== readType.v;
-    copyBytes(bytes, decodeUint, BytesLen)
+    copyBytes(bytes, decodeUint.bytes, BytesLen)
     decodeUint.pos <== readType.nextpos;
 
     // decide between int and string
@@ -283,13 +283,13 @@ template SkipValue(BytesLen) {
 
     // read type
     component readType = ReadType(BytesLen);
-    copyBytes(bytes, readType, BytesLen)
+    copyBytes(bytes, readType.bytes, BytesLen)
     readType.pos <== pos;
 
     // decode uint
     component decodeUint = DecodeUint(BytesLen);
     decodeUint.v <== readType.v;
-    copyBytes(bytes, decodeUint, BytesLen)
+    copyBytes(bytes, decodeUint.bytes, BytesLen)
     decodeUint.pos <== readType.nextpos;
 
 
@@ -299,7 +299,7 @@ template SkipValue(BytesLen) {
     component qs = QuinSelectorUnchecked(MAX_ARRAY_LEN);
     for (var i = 0; i < MAX_ARRAY_LEN; i++) {
         skipValue[i] = SkipValueScalar(BytesLen);
-        copyBytes(bytes, skipValue[i], BytesLen)
+        copyBytes(bytes, skipValue[i].bytes, BytesLen)
         skipValue[i].pos <== i == 0 ? decodeUint.nextpos : nextposarray[i - 1];
         nextposarray[i] <== skipValue[i].nextpos;
         qs.in[i] <== skipValue[i].nextpos;
@@ -350,7 +350,7 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
         isEqual[i].in[0] <== ConstBytes[i];
 
         getV[i] = GetV(BytesLen);
-        copyBytes(bytes, getV[i], BytesLen)
+        copyBytes(bytes, getV[i].bytes, BytesLen)
         getV[i].pos <== pos + i;
         isEqual[i].in[1] <== getV[i].v;
 
@@ -375,7 +375,7 @@ template DecodeString(BytesLen, MaxLen) {
 
     // read type
     component readType = ReadType(BytesLen);
-    copyBytes(bytes, readType, BytesLen)
+    copyBytes(bytes, readType.bytes, BytesLen)
     readType.pos <== pos;
 
     // assert that it is a string
@@ -384,14 +384,14 @@ template DecodeString(BytesLen, MaxLen) {
     // decode uint
     component decodeUint = DecodeUint(BytesLen);
     decodeUint.v <== readType.v;
-    copyBytes(bytes, decodeUint, BytesLen)
+    copyBytes(bytes, decodeUint.bytes, BytesLen)
     decodeUint.pos <== readType.nextpos;
 
     // read bytes
     component getV[MaxLen];
     for (var i = 0; i < MaxLen; i++) {
         getV[i] = GetV(BytesLen);
-        copyBytes(bytes, getV[i], BytesLen)
+        copyBytes(bytes, getV[i].bytes, BytesLen)
         getV[i].pos <== decodeUint.nextpos + i;
         outbytes[i] <== getV[i].v;
     }
