@@ -391,13 +391,9 @@ template ReadStringLength(BytesLen) {
     nextpos <== readType.nextpos;
     hardcore_assert(readType.type, MAJOR_TYPE_STRING);
 
-    // // read string length
-    // component getX = GetX();
-    // getX.v <== readType.v;
-    // len <== getX.x;
-    // // TODO: should this be more generic and allow for string keys with length of more than 23? (but we DO now it won't be more than 9!)
-    // assert(getX.x <= 23); // only supporting strings with 23 or less entries
-
+    // read string length
+    // TODO: support more than 23 bytes
+    // only supporting strings with 23 or less characters
     component dUint23 = DecodeUint23();
     dUint23.v <== readType.v;
     len <== dUint23.x;
