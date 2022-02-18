@@ -20,6 +20,7 @@ include "./cbor.circom";
 /* assign bytes to a signal in one go */
 #define copyBytes(b, a, c) for(var z = 0; z<c; z++) { a[z] <== b[z]; }
 
+/* from https://github.com/iden3/circomlib/blob/master/circuits/gates.circom#L45 */
 #define NOT(in) (1 + in - 2*in)
 
 
