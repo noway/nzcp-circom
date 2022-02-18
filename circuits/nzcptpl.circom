@@ -51,7 +51,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     component mapval_withinMaplen[MAX_CWT_MAP_LEN];
 
     signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
-    signal pos_loop_2[MAX_CWT_MAP_LEN];
+    // signal pos_loop_2[MAX_CWT_MAP_LEN];
     signal pos_loop_3[MAX_CWT_MAP_LEN];
 
     component calculateTotal_foundpos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
@@ -66,13 +66,12 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         mapval_readType[k].pos <== pos_loop_1[k];
         mapval_v[k] <== mapval_readType[k].v;
         mapval_type[k] <== mapval_readType[k].type;
-        pos_loop_2[k] <== mapval_readType[k].nextpos;
 
         // decode uint
         mapval_decodeUint[k] = DecodeUint(BytesLen);
         mapval_decodeUint[k].v <== mapval_v[k];
         copyBytes(bytes, mapval_decodeUint[k].bytes, BytesLen)
-        mapval_decodeUint[k].pos <== pos_loop_2[k];
+        mapval_decodeUint[k].pos <== mapval_readType[k].nextpos;
         pos_loop_3[k] <== mapval_decodeUint[k].nextpos;
         mapval_value[k] <== mapval_decodeUint[k].value;
 
