@@ -342,32 +342,25 @@ template ConcatCredSubj(MaxBufferLen) {
 }
 
 template ReadMapLength(ToBeSignedBytes) {
-    // read type
+    // i/o signals
     signal input pos;
     signal input bytes[ToBeSignedBytes];
     signal output len;
     signal output nextpos;
 
-    signal v;
-    signal type;
-    
+    // read type
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType.bytes, ToBeSignedBytes)
     readType.pos <== pos; // 27 bytes initial skip for example MoH pass
-    v <== readType.v;
-    type <== readType.type;
     nextpos <== readType.nextpos;
-    hardcore_assert(type, MAJOR_TYPE_MAP);
+    hardcore_assert(readType.type, MAJOR_TYPE_MAP);
 
     // read map length
-    signal x;
     component getX = GetX();
-    getX.v <== v;
-    x <== getX.x;
+    getX.v <== readType.v;
+    len <== getX.x;
     // TODO: should this be more generic and allow for x more than 23?
-    assert(x <= 23); // only supporting maps with 23 or less entries
-
-    len <== x;
+    assert(getX.x <= 23); // only supporting maps with 23 or less entries
 }
 
 // TODO: check that inputs are bytes
