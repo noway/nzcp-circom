@@ -170,7 +170,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
         mapval_readType[k].pos <== k == 0 ? pos : mapval_decodeString[k - 1].nextpos; // 27 bytes initial skip for example MoH pass
         mapval_v[k] <== mapval_readType[k].v;
         mapval_type[k] <== mapval_readType[k].type;
-        // hardcore_assert(mapval_type[k], MAJOR_TYPE_MAP);
+        hardcore_assert(mapval_type[k], MAJOR_TYPE_STRING);
 
         // read map length
         mapval_getX[k] = GetX();
