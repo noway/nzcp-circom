@@ -83,6 +83,21 @@ template GetV(BytesLen) {
     v <== quinSelector.out;
 }
 
+template DecodeUint23() {
+    signal input v;
+    signal output x;
+
+    component getX = GetX(); // can only return 8 bits
+    getX.v <== v;
+
+    component lt = LessThan(8);
+    lt.in[0] <== getX.x;
+    lt.in[1] <== 24;
+    assert(getX.x < 24); // only supporting uint <= 23
+    lt.out === 1;
+
+    x <== getX.x;
+}
 // Supports <=23 integers as well as 8bit, 16bit and 32bit integers
 template DecodeUint(BytesLen) {
     signal input v;
@@ -376,12 +391,16 @@ template ReadStringLength(BytesLen) {
     nextpos <== readType.nextpos;
     hardcore_assert(readType.type, MAJOR_TYPE_STRING);
 
-    // read string length
-    component getX = GetX();
-    getX.v <== readType.v;
-    len <== getX.x;
-    // TODO: should this be more generic and allow for string keys with length of more than 23? (but we DO now it won't be more than 9!)
-    assert(getX.x <= 23); // only supporting strings with 23 or less entries
+    // // read string length
+    // component getX = GetX();
+    // getX.v <== readType.v;
+    // len <== getX.x;
+    // // TODO: should this be more generic and allow for string keys with length of more than 23? (but we DO now it won't be more than 9!)
+    // assert(getX.x <= 23); // only supporting strings with 23 or less entries
+
+    component dUint23 = DecodeUint23();
+    dUint23.v <== readType.v;
+    len <== dUint23.x;
 }
 
 template ReadMapLength(ToBeSignedBytes) {
