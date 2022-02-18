@@ -362,6 +362,28 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
     out <== isZero.out;
 }
 
+template ReadStringLength(BytesLen) {
+    // i/o signals
+    signal input bytes[BytesLen];
+    signal input pos;
+    signal output len;
+    signal output nextpos;
+
+    // read type
+    component readType = ReadType(BytesLen);
+    copyBytes(bytes, readType.bytes, BytesLen)
+    readType.pos <== pos; // 27 bytes initial skip for example MoH pass
+    nextpos <== readType.nextpos;
+    hardcore_assert(readType.type, MAJOR_TYPE_STRING);
+
+    // read string length
+    component getX = GetX();
+    getX.v <== readType.v;
+    len <== getX.x;
+    // TODO: should this be more generic and allow for string keys with length of more than 23? (but we DO now it won't be more than 9!)
+    assert(getX.x <= 23); // only supporting strings with 23 or less entries
+}
+
 // TODO: test
 template DecodeString(BytesLen, MaxLen) {
     // i/o signals

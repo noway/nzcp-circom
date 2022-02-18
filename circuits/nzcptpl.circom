@@ -148,14 +148,15 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
 
 
-    signal mapval_pos[CREDENTIAL_SUBJECT_MAP_LEN];
-    signal mapval_v[CREDENTIAL_SUBJECT_MAP_LEN];
-    signal mapval_type[CREDENTIAL_SUBJECT_MAP_LEN];
-    signal mapval_nextpos[CREDENTIAL_SUBJECT_MAP_LEN];
-    signal mapval_x[CREDENTIAL_SUBJECT_MAP_LEN];
+    // signal mapval_pos[CREDENTIAL_SUBJECT_MAP_LEN];
+    // signal mapval_v[CREDENTIAL_SUBJECT_MAP_LEN];
+    // signal mapval_type[CREDENTIAL_SUBJECT_MAP_LEN];
+    // signal mapval_nextpos[CREDENTIAL_SUBJECT_MAP_LEN];
+    // signal mapval_x[CREDENTIAL_SUBJECT_MAP_LEN];
 
-    component mapval_readType[CREDENTIAL_SUBJECT_MAP_LEN];
-    component mapval_getX[CREDENTIAL_SUBJECT_MAP_LEN];
+    // component mapval_readType[CREDENTIAL_SUBJECT_MAP_LEN];
+    // component mapval_getX[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_readStringLength[CREDENTIAL_SUBJECT_MAP_LEN];
 
     component mapval_isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_isFamilyName[CREDENTIAL_SUBJECT_MAP_LEN];
@@ -165,41 +166,33 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     for(var k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
 
         // TODO: make this a template "ReadStringLength"
-        mapval_readType[k] = ReadType(BytesLen);
-        copyBytes(bytes, mapval_readType[k].bytes, BytesLen)
-        mapval_readType[k].pos <== k == 0 ? pos : mapval_decodeString[k - 1].nextpos; // 27 bytes initial skip for example MoH pass
-        mapval_v[k] <== mapval_readType[k].v;
-        mapval_type[k] <== mapval_readType[k].type;
-        hardcore_assert(mapval_type[k], MAJOR_TYPE_STRING);
 
-        // read map length
-        mapval_getX[k] = GetX();
-        mapval_getX[k].v <== mapval_v[k];
-        mapval_x[k] <== mapval_getX[k].x;
-        // TODO: should this be more generic and allow for string keys with length of more than 23? (but we DO now it won't be more than 9!)
-        assert(mapval_x[k] <= 23); // only supporting strings with 23 or less entries
+        mapval_readStringLength[k] = ReadStringLength(BytesLen);
+        
+        copyBytes(bytes, mapval_readStringLength[k].bytes, BytesLen)
+        mapval_readStringLength[k].pos <== k == 0 ? pos : mapval_decodeString[k - 1].nextpos;
 
 
         
 
         mapval_isGivenName[k] = StringEquals(BytesLen, GIVEN_NAME_STR, GIVEN_NAME_LEN);
         copyBytes(bytes, mapval_isGivenName[k].bytes, BytesLen)
-        mapval_isGivenName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
-        mapval_isGivenName[k].len <== mapval_x[k];
+        mapval_isGivenName[k].pos <== mapval_readStringLength[k].nextpos; // pos before skipping
+        mapval_isGivenName[k].len <== mapval_readStringLength[k].len;
 
         mapval_isFamilyName[k] = StringEquals(BytesLen, FAMILY_NAME_STR, FAMILY_NAME_LEN);
         copyBytes(bytes, mapval_isFamilyName[k].bytes, BytesLen)
-        mapval_isFamilyName[k].pos <== mapval_readType[k].nextpos; // pos before skipping
-        mapval_isFamilyName[k].len <== mapval_x[k];
+        mapval_isFamilyName[k].pos <== mapval_readStringLength[k].nextpos; // pos before skipping
+        mapval_isFamilyName[k].len <== mapval_readStringLength[k].len;
 
         mapval_isDOB[k] = StringEquals(BytesLen, DOB_STR, DOB_LEN);
         copyBytes(bytes, mapval_isDOB[k].bytes, BytesLen)
-        mapval_isDOB[k].pos <== mapval_readType[k].nextpos; // pos before skipping
-        mapval_isDOB[k].len <== mapval_x[k];
+        mapval_isDOB[k].pos <== mapval_readStringLength[k].nextpos; // pos before skipping
+        mapval_isDOB[k].len <== mapval_readStringLength[k].len;
 
         mapval_decodeString[k] = DecodeString(BytesLen, MaxStringLen); // TODO: dynamic length? or sane default which can't crash
         copyBytes(bytes, mapval_decodeString[k].bytes, BytesLen)
-        mapval_decodeString[k].pos <== mapval_readType[k].nextpos + mapval_x[k];
+        mapval_decodeString[k].pos <== mapval_readStringLength[k].nextpos + mapval_readStringLength[k].len;
 
     }
 
