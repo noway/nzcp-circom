@@ -379,6 +379,33 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
     out <== isZero.out;
 }
 
+template IntEquals(BytesLen, ConstInt) {
+    signal input bytes[BytesLen];
+    signal input pos;
+    signal input len;
+    
+    signal output out;
+
+    var conditionsSum = 0;
+    component isEqual;
+    // component getV;
+    isEqual = IsEqual();
+    isEqual.in[0] <== ConstInt;
+
+    // TODO: decode uint
+    // getV = GetV(BytesLen);
+    // copyBytes(bytes, getV.bytes, BytesLen)
+    // getV.pos <== pos;
+    // isEqual.in[1] <== getV.v;
+
+    conditionsSum = conditionsSum + isEqual.out;
+
+    var allConditionsAreTrue = 1;
+    component isZero = IsZero();
+    isZero.in <== allConditionsAreTrue - conditionsSum;
+    out <== isZero.out;
+}
+
 template ReadStringLength(BytesLen) {
     // i/o signals
     signal input bytes[BytesLen];

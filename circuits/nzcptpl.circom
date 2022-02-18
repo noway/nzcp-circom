@@ -42,12 +42,16 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     signal mapval_type[MAX_CWT_MAP_LEN];
     signal mapval_value[MAX_CWT_MAP_LEN];
     signal mapval_isNeedle[MAX_CWT_MAP_LEN];
+    signal mapval_isExp[MAX_CWT_MAP_LEN];
     signal mapval_isAccepted[MAX_CWT_MAP_LEN];
+    signal mapval_isExpAccepted[MAX_CWT_MAP_LEN];
 
     component mapval_readType[MAX_CWT_MAP_LEN];
     component mapval_decodeUint[MAX_CWT_MAP_LEN];
+    component mapval_decodeUintValue[MAX_CWT_MAP_LEN];
     component mapval_skipValue[MAX_CWT_MAP_LEN];
     component mapval_isString[MAX_CWT_MAP_LEN];
+    component mapval_isInt[MAX_CWT_MAP_LEN];
     component mapval_isNeedleString[MAX_CWT_MAP_LEN];
     component mapval_withinMaplen[MAX_CWT_MAP_LEN];
 
@@ -74,6 +78,11 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         mapval_isString[k].in[0] <== mapval_type[k];
         mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
 
+        // is current value a string?
+        mapval_isInt[k] = IsEqual();
+        mapval_isInt[k].in[0] <== mapval_type[k];
+        mapval_isInt[k].in[1] <== MAJOR_TYPE_INT;
+
         // skip value for next iteration
         mapval_skipValue[k] = SkipValue(BytesLen);
         mapval_skipValue[k].pos <== mapval_decodeUint[k].nextpos + (mapval_value[k] * mapval_isString[k].out);
@@ -85,6 +94,12 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         mapval_isNeedleString[k].pos <== mapval_decodeUint[k].nextpos; // pos before skipping
         mapval_isNeedleString[k].len <== mapval_value[k];
 
+        // is current value interpreted as a string is a 4 number?
+        mapval_is4Int[k] = IntEquals(BytesLen, 4);
+        copyBytes(bytes, mapval_is4Int[k].bytes, BytesLen)
+        mapval_is4Int[k].pos <== mapval_decodeUint[k].nextpos; // pos before skipping
+        mapval_is4Int[k].len <== mapval_value[k];
+
         mapval_withinMaplen[k] = LessThan(8);
         mapval_withinMaplen[k].in[0] <== k;
         mapval_withinMaplen[k].in[1] <== maplen;
@@ -92,11 +107,23 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         // is current value a "vc" string?
         mapval_isNeedle[k] <== mapval_isString[k].out * mapval_isNeedleString[k].out;
 
+        // is current value a 4 int?
+        mapval_isExp[k] <== mapval_isInt[k].out * mapval_is4Int[k].out;
+
         // should we select this vc pos candidate?
         mapval_isAccepted[k] <== mapval_isNeedle[k] * mapval_withinMaplen[k].out;
 
+        
+        // should we select this exp candidate?
+        mapval_isExpAccepted[k] <== mapval_isExp[k] * mapval_withinMaplen[k].out;
+
+        
+
         // put a vc pos candidate into NZCPCalculateTotal to be able to get vc pos outside of the loop
         calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextpos + mapval_value[k]);
+        
+        // TODO: calculate total for exp
+        calculateTotal_exppos.nums[k] <== mapval_isExpAccepted[k] * mapval_is4Int[k].nextpos;
     }
 
     needlepos <== calculateTotal_foundpos.sum;
@@ -348,21 +375,21 @@ template NZCP() {
     vc_pos <== findVC.needlepos;
     log(vc_pos);
 
-    component readMapLength2 = ReadMapLength(ToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength2.bytes, ToBeSignedBytes)
-    readMapLength2.pos <== vc_pos;
-
-    signal credSubj_pos;
-    component findCredSubj = FindMapKey(ToBeSignedBytes, [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116], 17);
-    copyBytes(ToBeSigned, findCredSubj.bytes, ToBeSignedBytes)
-    findCredSubj.pos <== readMapLength2.nextpos;
-    findCredSubj.maplen <== readMapLength2.len;
-    credSubj_pos <== findCredSubj.needlepos;
-    log(credSubj_pos);
-
+    // component readMapLength2 = ReadMapLength(ToBeSignedBytes);
+    // copyBytes(ToBeSigned, readMapLength2.bytes, ToBeSignedBytes)
+    // readMapLength2.pos <== vc_pos;
 
     // signal credSubj_pos;
-    // credSubj_pos <== 246;
+    // component findCredSubj = FindMapKey(ToBeSignedBytes, [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116], 17);
+    // copyBytes(ToBeSigned, findCredSubj.bytes, ToBeSignedBytes)
+    // findCredSubj.pos <== readMapLength2.nextpos;
+    // findCredSubj.maplen <== readMapLength2.len;
+    // credSubj_pos <== findCredSubj.needlepos;
+    // log(credSubj_pos);
+
+
+    signal credSubj_pos;
+    credSubj_pos <== 246;
 
 
 
