@@ -50,20 +50,20 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     component mapval_isNeedleString[MAX_CWT_MAP_LEN];
     component mapval_withinMaplen[MAX_CWT_MAP_LEN];
 
-    signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
+    // signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
     // signal pos_loop_2[MAX_CWT_MAP_LEN];
     signal pos_loop_3[MAX_CWT_MAP_LEN];
 
     component calculateTotal_foundpos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
 
-    pos_loop_1[0] <== pos;
+    // pos_loop_1[0] <== pos;
 
     for (var k = 0; k < MAX_CWT_MAP_LEN; k++) { 
 
         // read type
         mapval_readType[k] = ReadType(BytesLen);
         copyBytes(bytes, mapval_readType[k].bytes, BytesLen)
-        mapval_readType[k].pos <== pos_loop_1[k];
+        mapval_readType[k].pos <== k == 0 ? pos : mapval_skipValue[k - 1].nextpos;
         mapval_v[k] <== mapval_readType[k].v;
         mapval_type[k] <== mapval_readType[k].type;
 
@@ -84,9 +84,9 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         mapval_skipValue[k] = SkipValue(BytesLen);
         mapval_skipValue[k].pos <== pos_loop_3[k] + (mapval_value[k] * mapval_isString[k].out);
         copyBytes(bytes, mapval_skipValue[k].bytes, BytesLen)
-        if (k != MAX_CWT_MAP_LEN - 1) {
-            pos_loop_1[k + 1] <== mapval_skipValue[k].nextpos;
-        }
+        // if (k != MAX_CWT_MAP_LEN - 1) {
+        //     pos_loop_1[k + 1] <== mapval_skipValue[k].nextpos;
+        // }
 
 
         // is current value interpreted as a string is a "vc" string?
