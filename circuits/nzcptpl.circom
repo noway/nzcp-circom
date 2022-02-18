@@ -146,16 +146,6 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     hardcore_assert(maplen, CREDENTIAL_SUBJECT_MAP_LEN);
 
 
-
-
-    // signal mapval_pos[CREDENTIAL_SUBJECT_MAP_LEN];
-    // signal mapval_v[CREDENTIAL_SUBJECT_MAP_LEN];
-    // signal mapval_type[CREDENTIAL_SUBJECT_MAP_LEN];
-    // signal mapval_nextpos[CREDENTIAL_SUBJECT_MAP_LEN];
-    // signal mapval_x[CREDENTIAL_SUBJECT_MAP_LEN];
-
-    // component mapval_readType[CREDENTIAL_SUBJECT_MAP_LEN];
-    // component mapval_getX[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_readStringLength[CREDENTIAL_SUBJECT_MAP_LEN];
 
     component mapval_isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
@@ -165,15 +155,9 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
     for(var k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
 
-        // TODO: make this a template "ReadStringLength"
-
         mapval_readStringLength[k] = ReadStringLength(BytesLen);
-        
         copyBytes(bytes, mapval_readStringLength[k].bytes, BytesLen)
         mapval_readStringLength[k].pos <== k == 0 ? pos : mapval_decodeString[k - 1].nextpos;
-
-
-        
 
         mapval_isGivenName[k] = StringEquals(BytesLen, GIVEN_NAME_STR, GIVEN_NAME_LEN);
         copyBytes(bytes, mapval_isGivenName[k].bytes, BytesLen)
