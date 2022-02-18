@@ -439,11 +439,17 @@ template DecodeString(BytesLen, MaxLen) {
 
     // read bytes
     component getV[MaxLen];
+    component lt[MaxLen];
     for (var i = 0; i < MaxLen; i++) {
         getV[i] = GetV(BytesLen);
         copyBytes(bytes, getV[i].bytes, BytesLen)
         getV[i].pos <== readStrLen.nextpos + i;
-        outbytes[i] <== getV[i].v;
+
+        var bits = log2(MaxLen) + 1;
+        lt[i] = LessThan(bits);
+        lt[i].in[0] <== i;
+        lt[i].in[1] <== readStrLen.len;
+        outbytes[i] <== getV[i].v * lt[i].out;
     }
 
     // return
