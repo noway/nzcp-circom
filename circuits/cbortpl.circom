@@ -372,6 +372,7 @@ template DecodeString(BytesLen, MaxLen) {
     signal output nextpos;
     signal output len;
 
+    // TODO: use read string length
     // read type
     component readType = ReadType(BytesLen);
     copyBytes(bytes, readType.bytes, BytesLen)
