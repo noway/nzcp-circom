@@ -309,6 +309,7 @@ template ConcatCredSubj(MaxBufferLen) {
 // TODO: check that inputs are bytes
 template NZCP() {
     // constants
+    var SHA256_LEN = 256;
     var CLAIMS_SKIP_EXAMPLE = 27;
 
     // TODO: dynamic
@@ -316,7 +317,7 @@ template NZCP() {
     var ToBeSignedBits = ToBeSignedBytes * 8;
 
     signal input a[ToBeSignedBits];
-    signal output c[256];
+    signal output c[SHA256_LEN];
     signal output d;
 
     // convert bits to bytes
@@ -416,7 +417,7 @@ template NZCP() {
     }
 
     // export the sha256 hash
-    for (var i = 0; i < 256; i++) {
+    for (var i = 0; i < SHA256_LEN; i++) {
         c[i] <== sha256.out[i];
     }
 
