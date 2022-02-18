@@ -86,7 +86,7 @@ template GetV(BytesLen) {
 // supports <=23 integers
 template DecodeUint23() {
     signal input v;
-    signal output x;
+    signal output value;
 
     component getX = GetX(); // can only return 8 bits
     getX.v <== v;
@@ -97,7 +97,7 @@ template DecodeUint23() {
     assert(getX.x < 24); // only supporting uint <= 23
     lt.out === 1;
 
-    x <== getX.x;
+    value <== getX.x;
 }
 
 // Supports <=23 integers as well as 8bit, 16bit and 32bit integers
@@ -421,7 +421,7 @@ template ReadMapLength(ToBeSignedBytes) {
     // only supporting maps with 23 or less entries
     component dUint23 = DecodeUint23();
     dUint23.v <== readType.v;
-    len <== dUint23.x;
+    len <== dUint23.value;
 }
 
 // TODO: test
