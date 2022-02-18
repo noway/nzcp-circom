@@ -83,6 +83,7 @@ template GetV(BytesLen) {
     v <== quinSelector.out;
 }
 
+// supports <=23 integers
 template DecodeUint23() {
     signal input v;
     signal output x;
@@ -98,6 +99,7 @@ template DecodeUint23() {
 
     x <== getX.x;
 }
+
 // Supports <=23 integers as well as 8bit, 16bit and 32bit integers
 template DecodeUint(BytesLen) {
     signal input v;
