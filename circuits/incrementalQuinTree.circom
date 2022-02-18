@@ -20,7 +20,9 @@ template NZCPCalculateTotal(n) {
 }
 
 
+// Based on the following:
 // https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/incrementalQuinTree.circom
+// Optimized + added support for any number of choises
 // License: MIT
 template QuinSelector(choices) {
     signal input in[choices];
@@ -29,7 +31,7 @@ template QuinSelector(choices) {
     
     // Ensure that index < choices
     var bits = log2(choices) + 1;
-    component lessThan = LessThan(bits); // changed 3 to 9
+    component lessThan = LessThan(bits);
     lessThan.in[0] <== index;
     lessThan.in[1] <== choices;
     lessThan.out === 1;
@@ -52,6 +54,7 @@ template QuinSelector(choices) {
 }
 
 // Not checking for overflow
+// Useful if you're discarding the result somewhere up the "stack"
 template QuinSelectorUnchecked(choices) {
     signal input in[choices];
     signal input index;
