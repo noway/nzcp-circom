@@ -394,8 +394,6 @@ template ReadStringLength(BytesLen) {
     hardcore_assert(readType.type, MAJOR_TYPE_STRING);
 
     // read string length
-    // TODO: support more than 23 bytes
-    // only supporting strings with 23 or less characters
     component dUint = DecodeUint(BytesLen);
     copyBytes(bytes, dUint.bytes, BytesLen)
     dUint.pos <== readType.nextpos;
