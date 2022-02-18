@@ -271,7 +271,7 @@ template SkipValueScalar(BytesLen) {
 template SkipValue(BytesLen) {
 
     // constants
-    // TODO: bigger?
+    // TODO: bigger? (yep that works ok)
     var MAX_ARRAY_LEN = 4;
 
     // i/o signals

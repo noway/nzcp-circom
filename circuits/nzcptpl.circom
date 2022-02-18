@@ -26,7 +26,7 @@ include "./cbor.circom";
 
 template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     // constants
-    // usually is 5. TODO: allow for more?
+    // usually is 5. TODO: allow for more? (yep that works)
     var MAX_CWT_MAP_LEN = 8;
 
     // i/o signals
