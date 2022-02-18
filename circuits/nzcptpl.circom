@@ -50,13 +50,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     component mapval_isNeedleString[MAX_CWT_MAP_LEN];
     component mapval_withinMaplen[MAX_CWT_MAP_LEN];
 
-    // signal pos_loop_1[MAX_CWT_MAP_LEN]; // TODO: better variable names?
-    // signal pos_loop_2[MAX_CWT_MAP_LEN];
-    signal pos_loop_3[MAX_CWT_MAP_LEN];
-
     component calculateTotal_foundpos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
-
-    // pos_loop_1[0] <== pos;
 
     for (var k = 0; k < MAX_CWT_MAP_LEN; k++) { 
 
@@ -72,7 +66,6 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         mapval_decodeUint[k].v <== mapval_v[k];
         copyBytes(bytes, mapval_decodeUint[k].bytes, BytesLen)
         mapval_decodeUint[k].pos <== mapval_readType[k].nextpos;
-        pos_loop_3[k] <== mapval_decodeUint[k].nextpos;
         mapval_value[k] <== mapval_decodeUint[k].value;
 
         // is current value a string?
@@ -82,17 +75,13 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
 
         // skip value for next iteration
         mapval_skipValue[k] = SkipValue(BytesLen);
-        mapval_skipValue[k].pos <== pos_loop_3[k] + (mapval_value[k] * mapval_isString[k].out);
+        mapval_skipValue[k].pos <== mapval_decodeUint[k].nextpos + (mapval_value[k] * mapval_isString[k].out);
         copyBytes(bytes, mapval_skipValue[k].bytes, BytesLen)
-        // if (k != MAX_CWT_MAP_LEN - 1) {
-        //     pos_loop_1[k + 1] <== mapval_skipValue[k].nextpos;
-        // }
-
 
         // is current value interpreted as a string is a "vc" string?
         mapval_isNeedleString[k] = StringEquals(BytesLen, ConstBytes, ConstBytesLen);
         copyBytes(bytes, mapval_isNeedleString[k].bytes, BytesLen)
-        mapval_isNeedleString[k].pos <== pos_loop_3[k]; // pos before skipping
+        mapval_isNeedleString[k].pos <== mapval_decodeUint[k].nextpos; // pos before skipping
         mapval_isNeedleString[k].len <== mapval_value[k];
 
         mapval_withinMaplen[k] = LessThan(8);
@@ -106,7 +95,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         mapval_isAccepted[k] <== mapval_isNeedle[k] * mapval_withinMaplen[k].out;
 
         // put a vc pos candidate into NZCPCalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (pos_loop_3[k] + mapval_value[k]);
+        calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextpos + mapval_value[k]);
     }
 
     needlepos <== calculateTotal_foundpos.sum;
