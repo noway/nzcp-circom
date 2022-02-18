@@ -306,28 +306,6 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
-template ReadMapLength(ToBeSignedBytes) {
-    // i/o signals
-    signal input pos;
-    signal input bytes[ToBeSignedBytes];
-    signal output len;
-    signal output nextpos;
-
-    // read type
-    component readType = ReadType(ToBeSignedBytes);
-    copyBytes(bytes, readType.bytes, ToBeSignedBytes)
-    readType.pos <== pos; // 27 bytes initial skip for example MoH pass
-    nextpos <== readType.nextpos;
-    hardcore_assert(readType.type, MAJOR_TYPE_MAP);
-
-    // read map length
-    component getX = GetX();
-    getX.v <== readType.v;
-    len <== getX.x;
-    // TODO: should this be more generic and allow for x more than 23?
-    assert(getX.x <= 23); // only supporting maps with 23 or less entries
-}
-
 // TODO: check that inputs are bytes
 template NZCP() {
     // constants
