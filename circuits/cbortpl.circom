@@ -396,9 +396,11 @@ template ReadStringLength(BytesLen) {
     // read string length
     // TODO: support more than 23 bytes
     // only supporting strings with 23 or less characters
-    component dUint23 = DecodeUint23();
-    dUint23.v <== readType.v;
-    len <== dUint23.x;
+    component dUint = DecodeUint(BytesLen);
+    copyBytes(bytes, dUint.bytes, BytesLen)
+    dUint.pos <== readType.nextpos;
+    dUint.v <== readType.v;
+    len <== dUint.value;
 }
 
 template ReadMapLength(ToBeSignedBytes) {
