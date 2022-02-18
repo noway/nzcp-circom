@@ -394,37 +394,21 @@ template DecodeString(BytesLen, MaxLen) {
     signal output nextpos;
     signal output len;
 
-    // // TODO: use read string length
-    // // read type
-    // component readType = ReadType(BytesLen);
-    // copyBytes(bytes, readType.bytes, BytesLen)
-    // readType.pos <== pos;
-
-    // // assert that it is a string
-    // hardcore_assert(readType.type, MAJOR_TYPE_STRING);
-
-    // // decode uint
-    // component decodeUint = DecodeUint(BytesLen);
-    // decodeUint.v <== readType.v;
-    // copyBytes(bytes, decodeUint.bytes, BytesLen)
-    // decodeUint.pos <== readType.nextpos;
-
-    component readStringLength = ReadStringLength(BytesLen);
-    copyBytes(bytes, readStringLength.bytes, BytesLen)
-    readStringLength.pos <== pos;
-    // len <== readStringLength.len;
-    // nextpos <== readStringLength.nextpos;
+    // read string length
+    component readStrLen = ReadStringLength(BytesLen);
+    copyBytes(bytes, readStrLen.bytes, BytesLen)
+    readStrLen.pos <== pos;
 
     // read bytes
     component getV[MaxLen];
     for (var i = 0; i < MaxLen; i++) {
         getV[i] = GetV(BytesLen);
         copyBytes(bytes, getV[i].bytes, BytesLen)
-        getV[i].pos <== readStringLength.nextpos + i;
+        getV[i].pos <== readStrLen.nextpos + i;
         outbytes[i] <== getV[i].v;
     }
 
     // return
-    nextpos <== readStringLength.nextpos + readStringLength.len;
-    len <== readStringLength.len;
+    nextpos <== readStrLen.nextpos + readStrLen.len;
+    len <== readStrLen.len;
 }
