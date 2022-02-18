@@ -162,7 +162,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
         mapval_isDOB[k].pos <== mapval_readStringLength[k].nextpos; // pos before skipping
         mapval_isDOB[k].len <== mapval_readStringLength[k].len;
 
-        mapval_decodeString[k] = DecodeString(BytesLen, MaxStringLen); // TODO: dynamic length? or sane default which can't crash
+        mapval_decodeString[k] = DecodeString(BytesLen, MaxStringLen);
         copyBytes(bytes, mapval_decodeString[k].bytes, BytesLen)
         mapval_decodeString[k].pos <== mapval_readStringLength[k].nextpos + mapval_readStringLength[k].len;
 
