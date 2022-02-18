@@ -346,7 +346,7 @@ template NZCP() {
 
     component readMapLength2 = ReadMapLength(ToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength2.bytes, ToBeSignedBytes)
-    readMapLength2.pos <== 76;
+    readMapLength2.pos <== vc_pos;
 
     signal credSubj_pos;
     component findCredSubj = FindMapKey(ToBeSignedBytes, [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116], 17);
