@@ -414,11 +414,10 @@ template ReadMapLength(ToBeSignedBytes) {
     hardcore_assert(readType.type, MAJOR_TYPE_MAP);
 
     // read map length
-    component getX = GetX();
-    getX.v <== readType.v;
-    len <== getX.x;
-    // TODO: should this be more generic and allow for x more than 23?
-    assert(getX.x <= 23); // only supporting maps with 23 or less entries
+    // only supporting maps with 23 or less entries
+    component dUint23 = DecodeUint23();
+    dUint23.v <== readType.v;
+    len <== dUint23.x;
 }
 
 // TODO: test
