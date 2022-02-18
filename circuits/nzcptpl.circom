@@ -368,7 +368,8 @@ template NZCP() {
 
 
     // read cred subj map
-    var CONCAT_SIZE_BITS = 5; // TODO: make bigger?
+    // TODO: make bigger? (can be made bigger yay)
+    var CONCAT_SIZE_BITS = 5;
     var MaxBufferLen = pow(2, CONCAT_SIZE_BITS);
     component readCredSubj = ReadCredSubj(ToBeSignedBytes, MaxBufferLen);
     copyBytes(ToBeSigned, readCredSubj.bytes, ToBeSignedBytes)
