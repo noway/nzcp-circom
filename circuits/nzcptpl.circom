@@ -426,11 +426,35 @@ template NZCP() {
     var ToBeSignedBytes = 314;
     var ToBeSignedBits = ToBeSignedBytes * 8;
 
-    signal input toBeSigned[ToBeSignedBits];
+    var TBSBlockSpace = 3;
+    var BLOCK_SIZE = 512;
+    var TBSBlockCount = pow(2, TBSBlockSpace);
+    var RBSMaxBits = BLOCK_SIZE * TBSBlockCount;
+    assert(ToBeSignedBits <= RBSMaxBits);
+
+    signal input toBeSigned[ToBeSignedBits];// TODO: anything beyound length needs to be zero-outted
     signal input toBeSignedLen;
     signal output credSubjSha256[SHA256_LEN];
     signal output toBeSignedSha256[SHA256_LEN];
     signal output exp;
+
+
+
+    component tbsSha256 = Sha256Var(TBSBlockSpace);
+    tbsSha256.len <== toBeSignedLen * 8;
+    for (var i = 0; i < ToBeSignedBits; i++) {
+        tbsSha256.in[i] <== toBeSigned[i];
+    }
+    for (var i = ToBeSignedBits; i < RBSMaxBits; i++) {
+        tbsSha256.in[i] <== 0;
+    }
+
+    // export the sha256 hash
+    for (var i = 0; i < SHA256_LEN; i++) {
+        toBeSignedSha256[i] <== tbsSha256.out[i];
+    }
+
+
 
     // convert bits to bytes
     signal ToBeSigned[ToBeSignedBytes];
@@ -530,7 +554,7 @@ template NZCP() {
     // calculate sha256 of the concat string
 
     var BlockSpace = 1;
-    var BLOCK_SIZE = 512;
+    // var BLOCK_SIZE = 512;
     var BlockCount = pow(2, BlockSpace);
     var MaxBits = BLOCK_SIZE * BlockCount;
     assert(MaxBufferLenBits <= MaxBits);

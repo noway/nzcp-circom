@@ -176,10 +176,13 @@ describe("NZCP", function () {
 
         const witness = await cir.calculateWitness({ toBeSigned: toBeSignedBitArray, toBeSignedLen: toBeSignedLen }, true);
 
-        const arrOut = witness.slice(1, 257);
-        const hash2 = bitArray2buffer(arrOut).toString("hex");
+        const expectedCredSubjHash = "5fb355822221720ea4ce6734e5a09e459d452574a19310c0cea7c141f43a3dab"
+        const credSubjHash = bitArray2buffer(witness.slice(1, 257)).toString("hex");
+        assert.equal(credSubjHash, expectedCredSubjHash);
 
-        assert.equal(hash2, "5fb355822221720ea4ce6734e5a09e459d452574a19310c0cea7c141f43a3dab");
+        const expectedToBeSignedHash = "271ce33d671a2d3b816d788135f4343e14bc66802f8cd841faac939e8c11f3ee"
+        const toBeSignedHash = bitArray2buffer(witness.slice(258, 258+256)).toString("hex");
+        assert.equal(toBeSignedHash, expectedToBeSignedHash);
     });
 });
 
