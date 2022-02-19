@@ -426,7 +426,8 @@ template NZCP() {
     var ToBeSignedBytes = 314;
     var ToBeSignedBits = ToBeSignedBytes * 8;
 
-    signal input a[ToBeSignedBits];
+    signal input toBeSigned[ToBeSignedBits];
+    signal input toBeSignedLen;
     signal output credSubjSha256[SHA256_LEN];
     signal output toBeSignedSha256[SHA256_LEN];
     signal output exp;
@@ -437,7 +438,7 @@ template NZCP() {
     for (var k = 0; k < ToBeSignedBytes; k++) {
         b2n[k] = Bits2Num(8);
         for (var i = 0; i < 8; i++) {
-            b2n[k].in[i] <== a[k * 8 + (7 - i)];
+            b2n[k].in[i] <== toBeSigned[k * 8 + (7 - i)];
         }
         ToBeSigned[k] <== b2n[k].out;
     }
