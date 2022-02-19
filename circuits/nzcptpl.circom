@@ -54,9 +54,8 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     component mapval_isString[MAX_CWT_MAP_LEN];
     component mapval_isInt[MAX_CWT_MAP_LEN];
     component mapval_isNeedleString[MAX_CWT_MAP_LEN];
-    component mapval_withinMaplen[MAX_CWT_MAP_LEN];
-
     component mapval_is4Int[MAX_CWT_MAP_LEN];
+    component mapval_withinMaplen[MAX_CWT_MAP_LEN];
 
     component calculateTotal_foundpos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
     component calculateTotal_exppos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
@@ -82,7 +81,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         mapval_isString[k].in[0] <== mapval_type[k];
         mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
 
-        // is current value a string?
+        // is current value an integer?
         mapval_isInt[k] = IsEqual();
         mapval_isInt[k].in[0] <== mapval_type[k];
         mapval_isInt[k].in[1] <== MAJOR_TYPE_INT;
@@ -98,11 +97,12 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         mapval_isNeedleString[k].pos <== mapval_decodeUint[k].nextpos; // pos before skipping
         mapval_isNeedleString[k].len <== mapval_value[k];
 
-        // is current value interpreted as a string is a 4 number?
+        // is current value interpreted as an integer is a 4 number?
         mapval_is4Int[k] = IsEqual();
         mapval_is4Int[k].in[0] <== 4;
         mapval_is4Int[k].in[1] <== mapval_value[k]; // pos before skipping
 
+        // are we within map bounds?
         mapval_withinMaplen[k] = LessThan(8);
         mapval_withinMaplen[k].in[0] <== k;
         mapval_withinMaplen[k].in[1] <== maplen;
@@ -116,22 +116,18 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         // should we select this vc pos candidate?
         mapval_isAccepted[k] <== mapval_isNeedle[k] * mapval_withinMaplen[k].out;
 
-        
         // should we select this exp candidate?
         mapval_isExpAccepted[k] <== mapval_isExp[k] * mapval_withinMaplen[k].out;
-
-        
 
         // put a vc pos candidate into NZCPCalculateTotal to be able to get vc pos outside of the loop
         calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextpos + mapval_value[k]);
         
-        // TODO: calculate total for exp
+        // put a exppos candidate into NZCPCalculateTotal to be able to get exp pos outside of the loop
         calculateTotal_exppos.nums[k] <== mapval_isExpAccepted[k] * mapval_decodeUint[k].nextpos;
     }
 
     needlepos <== calculateTotal_foundpos.sum;
     exppos <== calculateTotal_exppos.sum;
-    log(exppos);
 }
 
 
