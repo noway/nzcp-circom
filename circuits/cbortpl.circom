@@ -380,40 +380,28 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
 }
 
 template IntEquals(BytesLen, ConstInt) {
-    signal input bytes[BytesLen];
-    signal input pos;
+    // signal input bytes[BytesLen];
+    signal input value;
     
     signal output out;
-    signal output nextpos;
+    // signal output nextpos;
 
-    // var conditionsSum = 0;
+    
+    // component getV = GetV(BytesLen);
+    // copyBytes(bytes, getV.bytes, BytesLen)
+    // getV.pos <== pos;
+
+    // component decodeUint = DecodeUint(BytesLen);
+    // copyBytes(bytes, decodeUint.bytes, BytesLen)
+    // decodeUint.v <== getV.v;
+    // decodeUint.pos <== pos;
+    // nextpos <== decodeUint.nextpos;
+
     component isEqual;
     isEqual = IsEqual();
     isEqual.in[0] <== ConstInt;
-
-    
-    component getV = GetV(BytesLen);
-    copyBytes(bytes, getV.bytes, BytesLen)
-    getV.pos <== pos;
-
-    component decodeUint = DecodeUint(BytesLen);
-    decodeUint.v <== getV.v;
-    copyBytes(bytes, decodeUint.bytes, BytesLen)
-    decodeUint.pos <== pos;
-    nextpos <== decodeUint.nextpos;
-
-    // TODO: decode uint
-    // getV = GetV(BytesLen);
-    // copyBytes(bytes, getV.bytes, BytesLen)
-    // getV.pos <== pos;
-    // isEqual.in[1] <== getV.v;
-
-    // conditionsSum = conditionsSum + isEqual.out;
-
-    // var allConditionsAreTrue = 1;
-    // component isZero = IsZero();
-    // isZero.in <== allConditionsAreTrue - conditionsSum;
-    isEqual.in[1] <== decodeUint.value;
+    isEqual.in[1] <== value;
+    // log(value);
     out <== isEqual.out;
 }
 

@@ -100,8 +100,8 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
 
         // is current value interpreted as a string is a 4 number?
         mapval_is4Int[k] = IntEquals(BytesLen, 4);
-        copyBytes(bytes, mapval_is4Int[k].bytes, BytesLen)
-        mapval_is4Int[k].pos <== mapval_decodeUint[k].nextpos; // pos before skipping
+        // copyBytes(bytes, mapval_is4Int[k].bytes, BytesLen)
+        mapval_is4Int[k].value <== mapval_value[k]; // pos before skipping
 
         mapval_withinMaplen[k] = LessThan(8);
         mapval_withinMaplen[k].in[0] <== k;
@@ -126,7 +126,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextpos + mapval_value[k]);
         
         // TODO: calculate total for exp
-        calculateTotal_exppos.nums[k] <== mapval_isExpAccepted[k] * mapval_is4Int[k].nextpos;
+        calculateTotal_exppos.nums[k] <== mapval_isExpAccepted[k] * mapval_decodeUint[k].nextpos;
     }
 
     needlepos <== calculateTotal_foundpos.sum;
