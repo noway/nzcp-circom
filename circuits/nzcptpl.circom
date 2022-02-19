@@ -467,7 +467,7 @@ template NZCP() {
     log(exp);
 
 
-
+    // find credential subject
     component readMapLength2 = ReadMapLength(ToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength2.bytes, ToBeSignedBytes)
     readMapLength2.pos <== vc_pos;
