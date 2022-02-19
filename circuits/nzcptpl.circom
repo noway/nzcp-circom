@@ -442,7 +442,6 @@ template NZCP() {
     }
 
     // TODO: output ToBeSigned sha256
-    // TODO: output expiry date
 
     component readMapLength = ReadMapLength(ToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength.bytes, ToBeSignedBytes)
