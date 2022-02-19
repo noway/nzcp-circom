@@ -36,6 +36,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     signal input pos;
 
     signal output needlepos;
+    signal output exppos;
 
     // signals
     signal mapval_v[MAX_CWT_MAP_LEN];
@@ -55,7 +56,10 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     component mapval_isNeedleString[MAX_CWT_MAP_LEN];
     component mapval_withinMaplen[MAX_CWT_MAP_LEN];
 
+    component mapval_is4Int[MAX_CWT_MAP_LEN];
+
     component calculateTotal_foundpos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
+    component calculateTotal_exppos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
 
     for (var k = 0; k < MAX_CWT_MAP_LEN; k++) { 
 
@@ -98,7 +102,6 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         mapval_is4Int[k] = IntEquals(BytesLen, 4);
         copyBytes(bytes, mapval_is4Int[k].bytes, BytesLen)
         mapval_is4Int[k].pos <== mapval_decodeUint[k].nextpos; // pos before skipping
-        mapval_is4Int[k].len <== mapval_value[k];
 
         mapval_withinMaplen[k] = LessThan(8);
         mapval_withinMaplen[k].in[0] <== k;
@@ -127,6 +130,8 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     }
 
     needlepos <== calculateTotal_foundpos.sum;
+    exppos <== calculateTotal_exppos.sum;
+    log(exppos);
 }
 
 
