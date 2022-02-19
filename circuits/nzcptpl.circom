@@ -36,7 +36,7 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
     signal input pos;
 
     signal output needlepos;
-    signal output exppos;
+    signal output exppos; // TODO: rename to exp_pos?
 
     // signals
     signal mapval_v[MAX_CWT_MAP_LEN];
@@ -373,12 +373,29 @@ template NZCP() {
 
     // find "vc" key pos in the map
     signal vc_pos;
+    signal exp_pos;
     component findVC = FindMapKey(ToBeSignedBytes, [118, 99], 2);
     copyBytes(ToBeSigned, findVC.bytes, ToBeSignedBytes)
     findVC.pos <== readMapLength.nextpos;
     findVC.maplen <== readMapLength.len;
     vc_pos <== findVC.needlepos;
+    exp_pos <== findVC.exppos;
     log(vc_pos);
+
+    signal exp;
+
+    component expReadType = ReadType(ToBeSignedBytes);
+    copyBytes(ToBeSigned, expReadType.bytes, ToBeSignedBytes)
+    expReadType.pos <== exp_pos;
+
+    component expDecodeUint = DecodeUint(ToBeSignedBytes);
+    expDecodeUint.v <== expReadType.v;
+    copyBytes(ToBeSigned, expDecodeUint.bytes, ToBeSignedBytes)
+    expDecodeUint.pos <== expReadType.nextpos;
+    exp <== expDecodeUint.value;
+    log(exp);
+
+
 
     // component readMapLength2 = ReadMapLength(ToBeSignedBytes);
     // copyBytes(ToBeSigned, readMapLength2.bytes, ToBeSignedBytes)
