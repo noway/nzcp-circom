@@ -379,32 +379,6 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
     out <== isZero.out;
 }
 
-template IntEquals(BytesLen, ConstInt) {
-    // signal input bytes[BytesLen];
-    signal input value;
-    
-    signal output out;
-    // signal output nextpos;
-
-    
-    // component getV = GetV(BytesLen);
-    // copyBytes(bytes, getV.bytes, BytesLen)
-    // getV.pos <== pos;
-
-    // component decodeUint = DecodeUint(BytesLen);
-    // copyBytes(bytes, decodeUint.bytes, BytesLen)
-    // decodeUint.v <== getV.v;
-    // decodeUint.pos <== pos;
-    // nextpos <== decodeUint.nextpos;
-
-    component isEqual;
-    isEqual = IsEqual();
-    isEqual.in[0] <== ConstInt;
-    isEqual.in[1] <== value;
-    // log(value);
-    out <== isEqual.out;
-}
-
 template ReadStringLength(BytesLen) {
     // i/o signals
     signal input bytes[BytesLen];

@@ -99,9 +99,9 @@ template FindMapKey(BytesLen, ConstBytes, ConstBytesLen) {
         mapval_isNeedleString[k].len <== mapval_value[k];
 
         // is current value interpreted as a string is a 4 number?
-        mapval_is4Int[k] = IntEquals(BytesLen, 4);
-        // copyBytes(bytes, mapval_is4Int[k].bytes, BytesLen)
-        mapval_is4Int[k].value <== mapval_value[k]; // pos before skipping
+        mapval_is4Int[k] = IsEqual();
+        mapval_is4Int[k].in[0] <== 4;
+        mapval_is4Int[k].in[1] <== mapval_value[k]; // pos before skipping
 
         mapval_withinMaplen[k] = LessThan(8);
         mapval_withinMaplen[k].in[0] <== k;
