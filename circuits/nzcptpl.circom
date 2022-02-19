@@ -456,11 +456,9 @@ template NZCP() {
     log(vc_pos);
 
     signal exp;
-
     component expReadType = ReadType(ToBeSignedBytes);
     copyBytes(ToBeSigned, expReadType.bytes, ToBeSignedBytes)
     expReadType.pos <== exp_pos;
-
     component expDecodeUint = DecodeUint(ToBeSignedBytes);
     expDecodeUint.v <== expReadType.v;
     copyBytes(ToBeSigned, expDecodeUint.bytes, ToBeSignedBytes)
