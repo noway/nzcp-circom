@@ -25,8 +25,10 @@ include "./cbor.circom";
 
 
 
-template FindVC(BytesLen, ConstBytes, ConstBytesLen) {
+template FindVC(BytesLen) {
     // constants
+    var ConstBytesLen = 2;
+    var ConstBytes[ConstBytesLen] = [118, 99];
     // usually is 5. TODO: allow for more? (yep that works)
     var MAX_CWT_MAP_LEN = 8;
 
@@ -130,8 +132,10 @@ template FindVC(BytesLen, ConstBytes, ConstBytesLen) {
     exppos <== calculateTotal_exppos.sum;
 }
 
-template FindCredSubj(BytesLen, ConstBytes, ConstBytesLen) {
+template FindCredSubj(BytesLen) {
     // constants
+    var ConstBytesLen = 17;
+    var ConstBytes[ConstBytesLen] = [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116];
     // usually is 5. TODO: allow for more? (yep that works)
     var MAX_CWT_MAP_LEN = 8;
 
@@ -447,7 +451,7 @@ template NZCP() {
     // find "vc" key pos in the map
     signal vc_pos;
     signal exp_pos;
-    component findVC = FindVC(ToBeSignedBytes, [118, 99], 2);
+    component findVC = FindVC(ToBeSignedBytes);
     copyBytes(ToBeSigned, findVC.bytes, ToBeSignedBytes)
     findVC.pos <== readMapLength.nextpos;
     findVC.maplen <== readMapLength.len;
@@ -473,7 +477,7 @@ template NZCP() {
     readMapLength2.pos <== vc_pos;
 
     signal credSubj_pos;
-    component findCredSubj = FindCredSubj(ToBeSignedBytes, [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116], 17);
+    component findCredSubj = FindCredSubj(ToBeSignedBytes);
     copyBytes(ToBeSigned, findCredSubj.bytes, ToBeSignedBytes)
     findCredSubj.pos <== readMapLength2.nextpos;
     findCredSubj.maplen <== readMapLength2.len;
