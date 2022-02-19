@@ -427,8 +427,9 @@ template NZCP() {
     var ToBeSignedBits = ToBeSignedBytes * 8;
 
     signal input a[ToBeSignedBits];
-    signal output c[SHA256_LEN];
-    signal output d;
+    signal output credSubjSha256[SHA256_LEN];
+    signal output toBeSignedSha256[SHA256_LEN];
+    signal output exp;
 
     // convert bits to bytes
     signal ToBeSigned[ToBeSignedBytes];
@@ -458,7 +459,6 @@ template NZCP() {
     exp_pos <== findVC.exppos;
     log(vc_pos);
 
-    signal exp;
     component expReadType = ReadType(ToBeSignedBytes);
     copyBytes(ToBeSigned, expReadType.bytes, ToBeSignedBytes)
     expReadType.pos <== exp_pos;
@@ -545,7 +545,7 @@ template NZCP() {
 
     // export the sha256 hash
     for (var i = 0; i < SHA256_LEN; i++) {
-        c[i] <== sha256.out[i];
+        credSubjSha256[i] <== sha256.out[i];
     }
 
 }
