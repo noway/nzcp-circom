@@ -3,8 +3,8 @@ const path = require("path");
 const crypto = require("crypto");
 const wasm_tester = require("circom_tester").wasm;
 const { verifyPassURIOffline, DID_DOCUMENTS } = require("@vaxxnz/nzcp");
-const { getToBeSignedAndRs } = require('./helpers/nzcp');
 const { buffer2bitArray, bitArray2buffer } = require("./helpers/utils");
+const { getToBeSignedAndRs } = require('./helpers/nzcp');
 
 require('dotenv').config()
 const assert = chai.assert;
@@ -12,7 +12,7 @@ const assert = chai.assert;
 function prepareNZCPCredSubjHashInput(input, maxLen) {
     const buffer = Buffer.alloc(maxLen).fill(0);
     input.copy(buffer, 0);
-    return {toBeSigned: buffer2bitArray(buffer), toBeSignedLen: input.length}
+    return { toBeSigned: buffer2bitArray(buffer), toBeSignedLen: input.length }
 }
 
 function getNZCPPubIdentity(passURI, isLive) {
