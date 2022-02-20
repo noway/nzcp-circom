@@ -25,3 +25,8 @@ While it is theoretically possbile to verify the signature (using a circuit simi
 For live passes:
 - The length of the `ToBeSigned` value is limited to 355 bytes.
 - The length of the credential subject string (defined as `${familyName},${givenName},${dob}`) is limited to 64 bytes.
+
+## Roadmap
+Depending on my availability:
+- Optimize the size and compile time of the circuit
+- Add more tests
