@@ -103,55 +103,51 @@ describe("CBOR getV(5)", function () {
 
 describe("CBOR DecodeUint", function () {
     const p = path.join(__dirname, "../circuits/decodeUint_test.circom")
+    let cir
+    before(async () => {
+        cir = await wasm_tester(p);
+    })
 
     // if (x <= 23)
     it ("DecodeUint([0, 0, 0, 0], 0, 167) == 7", async () => {
-        const cir = await wasm_tester(p);
         const witness = await cir.calculateWitness({ "bytes": [0, 0, 0, 0], pos: 0, v: 167 }, true);
         assert.equal(witness[1], 7);
     });
 
     it ("DecodeUint([0, 0, 0, 0], 0, 168) == 8", async () => {
-        const cir = await wasm_tester(p);
         const witness = await cir.calculateWitness({ "bytes": [0, 0, 0, 0], pos: 0, v: 168 }, true);
         assert.equal(witness[1], 8);
     });
 
     // if(x == 24)
     it ("DecodeUint([31, 0, 0, 0], 0, 120) == 31", async () => {
-        const cir = await wasm_tester(p);
         const witness = await cir.calculateWitness({ "bytes": [31, 0, 0, 0], pos: 0, v: 120 }, true);
         assert.equal(witness[1], 31);
     });
 
     it ("DecodeUint([38, 0, 0, 0], 0, 120) == 38", async () => {
-        const cir = await wasm_tester(p);
         const witness = await cir.calculateWitness({ "bytes": [38, 0, 0, 0], pos: 0, v: 120 }, true);
         assert.equal(witness[1], 38);
     });
 
     // if(x == 25)
     it ("DecodeUint([42, 69, 0, 0], 0, 25) == 10821", async () => {
-        const cir = await wasm_tester(p);
         const witness = await cir.calculateWitness({ "bytes": [42, 69, 0, 0], pos: 0, v: 25 }, true);
         assert.equal(witness[1], 10821);
     });
 
     it ("DecodeUint([69, 42, 0, 0], 0, 25) == 17706", async () => {
-        const cir = await wasm_tester(p);
         const witness = await cir.calculateWitness({ "bytes": [69, 42, 0, 0], pos: 0, v: 25 }, true);
         assert.equal(witness[1], 17706);
     });
 
     // if(x == 26)
     it ("DecodeUint([97, 218, 192, 48], 0, 26) == 1641726000", async () => {
-        const cir = await wasm_tester(p);
         const witness = await cir.calculateWitness({ "bytes": [97, 218, 192, 48], pos: 0, v: 26 }, true);
         assert.equal(witness[1], 1641726000);
     });
 
     it ("DecodeUint([98, 150, 3, 64], 0, 26) == 1653998400", async () => {
-        const cir = await wasm_tester(p);
         const witness = await cir.calculateWitness({ "bytes": [98, 150, 3, 64], pos: 0, v: 26 }, true);
         assert.equal(witness[1], 1653998400);
     });
