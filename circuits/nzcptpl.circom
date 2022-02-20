@@ -456,7 +456,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     // TODO: hardcore assert that toBeSignedLen is less than MaxToBeSignedBits
 
 
-    // calculate ToBeSigned hash
+    // calculate ToBeSigned sha256 hash
     component tbsSha256 = Sha256Var(ToBeSignedBlockSpace);
     tbsSha256.len <== toBeSignedLen * 8;
     for (var i = 0; i < MaxToBeSignedBits; i++) {
@@ -466,14 +466,14 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
         tbsSha256.in[i] <== 0;
     }
 
-    // export the sha256 hash
+    // export the ToBeSigned sha256 hash
     for (var i = 0; i < SHA256_LEN; i++) {
         toBeSignedSha256[i] <== tbsSha256.out[i];
     }
 
 
 
-    // convert bits to bytes
+    // convert ToBeSigned bits to bytes
     // zero-out everything after the length
     signal ToBeSigned[MaxToBeSignedBytes];
     component b2n[MaxToBeSignedBytes];
@@ -504,6 +504,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     exp_pos <== findVC.exppos;
     log(vc_pos);
 
+    // read exp field in the map
     component expReadType = ReadType(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, expReadType.bytes, MaxToBeSignedBytes)
     expReadType.pos <== exp_pos;
@@ -528,15 +529,13 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     credSubj_pos <== findCredSubj.needlepos;
     log(credSubj_pos);
 
-
-
-    // read cred subj map length
+    // read credential subject map length
     component readMapLength3 = ReadMapLength(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength3.bytes, MaxToBeSignedBytes)
     readMapLength3.pos <== credSubj_pos;
 
 
-    // read cred subj map
+    // read credential subject map
     component readCredSubj = ReadCredSubj(MaxToBeSignedBytes, MaxBufferLen);
     copyBytes(ToBeSigned, readCredSubj.bytes, MaxToBeSignedBytes)
     readCredSubj.pos <== readMapLength3.nextpos;
@@ -551,7 +550,6 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.familyName[i] <== readCredSubj.familyName[i]; }
     for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.dob[i] <== readCredSubj.dob[i]; }
     
-
     // convert concat string into bits
     component n2b[MaxBufferLen];
     signal bits[MaxBufferLenBits];
@@ -564,8 +562,6 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     }
 
     // calculate sha256 of the concat string
-
-
     component sha256 = Sha256Var(CredSubjBlockSpace);
     sha256.len <== concatCredSubj.resultLen * 8;
     for (var i = 0; i < MaxBufferLenBits; i++) {
@@ -575,7 +571,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
         sha256.in[i] <== 0;
     }
 
-    // export the sha256 hash
+    // export the sha256 hash of the concat string
     for (var i = 0; i < SHA256_LEN; i++) {
         credSubjSha256[i] <== sha256.out[i];
     }
