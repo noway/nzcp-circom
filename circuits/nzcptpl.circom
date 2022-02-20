@@ -457,6 +457,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     // check that input is only bits (0 or 1)
     for (var i = 0; i < MaxToBeSignedBits; i++ ) {
         toBeSigned[i] * (toBeSigned[i] - 1) === 0;
+        assert(toBeSigned[i] == 0 || toBeSigned[i] == 1);
     }
 
 
