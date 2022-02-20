@@ -453,7 +453,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     signal output toBeSignedSha256[SHA256_LEN];
     signal output exp;
 
-    // TODO: hardcore assert that toBeSignedLen is less than MaxToBeSignedBits
+    // hardcore assert that toBeSignedLen is less than MaxToBeSignedBytes
     component lteMaxToBeSignedBytes = LessThan(log2(MaxToBeSignedBytes + 1) + 1);
     lteMaxToBeSignedBytes.in[0] <== toBeSignedLen;
     lteMaxToBeSignedBytes.in[1] <== MaxToBeSignedBytes + 1;
