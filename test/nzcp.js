@@ -58,7 +58,6 @@ describe("NZCP credential subject hash - example pass", function () {
     })
 
     it ("Should parse ToBeSigned", async () => {
-
         await testNZCPCredSubjHash(cir, EXAMPLE_PASS_URI, false, 314);
     });
 });
