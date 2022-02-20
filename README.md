@@ -20,3 +20,8 @@ The circuit outputs the following public inputs:
 The circuit does not verify the authenticity of NZ COVID Pass. It merely proves that you are a holder of the NZ COVID Pass. The user may not be in a possession of a valid signature for the `ToBeSigned` value that is provided.
 
 While it is theoretically possbile to verify the signature (using a circuit similar to [circom-ecdsa](https://github.com/0xPARC/circom-ecdsa) for NIST P-256 curves), it is outside the scope of this project.
+
+## Limitations
+For live passes:
+- The length of the `ToBeSigned` value is limited to 355 bytes.
+- The length of the credential subject string (defined as `${familyName},${givenName},${dob}`) is limited to 64 bytes.
