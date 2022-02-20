@@ -14,4 +14,9 @@ The circuit takes in the following private inputs:
 The circuit outputs the following public inputs:
 - `credSubjSha256` - the SHA256 hash of the credential subject of the NZ COVID Pass. That is your given name, family name and date of birth delimited by comma. 
 - `toBeSignedSha256` - the SHA256 hash of the `toBeSigned` value.
-- `exp` - The expiry date of the NZ COVID Pass.
+- `exp` - the expiry date of the NZ COVID Pass.
+
+## NZ COVID Pass verification
+The circuit does not verify the authenticity of NZ COVID Pass. It merely proves that you are a holder of the NZ COVID Pass. The user may not be in a possession of a valid signature for the `ToBeSigned` value that is provided.
+
+While it is theoretically possbile to verify the signature (using a circuit similar to [circom-ecdsa](https://github.com/0xPARC/circom-ecdsa) for NIST P-256 curves), it is outside the scope of this project.
