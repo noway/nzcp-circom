@@ -25,7 +25,7 @@ include "./cbor.circom";
 
 
 
-template FindVC(BytesLen) {
+template FindVCAndExp(BytesLen) {
     // constants
     var ConstBytesLen = 2;
     var ConstBytes[ConstBytesLen] = [118, 99];
@@ -477,7 +477,7 @@ template NZCP() {
     // find "vc" key pos in the map
     signal vc_pos;
     signal exp_pos;
-    component findVC = FindVC(ToBeSignedBytes);
+    component findVC = FindVCAndExp(ToBeSignedBytes);
     copyBytes(ToBeSigned, findVC.bytes, ToBeSignedBytes)
     findVC.pos <== readMapLength.nextpos;
     findVC.maplen <== readMapLength.len;
