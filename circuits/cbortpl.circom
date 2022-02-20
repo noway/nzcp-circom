@@ -300,11 +300,7 @@ template SkipValueScalar(BytesLen) {
 // TODO: test
 // skip a CBOR value. supports everything that SkipValueScalar supports plus arrays
 // input MUST be a byte array
-template SkipValue(BytesLen) {
-
-    // constants
-    // TODO: bigger? (yep that works ok)
-    var MAX_ARRAY_LEN = 4;
+template SkipValue(BytesLen, MaxArrayLen) {
 
     // i/o signals
     signal input bytes[BytesLen];
@@ -325,10 +321,10 @@ template SkipValue(BytesLen) {
 
 
     // calculate nextPos if an array
-    signal nextPosArray[MAX_ARRAY_LEN];
-    component skipValue[MAX_ARRAY_LEN];
-    component qs = QuinSelectorUnchecked(MAX_ARRAY_LEN);
-    for (var i = 0; i < MAX_ARRAY_LEN; i++) {
+    signal nextPosArray[MaxArrayLen];
+    component skipValue[MaxArrayLen];
+    component qs = QuinSelectorUnchecked(MaxArrayLen);
+    for (var i = 0; i < MaxArrayLen; i++) {
         skipValue[i] = SkipValueScalar(BytesLen);
         copyBytes(bytes, skipValue[i].bytes, BytesLen)
         skipValue[i].pos <== i == 0 ? decodeUint.nextPos : nextPosArray[i - 1];

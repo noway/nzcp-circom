@@ -26,7 +26,7 @@ include "./cbor.circom";
 
 
 
-template FindVCAndExp(BytesLen) {
+template FindVCAndExp(BytesLen, MaxCborArrayLen) {
     // constants
     var ConstBytesLen = 2;
     var ConstBytes[ConstBytesLen] = [118, 99];
@@ -90,7 +90,7 @@ template FindVCAndExp(BytesLen) {
         mapval_isInt[k].in[1] <== MAJOR_TYPE_INT;
 
         // skip value for next iteration
-        mapval_skipValue[k] = SkipValue(BytesLen);
+        mapval_skipValue[k] = SkipValue(BytesLen, MaxCborArrayLen);
         mapval_skipValue[k].pos <== mapval_decodeUint[k].nextPos + (mapval_value[k] * mapval_isString[k].out);
         copyBytes(bytes, mapval_skipValue[k].bytes, BytesLen)
 
@@ -133,7 +133,7 @@ template FindVCAndExp(BytesLen) {
     expPos <== calculateTotal_exppos.sum;
 }
 
-template FindCredSubj(BytesLen) {
+template FindCredSubj(BytesLen, MaxCborArrayLen) {
     // constants
     var ConstBytesLen = 17;
     var ConstBytes[ConstBytesLen] = [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116];
@@ -185,7 +185,7 @@ template FindCredSubj(BytesLen) {
         mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
 
         // skip value for next iteration
-        mapval_skipValue[k] = SkipValue(BytesLen);
+        mapval_skipValue[k] = SkipValue(BytesLen, MaxCborArrayLen);
         mapval_skipValue[k].pos <== mapval_decodeUint[k].nextPos + (mapval_value[k] * mapval_isString[k].out);
         copyBytes(bytes, mapval_skipValue[k].bytes, BytesLen)
 
@@ -417,7 +417,7 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
-template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
+template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen) {
     // constants
     var SHA256_LEN = 256;
     var BLOCK_SIZE = 512;
@@ -508,7 +508,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     // find "vc" key pos in the map
     signal vcPos;
     signal expPos;
-    component findVC = FindVCAndExp(MaxToBeSignedBytes);
+    component findVC = FindVCAndExp(MaxToBeSignedBytes, MaxCborArrayLen);
     copyBytes(ToBeSigned, findVC.bytes, MaxToBeSignedBytes)
     findVC.pos <== readMapLength.nextPos;
     findVC.maplen <== readMapLength.len;
@@ -534,7 +534,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     readMapLength2.pos <== vcPos;
 
     signal credSubjPos;
-    component findCredSubj = FindCredSubj(MaxToBeSignedBytes);
+    component findCredSubj = FindCredSubj(MaxToBeSignedBytes, MaxCborArrayLen);
     copyBytes(ToBeSigned, findCredSubj.bytes, MaxToBeSignedBytes)
     findCredSubj.pos <== readMapLength2.nextPos;
     findCredSubj.maplen <== readMapLength2.len;
@@ -591,5 +591,5 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
 }
 
 // TODO: dynamic (yep that works ok)
-component main = NZCPCredSubjHashAndExp(314);
+component main = NZCPCredSubjHashAndExp(314, 4);
 
