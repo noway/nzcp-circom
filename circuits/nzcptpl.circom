@@ -482,8 +482,6 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
         ToBeSigned[k] <== b2n[k].out;
     }
 
-    // TODO: output ToBeSigned sha256
-
     component readMapLength = ReadMapLength(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength.bytes, MaxToBeSignedBytes)
     readMapLength.pos <== CLAIMS_SKIP_EXAMPLE;
@@ -522,10 +520,6 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     findCredSubj.maplen <== readMapLength2.len;
     credSubj_pos <== findCredSubj.needlepos;
     log(credSubj_pos);
-
-
-    // signal credSubj_pos;
-    // credSubj_pos <== 246;
 
 
 
