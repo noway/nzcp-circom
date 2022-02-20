@@ -28,6 +28,11 @@
   resolved "https://registry.yarnpkg.com/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz#aa58042711d6e3275dd37dc597e5d31e8c290a44"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
+"@vaxxnz/nzcp@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@vaxxnz/nzcp/-/nzcp-1.1.1.tgz#b3780fbab9e27ae2bf1cd030515375d056ec5722"
+  integrity sha512-XJQNCxKLxT7yXDBI0OzvJbQEUEUYqqcORhenqk/Bgi5LT8rE3yIWxV77y4XGj4Ukz5qL04sFKSnp7fWSZg7IHQ==
+
 ansi-colors@4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/ansi-colors/-/ansi-colors-4.1.1.tgz#cbb9ae256bf750af1eab344f229aa27fe94ba348"
