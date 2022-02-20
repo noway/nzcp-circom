@@ -418,22 +418,20 @@ template ConcatCredSubj(MaxBufferLen) {
 
 // TODO: rename to NZCPCredSubjHashAndExp
 // TODO: check that inputs are bytes
-template NZCP() {
+template NZCP(MaxToBeSignedBytes) {
     // constants
     var SHA256_LEN = 256;
     var CLAIMS_SKIP_EXAMPLE = 27;
 
-    // TODO: dynamic (yep that works ok)
-    var ToBeSignedBytes = 316;
-    var ToBeSignedBits = ToBeSignedBytes * 8;
+    var MaxToBeSignedBits = MaxToBeSignedBytes * 8;
 
     var TBSBlockSpace = 3;
     var BLOCK_SIZE = 512;
     var TBSBlockCount = pow(2, TBSBlockSpace);
     var RBSMaxBits = BLOCK_SIZE * TBSBlockCount;
-    assert(ToBeSignedBits <= RBSMaxBits); // compile time check
+    assert(MaxToBeSignedBits <= RBSMaxBits); // compile time check
 
-    signal input toBeSigned[ToBeSignedBits];// TODO: anything beyound length needs to be zero-outted
+    signal input toBeSigned[MaxToBeSignedBits];// TODO: anything beyound length needs to be zero-outted
     signal input toBeSignedLen;
     signal output credSubjSha256[SHA256_LEN];
     signal output toBeSignedSha256[SHA256_LEN];
@@ -443,10 +441,10 @@ template NZCP() {
 
     component tbsSha256 = Sha256Var(TBSBlockSpace);
     tbsSha256.len <== toBeSignedLen * 8;
-    for (var i = 0; i < ToBeSignedBits; i++) {
+    for (var i = 0; i < MaxToBeSignedBits; i++) {
         tbsSha256.in[i] <== toBeSigned[i];
     }
-    for (var i = ToBeSignedBits; i < RBSMaxBits; i++) {
+    for (var i = MaxToBeSignedBits; i < RBSMaxBits; i++) {
         tbsSha256.in[i] <== 0;
     }
 
@@ -458,9 +456,9 @@ template NZCP() {
 
 
     // convert bits to bytes
-    signal ToBeSigned[ToBeSignedBytes];
-    component b2n[ToBeSignedBytes];
-    for (var k = 0; k < ToBeSignedBytes; k++) {
+    signal ToBeSigned[MaxToBeSignedBytes];
+    component b2n[MaxToBeSignedBytes];
+    for (var k = 0; k < MaxToBeSignedBytes; k++) {
         b2n[k] = Bits2Num(8);
         for (var i = 0; i < 8; i++) {
             b2n[k].in[i] <== toBeSigned[k * 8 + (7 - i)];
@@ -470,40 +468,40 @@ template NZCP() {
 
     // TODO: output ToBeSigned sha256
 
-    component readMapLength = ReadMapLength(ToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength.bytes, ToBeSignedBytes)
+    component readMapLength = ReadMapLength(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLength.bytes, MaxToBeSignedBytes)
     readMapLength.pos <== CLAIMS_SKIP_EXAMPLE;
 
     // find "vc" key pos in the map
     signal vc_pos;
     signal exp_pos;
-    component findVC = FindVCAndExp(ToBeSignedBytes);
-    copyBytes(ToBeSigned, findVC.bytes, ToBeSignedBytes)
+    component findVC = FindVCAndExp(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, findVC.bytes, MaxToBeSignedBytes)
     findVC.pos <== readMapLength.nextpos;
     findVC.maplen <== readMapLength.len;
     vc_pos <== findVC.needlepos;
     exp_pos <== findVC.exppos;
     log(vc_pos);
 
-    component expReadType = ReadType(ToBeSignedBytes);
-    copyBytes(ToBeSigned, expReadType.bytes, ToBeSignedBytes)
+    component expReadType = ReadType(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, expReadType.bytes, MaxToBeSignedBytes)
     expReadType.pos <== exp_pos;
-    component expDecodeUint = DecodeUint(ToBeSignedBytes);
+    component expDecodeUint = DecodeUint(MaxToBeSignedBytes);
     expDecodeUint.v <== expReadType.v;
-    copyBytes(ToBeSigned, expDecodeUint.bytes, ToBeSignedBytes)
+    copyBytes(ToBeSigned, expDecodeUint.bytes, MaxToBeSignedBytes)
     expDecodeUint.pos <== expReadType.nextpos;
     exp <== expDecodeUint.value;
     log(exp);
 
 
     // find credential subject
-    component readMapLength2 = ReadMapLength(ToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength2.bytes, ToBeSignedBytes)
+    component readMapLength2 = ReadMapLength(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLength2.bytes, MaxToBeSignedBytes)
     readMapLength2.pos <== vc_pos;
 
     signal credSubj_pos;
-    component findCredSubj = FindCredSubj(ToBeSignedBytes);
-    copyBytes(ToBeSigned, findCredSubj.bytes, ToBeSignedBytes)
+    component findCredSubj = FindCredSubj(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, findCredSubj.bytes, MaxToBeSignedBytes)
     findCredSubj.pos <== readMapLength2.nextpos;
     findCredSubj.maplen <== readMapLength2.len;
     credSubj_pos <== findCredSubj.needlepos;
@@ -516,8 +514,8 @@ template NZCP() {
 
 
     // read cred subj map length
-    component readMapLength3 = ReadMapLength(ToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength3.bytes, ToBeSignedBytes)
+    component readMapLength3 = ReadMapLength(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLength3.bytes, MaxToBeSignedBytes)
     readMapLength3.pos <== credSubj_pos;
 
 
@@ -525,8 +523,8 @@ template NZCP() {
     // TODO: make bigger? (can be made bigger yay)
     var CONCAT_SIZE_BITS = 5;
     var MaxBufferLen = pow(2, CONCAT_SIZE_BITS);
-    component readCredSubj = ReadCredSubj(ToBeSignedBytes, MaxBufferLen);
-    copyBytes(ToBeSigned, readCredSubj.bytes, ToBeSignedBytes)
+    component readCredSubj = ReadCredSubj(MaxToBeSignedBytes, MaxBufferLen);
+    copyBytes(ToBeSigned, readCredSubj.bytes, MaxToBeSignedBytes)
     readCredSubj.pos <== readMapLength3.nextpos;
     readCredSubj.maplen <== readMapLength3.len;
 
@@ -576,5 +574,6 @@ template NZCP() {
 
 }
 
-component main = NZCP();
+// TODO: dynamic (yep that works ok)
+component main = NZCP(316);
 
