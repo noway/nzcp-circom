@@ -423,7 +423,7 @@ template NZCP() {
     var SHA256_LEN = 256;
     var CLAIMS_SKIP_EXAMPLE = 27;
 
-    // TODO: dynamic
+    // TODO: dynamic (yep that works ok)
     var ToBeSignedBytes = 316;
     var ToBeSignedBits = ToBeSignedBytes * 8;
 
