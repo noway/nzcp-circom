@@ -38,7 +38,7 @@ template FindVCAndExp(BytesLen) {
     signal input pos;
 
     signal output needlepos;
-    signal output expPos; // TODO: rename to expPos?
+    signal output expPos;
 
     // signals
     signal mapval_v[MAX_CWT_MAP_LEN];
