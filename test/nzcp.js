@@ -49,7 +49,7 @@ describe("NZCP credential subject hash", function () {
         const toBeSignedHash = bitArray2buffer(witness.slice(257, 257+256)).toString("hex");
         assert.equal(toBeSignedHash, expectedToBeSignedHash);
 
-        const expectedExp = 1951416330
+        const expectedExp = result.raw.exp
         const actualExp = witness[257+256]
         assert.equal(expectedExp, actualExp)
     });
