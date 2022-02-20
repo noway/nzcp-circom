@@ -447,7 +447,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     assert(MaxBufferLenBits <= CredSubjHashMaxBits); // compile time check
 
     // i/o signals
-    signal input toBeSigned[MaxToBeSignedBits];// TODO: anything beyound length needs to be zero-outted
+    signal input toBeSigned[MaxToBeSignedBits];
     signal input toBeSignedLen;
     signal output credSubjSha256[SHA256_LEN];
     signal output toBeSignedSha256[SHA256_LEN];
