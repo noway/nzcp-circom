@@ -171,7 +171,7 @@ function prepareNZCPCredSubjHashInput(input) {
 describe("NZCP credential subject hash", function () {
     this.timeout(100000);
     it ("Should parse ToBeSigned", async () => {
-        const p = path.join(__dirname, "../", "circuits", "nzcp.circom")
+        const p = path.join(__dirname, "../", "circuits", "nzcp_exampleTest.circom")
         const cir = await wasm_tester(p);
         console.log('calculating witness...');
 

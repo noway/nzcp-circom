@@ -589,6 +589,4 @@ template NZCPCredSubjHashAndExp(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, Max
 
 }
 
-// TODO: dynamic (yep that works ok)
-component main = NZCPCredSubjHashAndExp(0, 314, 4, 5, 5);
 
