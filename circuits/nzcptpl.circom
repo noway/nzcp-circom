@@ -423,7 +423,7 @@ template NZCP() {
     var CLAIMS_SKIP_EXAMPLE = 27;
 
     // TODO: dynamic
-    var ToBeSignedBytes = 314;
+    var ToBeSignedBytes = 316;
     var ToBeSignedBits = ToBeSignedBytes * 8;
 
     var TBSBlockSpace = 3;
