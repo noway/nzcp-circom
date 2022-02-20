@@ -80,17 +80,17 @@ describe("NZCP credential subject hash - live pass", function () {
         await testNZCPCredSubjHash(cir, LIVE_PASS_URI_1, true, 355);
     });
     if (LIVE_PASS_URI_2) {
-            it ("Should generate credential hash and output exp for LIVE_PASS_URI_2", async () => {
+        it ("Should generate credential hash and output exp for LIVE_PASS_URI_2", async () => {
             await testNZCPCredSubjHash(cir, LIVE_PASS_URI_2, true, 355);
         });
     }
     if (LIVE_PASS_URI_3) {
-            it ("Should generate credential hash and output exp for LIVE_PASS_URI_3", async () => {
+        it ("Should generate credential hash and output exp for LIVE_PASS_URI_3", async () => {
             await testNZCPCredSubjHash(cir, LIVE_PASS_URI_3, true, 355);
         });
     }
     if (LIVE_PASS_URI_4) {
-            it ("Should generate credential hash and output exp for LIVE_PASS_URI_4", async () => {
+        it ("Should generate credential hash and output exp for LIVE_PASS_URI_4", async () => {
             await testNZCPCredSubjHash(cir, LIVE_PASS_URI_4, true, 355);
         });
     }
