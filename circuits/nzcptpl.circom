@@ -454,7 +454,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     signal output exp;
 
 
-    // check that input is only bits (0 or 1)
+    // check that input is only bits (0 or 1) (hardcore assert)
     for (var i = 0; i < MaxToBeSignedBits; i++ ) {
         toBeSigned[i] * (toBeSigned[i] - 1) === 0;
         assert(toBeSigned[i] == 0 || toBeSigned[i] == 1);
