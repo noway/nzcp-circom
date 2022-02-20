@@ -334,7 +334,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 // concat givenName, familyName and dob with comma as separator
 template ConcatCredSubj(MaxBufferLen) {
     var COMMA_CHAR = 44;
-    var ConcatSizeBits = log2(MaxBufferLen);
+    var ConcatSizeBits = log2(MaxBufferLen) + 1;
     log(ConcatSizeBits);
 
     signal input givenName[MaxBufferLen];
