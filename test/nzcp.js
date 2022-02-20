@@ -1,12 +1,11 @@
-const chai = require("chai");
 const crypto = require("crypto");
+const { assert } = require("chai");
 const { wasm: wasm_tester } = require("circom_tester");
 const { verifyPassURIOffline, DID_DOCUMENTS } = require("@vaxxnz/nzcp");
 const { buffer2bitArray, bitArray2buffer } = require("./helpers/utils");
 const { getToBeSignedAndRs } = require('./helpers/nzcp');
 
 require('dotenv').config()
-const assert = chai.assert;
 
 function prepareNZCPCredSubjHashInput(input, maxLen) {
     const buffer = Buffer.alloc(maxLen).fill(0);

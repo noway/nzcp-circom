@@ -1,7 +1,5 @@
-const chai = require("chai");
+const { assert } = require("chai");
 const { wasm: wasm_tester } = require("circom_tester");
-
-const assert = chai.assert;
 
 describe("CBOR getType", function () {
     let cir
