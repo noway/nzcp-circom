@@ -428,8 +428,8 @@ template NZCP(MaxToBeSignedBytes) {
     var TBSBlockSpace = 3;
     var BLOCK_SIZE = 512;
     var TBSBlockCount = pow(2, TBSBlockSpace);
-    var RBSMaxBits = BLOCK_SIZE * TBSBlockCount;
-    assert(MaxToBeSignedBits <= RBSMaxBits); // compile time check
+    var TBSMaxBits = BLOCK_SIZE * TBSBlockCount;
+    assert(MaxToBeSignedBits <= TBSMaxBits); // compile time check
 
     signal input toBeSigned[MaxToBeSignedBits];// TODO: anything beyound length needs to be zero-outted
     signal input toBeSignedLen;
@@ -444,7 +444,7 @@ template NZCP(MaxToBeSignedBytes) {
     for (var i = 0; i < MaxToBeSignedBits; i++) {
         tbsSha256.in[i] <== toBeSigned[i];
     }
-    for (var i = MaxToBeSignedBits; i < RBSMaxBits; i++) {
+    for (var i = MaxToBeSignedBits; i < TBSMaxBits; i++) {
         tbsSha256.in[i] <== 0;
     }
 
