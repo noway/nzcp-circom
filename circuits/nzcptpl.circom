@@ -453,6 +453,8 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     signal output toBeSignedSha256[SHA256_LEN];
     signal output exp;
 
+    // TODO: hardcore assert that toBeSignedLen is less than MaxToBeSignedBits
+
 
     // calculate ToBeSigned hash
     component tbsSha256 = Sha256Var(ToBeSignedBlockSpace);
