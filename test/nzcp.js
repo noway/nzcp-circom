@@ -26,19 +26,16 @@ const EXAMPLE_PASS_URI = "NZCP:/1/2KCEVIQEIVVWK6JNGEASNICZAEP2KALYDZSGSZB2O5SWEO
 describe("NZCP credential subject hash", function () {
     this.timeout(100000);
     it ("Should parse ToBeSigned", async () => {
-        const p = path.join(__dirname, "../", "circuits", "nzcp_exampleTest.circom")
-        const cir = await wasm_tester(p);
+        const cir = await wasm_tester(path.join(__dirname, "../circuits/nzcp_exampleTest.circom"));
         console.log('calculating witness...');
 
-        const pass = getToBeSignedAndRs(EXAMPLE_PASS_URI)
-        const result = verifyPassURIOffline(EXAMPLE_PASS_URI, { didDocument: DID_DOCUMENTS.MOH_EXAMPLE })
-        const credSubj = result.credentialSubject;
+        const verificationResult = verifyPassURIOffline(EXAMPLE_PASS_URI, { didDocument: DID_DOCUMENTS.MOH_EXAMPLE })
+        const credSubj = verificationResult.credentialSubject;
+    
         const credSubjConcat = `${credSubj.givenName},${credSubj.familyName},${credSubj.dob}`
-
-        const toBeSignedByteArray = Buffer.from(pass.ToBeSigned, "hex");
+        const toBeSignedByteArray = Buffer.from(getToBeSignedAndRs(EXAMPLE_PASS_URI).ToBeSigned, "hex");
 
         const input = prepareNZCPCredSubjHashInput(toBeSignedByteArray);
-
         const witness = await cir.calculateWitness(input, true);
 
         const expectedCredSubjHash = sha256Hash(credSubjConcat)
@@ -49,7 +46,7 @@ describe("NZCP credential subject hash", function () {
         const toBeSignedHash = bitArray2buffer(witness.slice(257, 257+256)).toString("hex");
         assert.equal(toBeSignedHash, expectedToBeSignedHash);
 
-        const expectedExp = result.raw.exp
+        const expectedExp = verificationResult.raw.exp
         const actualExp = witness[257+256]
         assert.equal(expectedExp, actualExp)
     });
