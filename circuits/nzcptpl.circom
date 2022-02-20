@@ -459,10 +459,11 @@ template NZCPCredSubjHashAndExp(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, Max
 
 
     // hardcore assert that toBeSignedLen is less than MaxToBeSignedBytes
-    component lteMaxToBeSignedBytes = LessThan(log2(MaxToBeSignedBytes + 1) + 1);
+    var MaxToBeSignedBytesPlusOne = MaxToBeSignedBytes + 1;
+    component lteMaxToBeSignedBytes = LessThan(log2(MaxToBeSignedBytesPlusOne) + 1);
     lteMaxToBeSignedBytes.in[0] <== toBeSignedLen;
-    lteMaxToBeSignedBytes.in[1] <== MaxToBeSignedBytes + 1;
-    assert(toBeSignedLen < MaxToBeSignedBytes + 1);
+    lteMaxToBeSignedBytes.in[1] <== MaxToBeSignedBytesPlusOne;
+    assert(toBeSignedLen < MaxToBeSignedBytesPlusOne);
     lteMaxToBeSignedBytes.out === 1;
 
 
