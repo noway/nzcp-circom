@@ -413,7 +413,7 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
-template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen) {
+template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen, CredSubjMaxBufferSpace) {
     // constants
     var SHA256_LEN = 256;
     var BLOCK_SIZE = 512;
@@ -431,15 +431,14 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapL
     assert(MaxToBeSignedBits <= ToBeSignedMaxBits); // compile time check
 
     // Credential Subject hash
-    var MaxBufferSpace = 5; // TODO: make bigger? (can be made bigger yay)
-    var MaxBufferLen = pow(2, MaxBufferSpace);
-    var MaxBufferLenBits = MaxBufferLen * 8;
+    var CredSubjMaxBufferLen = pow(2, CredSubjMaxBufferSpace);
+    var CredSubjMaxBufferLenBits = CredSubjMaxBufferLen * 8;
 
     var CredSubjBlockSpace = 1;
     var CredSubjBlockCount = pow(2, CredSubjBlockSpace);
     var CredSubjHashMaxBits = BLOCK_SIZE * CredSubjBlockCount;
 
-    assert(MaxBufferLenBits <= CredSubjHashMaxBits); // compile time check
+    assert(CredSubjMaxBufferLenBits <= CredSubjHashMaxBits); // compile time check
 
     // i/o signals
     signal input toBeSigned[MaxToBeSignedBits]; // gets zero-outted beyond length
@@ -544,24 +543,24 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapL
 
 
     // read credential subject map
-    component readCredSubj = ReadCredSubj(MaxToBeSignedBytes, MaxBufferLen);
+    component readCredSubj = ReadCredSubj(MaxToBeSignedBytes, CredSubjMaxBufferLen);
     copyBytes(ToBeSigned, readCredSubj.bytes, MaxToBeSignedBytes)
     readCredSubj.pos <== readMapLength3.nextPos;
     readCredSubj.maplen <== readMapLength3.len;
 
     // concat given name, family name and dob
-    component concatCredSubj = ConcatCredSubj(MaxBufferLen);
+    component concatCredSubj = ConcatCredSubj(CredSubjMaxBufferLen);
     concatCredSubj.givenNameLen <== readCredSubj.givenNameLen;
     concatCredSubj.familyNameLen <== readCredSubj.familyNameLen;
     concatCredSubj.dobLen <== readCredSubj.dobLen;
-    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.givenName[i] <== readCredSubj.givenName[i]; }
-    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.familyName[i] <== readCredSubj.familyName[i]; }
-    for (var i = 0; i < MaxBufferLen; i++) { concatCredSubj.dob[i] <== readCredSubj.dob[i]; }
+    for (var i = 0; i < CredSubjMaxBufferLen; i++) { concatCredSubj.givenName[i] <== readCredSubj.givenName[i]; }
+    for (var i = 0; i < CredSubjMaxBufferLen; i++) { concatCredSubj.familyName[i] <== readCredSubj.familyName[i]; }
+    for (var i = 0; i < CredSubjMaxBufferLen; i++) { concatCredSubj.dob[i] <== readCredSubj.dob[i]; }
     
     // convert concat string into bits
-    component n2b[MaxBufferLen];
-    signal bits[MaxBufferLenBits];
-    for(var k = 0; k < MaxBufferLen; k++) {
+    component n2b[CredSubjMaxBufferLen];
+    signal bits[CredSubjMaxBufferLenBits];
+    for(var k = 0; k < CredSubjMaxBufferLen; k++) {
         n2b[k] = Num2Bits(8);
         n2b[k].in <== concatCredSubj.result[k];
         for (var j = 0; j < 8; j++) {
@@ -572,10 +571,10 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapL
     // calculate sha256 of the concat string
     component sha256 = Sha256Var(CredSubjBlockSpace);
     sha256.len <== concatCredSubj.resultLen * 8;
-    for (var i = 0; i < MaxBufferLenBits; i++) {
+    for (var i = 0; i < CredSubjMaxBufferLenBits; i++) {
         sha256.in[i] <== bits[i];
     }
-    for (var i = MaxBufferLenBits; i < CredSubjHashMaxBits; i++) {
+    for (var i = CredSubjMaxBufferLenBits; i < CredSubjHashMaxBits; i++) {
         sha256.in[i] <== 0;
     }
 
@@ -587,5 +586,5 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapL
 }
 
 // TODO: dynamic (yep that works ok)
-component main = NZCPCredSubjHashAndExp(314, 4, 5);
+component main = NZCPCredSubjHashAndExp(314, 4, 5, 5);
 
