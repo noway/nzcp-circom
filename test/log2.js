@@ -1,9 +1,8 @@
 const chai = require("chai");
 const path = require("path");
+const { wasm: wasm_tester } = require("circom_tester");
+
 const assert = chai.assert;
-
-const wasm_tester = require("circom_tester").wasm;
-
 
 describe("CBOR getType", function () {
     const p = path.join(__dirname, "../circuits/log2_test.circom")

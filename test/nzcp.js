@@ -1,7 +1,7 @@
 const chai = require("chai");
 const path = require("path");
 const crypto = require("crypto");
-const wasm_tester = require("circom_tester").wasm;
+const { wasm: wasm_tester } = require("circom_tester");
 const { verifyPassURIOffline, DID_DOCUMENTS } = require("@vaxxnz/nzcp");
 const { buffer2bitArray, bitArray2buffer } = require("./helpers/utils");
 const { getToBeSignedAndRs } = require('./helpers/nzcp');
