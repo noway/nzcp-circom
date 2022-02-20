@@ -9,3 +9,4 @@ nzcp.circom
 cbor.circom
 sha256-var-circom.zip
 sha256-var-circom-main
+.env
