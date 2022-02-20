@@ -423,7 +423,7 @@ template ReadMapLength(ToBeSignedBytes) {
 }
 
 // TODO: test
-template DecodeString(BytesLen, MaxLen) {
+template CopyString(BytesLen, MaxLen) {
     // i/o signals
     signal input bytes[BytesLen];
     signal input pos;

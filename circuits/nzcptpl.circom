@@ -250,13 +250,13 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     component mapval_isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_isFamilyName[CREDENTIAL_SUBJECT_MAP_LEN];
     component mapval_isDOB[CREDENTIAL_SUBJECT_MAP_LEN];
-    component mapval_decodeString[CREDENTIAL_SUBJECT_MAP_LEN];
+    component mapval_copyString[CREDENTIAL_SUBJECT_MAP_LEN];
 
     for(var k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
 
         mapval_readStringLength[k] = ReadStringLength(BytesLen);
         copyBytes(bytes, mapval_readStringLength[k].bytes, BytesLen)
-        mapval_readStringLength[k].pos <== k == 0 ? pos : mapval_decodeString[k - 1].nextPos;
+        mapval_readStringLength[k].pos <== k == 0 ? pos : mapval_copyString[k - 1].nextPos;
 
         mapval_isGivenName[k] = StringEquals(BytesLen, GIVEN_NAME_STR, GIVEN_NAME_LEN);
         copyBytes(bytes, mapval_isGivenName[k].bytes, BytesLen)
@@ -273,9 +273,9 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
         mapval_isDOB[k].pos <== mapval_readStringLength[k].nextPos; // pos before skipping
         mapval_isDOB[k].len <== mapval_readStringLength[k].len;
 
-        mapval_decodeString[k] = DecodeString(BytesLen, MaxStringLen);
-        copyBytes(bytes, mapval_decodeString[k].bytes, BytesLen)
-        mapval_decodeString[k].pos <== mapval_readStringLength[k].nextPos + mapval_readStringLength[k].len;
+        mapval_copyString[k] = CopyString(BytesLen, MaxStringLen);
+        copyBytes(bytes, mapval_copyString[k].bytes, BytesLen)
+        mapval_copyString[k].pos <== mapval_readStringLength[k].nextPos + mapval_readStringLength[k].len;
 
     }
 
@@ -285,7 +285,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     for(var h = 0; h<MaxStringLen; h++) {
         givenName_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            givenName_charsCalculateTotal[h].nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].outbytes[h];
+            givenName_charsCalculateTotal[h].nums[i] <== mapval_isGivenName[i].out * mapval_copyString[i].outbytes[h];
         }
         givenName[h] <== givenName_charsCalculateTotal[h].sum;
     }
@@ -293,7 +293,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     component givenName_lenCalculateTotal;
     givenName_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        givenName_lenCalculateTotal.nums[i] <== mapval_isGivenName[i].out * mapval_decodeString[i].len;
+        givenName_lenCalculateTotal.nums[i] <== mapval_isGivenName[i].out * mapval_copyString[i].len;
     }
     givenNameLen <== givenName_lenCalculateTotal.sum;
 
@@ -303,7 +303,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     for(var h = 0; h<MaxStringLen; h++) {
         familyName_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            familyName_charsCalculateTotal[h].nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].outbytes[h];
+            familyName_charsCalculateTotal[h].nums[i] <== mapval_isFamilyName[i].out * mapval_copyString[i].outbytes[h];
         }
         familyName[h] <== familyName_charsCalculateTotal[h].sum;
     }
@@ -311,7 +311,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     component familyName_lenCalculateTotal;
     familyName_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        familyName_lenCalculateTotal.nums[i] <== mapval_isFamilyName[i].out * mapval_decodeString[i].len;
+        familyName_lenCalculateTotal.nums[i] <== mapval_isFamilyName[i].out * mapval_copyString[i].len;
     }
     familyNameLen <== familyName_lenCalculateTotal.sum;
 
@@ -321,7 +321,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     for(var h = 0; h<MaxStringLen; h++) {
         dob_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            dob_charsCalculateTotal[h].nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].outbytes[h];
+            dob_charsCalculateTotal[h].nums[i] <== mapval_isDOB[i].out * mapval_copyString[i].outbytes[h];
         }
         dob[h] <== dob_charsCalculateTotal[h].sum;
     }
@@ -329,7 +329,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     component dob_lenCalculateTotal;
     dob_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        dob_lenCalculateTotal.nums[i] <== mapval_isDOB[i].out * mapval_decodeString[i].len;
+        dob_lenCalculateTotal.nums[i] <== mapval_isDOB[i].out * mapval_copyString[i].len;
     }
     dobLen <== dob_lenCalculateTotal.sum;
 
