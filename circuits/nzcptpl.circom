@@ -417,7 +417,6 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
-// TODO: check that inputs are bytes
 template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     // constants
     var SHA256_LEN = 256;
