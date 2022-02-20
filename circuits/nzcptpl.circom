@@ -413,13 +413,16 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
-template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen, CredSubjMaxBufferSpace) {
+template NZCPCredSubjHashAndExp(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen, CredSubjMaxBufferSpace) {
     // constants
     var SHA256_LEN = 256;
     var BLOCK_SIZE = 512;
     var CLAIMS_SKIP_EXAMPLE = 27;
+    var CLAIMS_SKIP_LIVE = 30;
+
 
     // compile time parameters
+    var ClaimsSkip = IsLive ? CLAIMS_SKIP_LIVE : CLAIMS_SKIP_EXAMPLE;
 
     // ToBeSigned hash
     var MaxToBeSignedBits = MaxToBeSignedBytes * 8;
@@ -498,7 +501,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapL
 
     component readMapLength = ReadMapLength(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength.bytes, MaxToBeSignedBytes)
-    readMapLength.pos <== CLAIMS_SKIP_EXAMPLE;
+    readMapLength.pos <== ClaimsSkip;
 
     // find "vc" key pos in the map
     signal vcPos;
@@ -586,5 +589,5 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapL
 }
 
 // TODO: dynamic (yep that works ok)
-component main = NZCPCredSubjHashAndExp(314, 4, 5, 5);
+component main = NZCPCredSubjHashAndExp(0, 314, 4, 5, 5);
 
