@@ -17,8 +17,8 @@ function prepareNZCPCredSubjHashInput(input, maxLen) {
 
 function getNZCPPubIdentity(passURI, isLive) {
     const verificationResult = verifyPassURIOffline(passURI, { didDocument: isLive ? DID_DOCUMENTS.MOH_LIVE : DID_DOCUMENTS.MOH_EXAMPLE })
-    const credSubj = verificationResult.credentialSubject;
-    const credSubjConcat = `${credSubj.givenName},${credSubj.familyName},${credSubj.dob}`
+    const { givenName, familyName, dob } = verificationResult.credentialSubject;
+    const credSubjConcat = `${givenName},${familyName},${dob}`
     const toBeSignedByteArray = Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex");
     const credSubjHash = crypto.createHash('sha256').update(credSubjConcat).digest('hex')
     const toBeSignedHash = crypto.createHash('sha256').update(toBeSignedByteArray).digest('hex')
