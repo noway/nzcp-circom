@@ -15,7 +15,7 @@ function prepareNZCPCredSubjHashInput(input, maxLen) {
     return {toBeSigned: buffer2bitArray(buffer), toBeSignedLen: input.length}
 }
 
-function getNZCPCredSubjHashAndExp(passURI, isLive) {
+function getNZCPPubIdentity(passURI, isLive) {
     const verificationResult = verifyPassURIOffline(passURI, { didDocument: isLive ? DID_DOCUMENTS.MOH_LIVE : DID_DOCUMENTS.MOH_EXAMPLE })
     const credSubj = verificationResult.credentialSubject;
     const credSubjConcat = `${credSubj.givenName},${credSubj.familyName},${credSubj.dob}`
@@ -23,13 +23,16 @@ function getNZCPCredSubjHashAndExp(passURI, isLive) {
     const credSubjHash = crypto.createHash('sha256').update(credSubjConcat).digest('hex')
     const toBeSignedHash = crypto.createHash('sha256').update(toBeSignedByteArray).digest('hex')
     const exp = verificationResult.raw.exp
-    return { credSubjHash, toBeSignedHash, exp }
+    const pubIdentity = { credSubjHash, toBeSignedHash, exp };
+    console.log('credSubjConcat', credSubjConcat);
+    console.log('pubIdentity', pubIdentity);
+    return pubIdentity;
 }
 
 async function testNZCPCredSubjHash(cir, passURI, isLive, maxLen) {
     const SHA256_BITS = 256;
 
-    const expected = getNZCPCredSubjHashAndExp(passURI, isLive);
+    const expected = getNZCPPubIdentity(passURI, isLive);
 
     const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
     const witness = await cir.calculateWitness(input, true);
@@ -55,7 +58,6 @@ describe("NZCP credential subject hash - example pass", function () {
     })
 
     it ("Should parse ToBeSigned", async () => {
-        console.log('calculating witness...');
 
         await testNZCPCredSubjHash(cir, EXAMPLE_PASS_URI, false, 314);
     });
@@ -75,19 +77,15 @@ describe("NZCP credential subject hash - live pass", function () {
     })
 
     it ("Should generate credential hash and output exp for LIVE_PASS_URI_1", async () => {
-        console.log('calculating witness...');
         await testNZCPCredSubjHash(cir, LIVE_PASS_URI_1, true, 355);
     });
     it ("Should generate credential hash and output exp for LIVE_PASS_URI_2", async () => {
-        console.log('calculating witness...');
         await testNZCPCredSubjHash(cir, LIVE_PASS_URI_2, true, 355);
     });
     it ("Should generate credential hash and output exp for LIVE_PASS_URI_3", async () => {
-        console.log('calculating witness...');
         await testNZCPCredSubjHash(cir, LIVE_PASS_URI_3, true, 355);
     });
     it ("Should generate credential hash and output exp for LIVE_PASS_URI_4", async () => {
-        console.log('calculating witness...');
         await testNZCPCredSubjHash(cir, LIVE_PASS_URI_4, true, 355);
     });
 });
