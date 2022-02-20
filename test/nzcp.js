@@ -162,7 +162,7 @@ describe("CBOR DecodeUint", function () {
 });
 
 function prepareNZCPCredSubjHashInput(input) {
-    const maxLen = 316;
+    const maxLen = 314;
     const buffer = Buffer.alloc(maxLen).fill(0);
     input.copy(buffer, 0);
     return {toBeSigned: buffer2bitArray(buffer), toBeSignedLen: input.length}

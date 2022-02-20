@@ -30,7 +30,7 @@ template FindVCAndExp(BytesLen) {
     var ConstBytesLen = 2;
     var ConstBytes[ConstBytesLen] = [118, 99];
     // usually is 5. TODO: allow for more? (yep that works)
-    var MAX_CWT_MAP_LEN = 8;
+    var MAX_CWT_MAP_LEN = 5;
 
     // i/o signals
     signal input maplen;
@@ -576,5 +576,5 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
 }
 
 // TODO: dynamic (yep that works ok)
-component main = NZCPCredSubjHashAndExp(316);
+component main = NZCPCredSubjHashAndExp(314);
 
