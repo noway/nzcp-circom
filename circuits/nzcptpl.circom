@@ -1,5 +1,6 @@
 pragma circom 2.0.0;
 
+include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/gates.circom";
 include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/comparators.circom";
 include "../sha256-var-circom-main/circuits/sha256Var.circom";
 include "./cbor.circom";
@@ -451,6 +452,24 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     signal output credSubjSha256[SHA256_LEN];
     signal output toBeSignedSha256[SHA256_LEN];
     signal output exp;
+
+
+    component or[MaxToBeSignedBits];
+    component ie0[MaxToBeSignedBits];
+    component ie1[MaxToBeSignedBits];
+    for (var i = 0; i < MaxToBeSignedBits; i++ ) {
+        or[i] = OR();
+        ie0[i] = IsEqual();
+        ie1[i] = IsEqual();
+        ie0[i].in[0] <== toBeSigned[i];
+        ie0[i].in[1] <== 0;
+        ie1[i].in[0] <== toBeSigned[i];
+        ie1[i].in[1] <== 1;
+        or[i].a <== ie0[i].out;
+        or[i].b <== ie1[i].out;
+        or[i].out === 1;
+    }
+
 
     // hardcore assert that toBeSignedLen is less than MaxToBeSignedBytes
     component lteMaxToBeSignedBytes = LessThan(log2(MaxToBeSignedBytes + 1) + 1);
