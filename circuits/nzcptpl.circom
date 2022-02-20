@@ -416,6 +416,7 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
+// TODO: rename to NZCPCredSubjHashAndExp
 // TODO: check that inputs are bytes
 template NZCP() {
     // constants
