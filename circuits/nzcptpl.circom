@@ -14,7 +14,7 @@ include "./cbor.circom";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
-/* assert through constraint and assert */
+/* check through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
 /* assign bytes to a signal in one go */
@@ -431,7 +431,7 @@ template NZCP() {
     var BLOCK_SIZE = 512;
     var TBSBlockCount = pow(2, TBSBlockSpace);
     var RBSMaxBits = BLOCK_SIZE * TBSBlockCount;
-    assert(ToBeSignedBits <= RBSMaxBits);
+    assert(ToBeSignedBits <= RBSMaxBits); // compile time check
 
     signal input toBeSigned[ToBeSignedBits];// TODO: anything beyound length needs to be zero-outted
     signal input toBeSignedLen;
@@ -558,7 +558,7 @@ template NZCP() {
     // var BLOCK_SIZE = 512;
     var BlockCount = pow(2, BlockSpace);
     var MaxBits = BLOCK_SIZE * BlockCount;
-    assert(MaxBufferLenBits <= MaxBits);
+    assert(MaxBufferLenBits <= MaxBits); // compile time check
 
     component sha256 = Sha256Var(BlockSpace);
     sha256.len <== concatCredSubj.resultLen * 8;

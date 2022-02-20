@@ -4,7 +4,7 @@ include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/comparato
 include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/sha256/shift.circom";
 include "./incrementalQuinTree.circom";
 
-/* assert through constraint and assert */
+/* check through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
 #define copyBytes(b, a, c) for(var z = 0; z<c; z++) { a[z] <== b[z]; }
