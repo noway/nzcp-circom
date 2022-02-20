@@ -24,7 +24,6 @@ include "./incrementalQuinTree.circom";
 // CBOR type is the value of v bit shifted to the right by 5 bits
 // input MUST be a byte
 template GetType() {
-    // TODO: assert 8 bits here and in all other places
     // constants
     var InputBits = 8;
     var ShiftBits = 5;
@@ -56,7 +55,6 @@ template GetType() {
 // CBOR x value is the 5 lowest bits of v
 // input MUST be a byte
 template GetX() {
-    // TODO: assert 8 bits
     signal input v;
     signal output x;
     // the code bellow is a quadratic equivalent of:
