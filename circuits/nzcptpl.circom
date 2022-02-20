@@ -418,7 +418,7 @@ template ConcatCredSubj(MaxBufferLen) {
 
 // TODO: rename to NZCPCredSubjHashAndExp
 // TODO: check that inputs are bytes
-template NZCP(MaxToBeSignedBytes) {
+template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     // constants
     var SHA256_LEN = 256;
     var CLAIMS_SKIP_EXAMPLE = 27;
@@ -575,5 +575,5 @@ template NZCP(MaxToBeSignedBytes) {
 }
 
 // TODO: dynamic (yep that works ok)
-component main = NZCP(316);
+component main = NZCPCredSubjHashAndExp(316);
 
