@@ -335,7 +335,6 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 template ConcatCredSubj(MaxBufferLen) {
     var COMMA_CHAR = 44;
     var ConcatSizeBits = log2(MaxBufferLen) + 1;
-    log(ConcatSizeBits);
 
     signal input givenName[MaxBufferLen];
     signal input givenNameLen;
@@ -513,7 +512,6 @@ template NZCPCredSubjHashAndExp(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, Max
     findVC.maplen <== readMapLength.len;
     vcPos <== findVC.needlepos;
     expPos <== findVC.expPos;
-    log(vcPos);
 
     // read exp field in the map
     component expReadType = ReadType(MaxToBeSignedBytes);
@@ -524,7 +522,6 @@ template NZCPCredSubjHashAndExp(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, Max
     copyBytes(ToBeSigned, expDecodeUint.bytes, MaxToBeSignedBytes)
     expDecodeUint.pos <== expReadType.nextPos;
     exp <== expDecodeUint.value;
-    log(exp);
 
 
     // find credential subject
@@ -538,7 +535,6 @@ template NZCPCredSubjHashAndExp(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, Max
     findCredSubj.pos <== readMapLength2.nextPos;
     findCredSubj.maplen <== readMapLength2.len;
     credSubjPos <== findCredSubj.needlepos;
-    log(credSubjPos);
 
     // read credential subject map length
     component readMapLength3 = ReadMapLength(MaxToBeSignedBytes);
