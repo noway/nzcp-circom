@@ -7,7 +7,7 @@ include "./incrementalQuinTree.circom";
 /* check through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
-#define copyBytes(b, a, c) for(var z = 0; z<c; z++) { a[z] <== b[z]; }
+#define copyBytes(b, a, c) for(var z = 0; z < c; z++) { a[z] <== b[z]; }
 
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
