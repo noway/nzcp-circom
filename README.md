@@ -1,6 +1,6 @@
 # NZCP.circom
 
-ZK-proof of [NZ COVID Pass](https://github.com/minhealthnz/nzcovidpass-spec) identity written in [Circom](https://github.com/iden3/circom).
+ZK proof of [NZ COVID Pass](https://github.com/minhealthnz/nzcovidpass-spec) identity written in [Circom](https://github.com/iden3/circom).
 
 This circuit allows users to prove that they are a holder of the NZ COVID Pass without revealing their identity.
 
