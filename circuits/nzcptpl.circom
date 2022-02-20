@@ -457,6 +457,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     component lteMaxToBeSignedBytes = LessThan(log2(MaxToBeSignedBytes + 1) + 1);
     lteMaxToBeSignedBytes.in[0] <== toBeSignedLen;
     lteMaxToBeSignedBytes.in[1] <== MaxToBeSignedBytes + 1;
+    assert(toBeSignedLen < MaxToBeSignedBytes + 1);
     lteMaxToBeSignedBytes.out === 1;
 
 
