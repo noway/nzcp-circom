@@ -188,6 +188,10 @@ describe("NZCP credential subject hash", function () {
         const expectedToBeSignedHash = "271ce33d671a2d3b816d788135f4343e14bc66802f8cd841faac939e8c11f3ee"
         const toBeSignedHash = bitArray2buffer(witness.slice(257, 257+256)).toString("hex");
         assert.equal(toBeSignedHash, expectedToBeSignedHash);
+
+        const expectedExp = 1951416330
+        const actualExp = witness[257+256]
+        assert.equal(expectedExp, actualExp)
     });
 });
 
