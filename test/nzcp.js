@@ -50,7 +50,6 @@ async function testNZCPCredSubjHash(cir, passURI, isLive, maxLen) {
     assert.equal(expectedExp, actualExp)
 }
 
-/*
 describe("NZCP credential subject hash - example pass", function () {
     this.timeout(100000);
 
@@ -65,7 +64,6 @@ describe("NZCP credential subject hash - example pass", function () {
         await testNZCPCredSubjHash(cir, EXAMPLE_PASS_URI, false, 314);
     });
 });
-*/
 
 const LIVE_PASS_URI_1 = process.env.LIVE_PASS_URI_1;
 const LIVE_PASS_URI_2 = process.env.LIVE_PASS_URI_2;
