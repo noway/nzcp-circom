@@ -412,7 +412,7 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
-template NZCPCredSubjHashAndExp(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen, CredSubjMaxBufferSpace) {
+template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen, CredSubjMaxBufferSpace) {
     // constants
     var SHA256_LEN = 256;
     var BLOCK_SIZE = 512;
