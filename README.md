@@ -17,7 +17,7 @@ The circuit outputs the following public inputs:
 - `exp` - the expiry date of the NZ COVID Pass.
 
 ## NZ COVID Pass verification
-The circuit does not verify the authenticity of NZ COVID Pass. It merely proves that you are a holder of the NZ COVID Pass. The user may not be in a possession of a valid signature for the `ToBeSigned` value that is provided.
+The circuit does not verify the signature of the NZ COVID Pass. It merely proves that an identity is associated with the NZ COVID Pass, be it signed or unsigned. The user may not be in a possession of a valid signature for the `ToBeSigned` value that is provided.
 
 While it is theoretically possbile to verify the signature (using a circuit similar to [circom-ecdsa](https://github.com/0xPARC/circom-ecdsa) for NIST P-256 curves), it is outside the scope of this project.
 
