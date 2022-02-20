@@ -1,5 +1,4 @@
 const chai = require("chai");
-const path = require("path");
 const crypto = require("crypto");
 const { wasm: wasm_tester } = require("circom_tester");
 const { verifyPassURIOffline, DID_DOCUMENTS } = require("@vaxxnz/nzcp");
@@ -54,7 +53,7 @@ describe("NZCP credential subject hash - example pass", function () {
 
     let cir
     before(async () => {
-        cir = await wasm_tester(path.join(__dirname, "../circuits/nzcp_exampleTest.circom"));
+        cir = await wasm_tester(`${__dirname}/../circuits/nzcp_exampleTest.circom`);
     })
 
     it ("Should parse ToBeSigned", async () => {
@@ -72,7 +71,7 @@ describe("NZCP credential subject hash - live pass", function () {
 
     let cir
     before(async () => {
-        cir = await wasm_tester(path.join(__dirname, "../circuits/nzcp_liveTest.circom"));
+        cir = await wasm_tester(`${__dirname}/../circuits/nzcp_liveTest.circom`);
     })
 
     it ("Should generate credential hash and output exp for LIVE_PASS_URI_1", async () => {

@@ -1,14 +1,15 @@
 const chai = require("chai");
-const path = require("path");
 const { wasm: wasm_tester } = require("circom_tester");
 
 const assert = chai.assert;
 
 describe("CBOR getType", function () {
-    const p = path.join(__dirname, "../circuits/getType_test.circom")
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/getType_test.circom`);
+    })
     it ("getType(v) == v >> 5", async () => {
         // exhaustive test for 8 bits
-        const cir = await wasm_tester(p);
         for (let v = 255; v >= 0; v--) {
             const witness = await cir.calculateWitness({ "v": v }, true);
             assert.equal(witness[1], v >> 5);
@@ -17,10 +18,12 @@ describe("CBOR getType", function () {
 });
 
 describe("CBOR getX", function () {
-    const p = path.join(__dirname, "../circuits/getX_test.circom")
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/getX_test.circom`);
+    })
     it ("getX(v) == v & 31", async () => {
         // exhaustive test for 8 bits
-        const cir = await wasm_tester(p);
         for (let v = 255; v >= 0; v--) {
             const witness = await cir.calculateWitness({ "v": v }, true);
             assert.equal(witness[1], v & 31);
@@ -29,10 +32,9 @@ describe("CBOR getX", function () {
 });
 
 describe("CBOR getV(3)", function () {
-    const p = path.join(__dirname, "../circuits/getV3_test.circom")
     let cir
     before(async () => {
-        cir = await wasm_tester(p);
+        cir = await wasm_tester(`${__dirname}/../circuits/getV3_test.circom`);
     })
     it ("getV([1, 2, 3], 0) == 1", async () => {
         const witness = await cir.calculateWitness({ "bytes": [1, 2, 3], pos: 0 }, true);
@@ -49,10 +51,9 @@ describe("CBOR getV(3)", function () {
 });
 
 describe("CBOR getV(4)", function () {
-    const p = path.join(__dirname, "../circuits/getV4_test.circom")
     let cir
     before(async () => {
-        cir = await wasm_tester(p);
+        cir = await wasm_tester(`${__dirname}/../circuits/getV4_test.circom`);
     })
     it ("getV([1, 2, 3, 4], 0) == 1", async () => {
         const witness = await cir.calculateWitness({ "bytes": [1, 2, 3, 4], pos: 0 }, true);
@@ -73,10 +74,9 @@ describe("CBOR getV(4)", function () {
 });
 
 describe("CBOR getV(5)", function () {
-    const p = path.join(__dirname, "../circuits/getV5_test.circom")
     let cir
     before(async () => {
-        cir = await wasm_tester(p);
+        cir = await wasm_tester(`${__dirname}/../circuits/getV5_test.circom`);
     })
     it ("getV([1, 2, 3, 4, 5], 0) == 1", async () => {
         const witness = await cir.calculateWitness({ "bytes": [1, 2, 3, 4, 5], pos: 0 }, true);
@@ -102,10 +102,9 @@ describe("CBOR getV(5)", function () {
 
 
 describe("CBOR DecodeUint", function () {
-    const p = path.join(__dirname, "../circuits/decodeUint_test.circom")
     let cir
     before(async () => {
-        cir = await wasm_tester(p);
+        cir = await wasm_tester(`${__dirname}/../circuits/decodeUint_test.circom`);
     })
 
     // if (x <= 23)
