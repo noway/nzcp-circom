@@ -454,20 +454,9 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     signal output exp;
 
 
-    component or[MaxToBeSignedBits];
-    component ie0[MaxToBeSignedBits];
-    component ie1[MaxToBeSignedBits];
+    // check that input is only bits (0 or 1)
     for (var i = 0; i < MaxToBeSignedBits; i++ ) {
-        or[i] = OR();
-        ie0[i] = IsEqual();
-        ie1[i] = IsEqual();
-        ie0[i].in[0] <== toBeSigned[i];
-        ie0[i].in[1] <== 0;
-        ie1[i].in[0] <== toBeSigned[i];
-        ie1[i].in[1] <== 1;
-        or[i].a <== ie0[i].out;
-        or[i].b <== ie1[i].out;
-        or[i].out === 1;
+        toBeSigned[i] * (toBeSigned[i] - 1) === 0;
     }
 
 
