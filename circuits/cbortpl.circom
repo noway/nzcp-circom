@@ -106,7 +106,7 @@ template DecodeUint(BytesLen) {
     signal input bytes[BytesLen];
     signal input pos;
     signal output value;
-    signal output nextpos;
+    signal output nextPos;
 
     signal x;
     component getX = GetX();
@@ -116,8 +116,8 @@ template DecodeUint(BytesLen) {
     // if (x <= 23)
     signal value_23;
     value_23 <== x;
-    signal nextpos_23;
-    nextpos_23 <== pos;
+    signal nextPos_23;
+    nextPos_23 <== pos;
 
     // if(x == 24)
     component getV_24 = GetV(BytesLen);
@@ -126,8 +126,8 @@ template DecodeUint(BytesLen) {
     getV_24.pos <== pos;
     signal value_24;
     value_24 <== getV_24.v;
-    signal nextpos_24;
-    nextpos_24 <== pos + 1;
+    signal nextPos_24;
+    nextPos_24 <== pos + 1;
 
     // if(x == 25)
     component getV1_25 = GetV(BytesLen);
@@ -146,8 +146,8 @@ template DecodeUint(BytesLen) {
     signal value_25;
     value_25 <== value_1_25 + value_2_25;
 
-    signal nextpos_25;
-    nextpos_25 <== pos + 2;
+    signal nextPos_25;
+    nextPos_25 <== pos + 2;
 
     // if(x == 26)
     component getV1_26 = GetV(BytesLen);
@@ -179,8 +179,8 @@ template DecodeUint(BytesLen) {
     signal value_26;
     value_26 <== value_1_26 + value_2_26 + value_3_26 + value_4_26;
 
-    signal nextpos_26;
-    nextpos_26 <== pos + 4;
+    signal nextPos_26;
+    nextPos_26 <== pos + 4;
 
 
     // execture conditions
@@ -217,12 +217,12 @@ template DecodeUint(BytesLen) {
     calculateTotal_value.nums[3] <== condition_26 * value_26;
     value <== calculateTotal_value.sum;
 
-    component calculateTotal_nextpos = NZCPCalculateTotal(4);
-    calculateTotal_nextpos.nums[0] <== condition_23 * nextpos_23;
-    calculateTotal_nextpos.nums[1] <== condition_24 * nextpos_24;
-    calculateTotal_nextpos.nums[2] <== condition_25 * nextpos_25;
-    calculateTotal_nextpos.nums[3] <== condition_26 * nextpos_26;
-    nextpos <== calculateTotal_nextpos.sum;
+    component calculateTotal_nextPos = NZCPCalculateTotal(4);
+    calculateTotal_nextPos.nums[0] <== condition_23 * nextPos_23;
+    calculateTotal_nextPos.nums[1] <== condition_24 * nextPos_24;
+    calculateTotal_nextPos.nums[2] <== condition_25 * nextPos_25;
+    calculateTotal_nextPos.nums[3] <== condition_26 * nextPos_26;
+    nextPos <== calculateTotal_nextPos.sum;
 }
 
 // TODO: test
@@ -230,7 +230,7 @@ template ReadType(BytesLen) {
 
     signal input bytes[BytesLen];
     signal input pos;
-    signal output nextpos;
+    signal output nextPos;
     signal output type;
     signal output v;
 
@@ -243,7 +243,7 @@ template ReadType(BytesLen) {
     getType.v <== v;
     type <== getType.type;
 
-    nextpos <== pos + 1;
+    nextPos <== pos + 1;
 }
 
 // TODO: test
@@ -254,7 +254,7 @@ template SkipValueScalar(BytesLen) {
     signal input bytes[BytesLen];
     signal input pos;
 
-    signal output nextpos;
+    signal output nextPos;
 
     // read type
     component readType = ReadType(BytesLen);
@@ -265,7 +265,7 @@ template SkipValueScalar(BytesLen) {
     component decodeUint = DecodeUint(BytesLen);
     decodeUint.v <== readType.v;
     copyBytes(bytes, decodeUint.bytes, BytesLen)
-    decodeUint.pos <== readType.nextpos;
+    decodeUint.pos <== readType.nextPos;
 
     // decide between int and string
     component isInt = IsEqual();
@@ -278,9 +278,9 @@ template SkipValueScalar(BytesLen) {
 
     // return
     component calculateTotal = NZCPCalculateTotal(2);
-    calculateTotal.nums[0] <== isInt.out * decodeUint.nextpos;
-    calculateTotal.nums[1] <== isString.out * (decodeUint.nextpos + decodeUint.value);
-    nextpos <== calculateTotal.sum;
+    calculateTotal.nums[0] <== isInt.out * decodeUint.nextPos;
+    calculateTotal.nums[1] <== isString.out * (decodeUint.nextPos + decodeUint.value);
+    nextPos <== calculateTotal.sum;
 }
 
 
@@ -295,7 +295,7 @@ template SkipValue(BytesLen) {
     signal input bytes[BytesLen];
     signal input pos;
 
-    signal output nextpos;
+    signal output nextPos;
 
     // read type
     component readType = ReadType(BytesLen);
@@ -306,19 +306,19 @@ template SkipValue(BytesLen) {
     component decodeUint = DecodeUint(BytesLen);
     decodeUint.v <== readType.v;
     copyBytes(bytes, decodeUint.bytes, BytesLen)
-    decodeUint.pos <== readType.nextpos;
+    decodeUint.pos <== readType.nextPos;
 
 
-    // calculate nextpos if an array
-    signal nextposarray[MAX_ARRAY_LEN];
+    // calculate nextPos if an array
+    signal nextPosArray[MAX_ARRAY_LEN];
     component skipValue[MAX_ARRAY_LEN];
     component qs = QuinSelectorUnchecked(MAX_ARRAY_LEN);
     for (var i = 0; i < MAX_ARRAY_LEN; i++) {
         skipValue[i] = SkipValueScalar(BytesLen);
         copyBytes(bytes, skipValue[i].bytes, BytesLen)
-        skipValue[i].pos <== i == 0 ? decodeUint.nextpos : nextposarray[i - 1];
-        nextposarray[i] <== skipValue[i].nextpos;
-        qs.in[i] <== skipValue[i].nextpos;
+        skipValue[i].pos <== i == 0 ? decodeUint.nextPos : nextPosArray[i - 1];
+        nextPosArray[i] <== skipValue[i].nextPos;
+        qs.in[i] <== skipValue[i].nextPos;
     }
     qs.index <== decodeUint.value - 1;
 
@@ -339,10 +339,10 @@ template SkipValue(BytesLen) {
 
     // return
     component calculateTotal = NZCPCalculateTotal(3);
-    calculateTotal.nums[0] <== isInt.out * decodeUint.nextpos;
-    calculateTotal.nums[1] <== isString.out * (decodeUint.nextpos + decodeUint.value);
+    calculateTotal.nums[0] <== isInt.out * decodeUint.nextPos;
+    calculateTotal.nums[1] <== isString.out * (decodeUint.nextPos + decodeUint.value);
     calculateTotal.nums[2] <== isArray.out * qs.out;
-    nextpos <== calculateTotal.sum;
+    nextPos <== calculateTotal.sum;
 }
 
 // TODO: test
@@ -384,19 +384,19 @@ template ReadStringLength(BytesLen) {
     signal input bytes[BytesLen];
     signal input pos;
     signal output len;
-    signal output nextpos;
+    signal output nextPos;
 
     // read type
     component readType = ReadType(BytesLen);
     copyBytes(bytes, readType.bytes, BytesLen)
     readType.pos <== pos; // 27 bytes initial skip for example MoH pass
-    nextpos <== readType.nextpos;
+    nextPos <== readType.nextPos;
     hardcore_assert(readType.type, MAJOR_TYPE_STRING);
 
     // read string length
     component dUint = DecodeUint(BytesLen);
     copyBytes(bytes, dUint.bytes, BytesLen)
-    dUint.pos <== readType.nextpos;
+    dUint.pos <== readType.nextPos;
     dUint.v <== readType.v;
     len <== dUint.value;
 }
@@ -406,13 +406,13 @@ template ReadMapLength(ToBeSignedBytes) {
     signal input pos;
     signal input bytes[ToBeSignedBytes];
     signal output len;
-    signal output nextpos;
+    signal output nextPos;
 
     // read type
     component readType = ReadType(ToBeSignedBytes);
     copyBytes(bytes, readType.bytes, ToBeSignedBytes)
     readType.pos <== pos; // 27 bytes initial skip for example MoH pass
-    nextpos <== readType.nextpos;
+    nextPos <== readType.nextPos;
     hardcore_assert(readType.type, MAJOR_TYPE_MAP);
 
     // read map length
@@ -429,7 +429,7 @@ template DecodeString(BytesLen, MaxLen) {
     signal input pos;
 
     signal output outbytes[MaxLen];
-    signal output nextpos;
+    signal output nextPos;
     signal output len;
 
     // read string length
@@ -443,7 +443,7 @@ template DecodeString(BytesLen, MaxLen) {
     for (var i = 0; i < MaxLen; i++) {
         getV[i] = GetV(BytesLen);
         copyBytes(bytes, getV[i].bytes, BytesLen)
-        getV[i].pos <== readStrLen.nextpos + i;
+        getV[i].pos <== readStrLen.nextPos + i;
 
         var bits = log2(MaxLen) + 1;
         lt[i] = LessThan(bits);
@@ -453,6 +453,6 @@ template DecodeString(BytesLen, MaxLen) {
     }
 
     // return
-    nextpos <== readStrLen.nextpos + readStrLen.len;
+    nextPos <== readStrLen.nextPos + readStrLen.len;
     len <== readStrLen.len;
 }

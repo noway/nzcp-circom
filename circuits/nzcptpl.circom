@@ -38,7 +38,7 @@ template FindVCAndExp(BytesLen) {
     signal input pos;
 
     signal output needlepos;
-    signal output exppos; // TODO: rename to exp_pos?
+    signal output expPos; // TODO: rename to expPos?
 
     // signals
     signal mapval_v[MAX_CWT_MAP_LEN];
@@ -67,7 +67,7 @@ template FindVCAndExp(BytesLen) {
         // read type
         mapval_readType[k] = ReadType(BytesLen);
         copyBytes(bytes, mapval_readType[k].bytes, BytesLen)
-        mapval_readType[k].pos <== k == 0 ? pos : mapval_skipValue[k - 1].nextpos;
+        mapval_readType[k].pos <== k == 0 ? pos : mapval_skipValue[k - 1].nextPos;
         mapval_v[k] <== mapval_readType[k].v;
         mapval_type[k] <== mapval_readType[k].type;
 
@@ -75,7 +75,7 @@ template FindVCAndExp(BytesLen) {
         mapval_decodeUint[k] = DecodeUint(BytesLen);
         mapval_decodeUint[k].v <== mapval_v[k];
         copyBytes(bytes, mapval_decodeUint[k].bytes, BytesLen)
-        mapval_decodeUint[k].pos <== mapval_readType[k].nextpos;
+        mapval_decodeUint[k].pos <== mapval_readType[k].nextPos;
         mapval_value[k] <== mapval_decodeUint[k].value;
 
         // is current value a string?
@@ -90,13 +90,13 @@ template FindVCAndExp(BytesLen) {
 
         // skip value for next iteration
         mapval_skipValue[k] = SkipValue(BytesLen);
-        mapval_skipValue[k].pos <== mapval_decodeUint[k].nextpos + (mapval_value[k] * mapval_isString[k].out);
+        mapval_skipValue[k].pos <== mapval_decodeUint[k].nextPos + (mapval_value[k] * mapval_isString[k].out);
         copyBytes(bytes, mapval_skipValue[k].bytes, BytesLen)
 
         // is current value interpreted as a string is a "vc" string?
         mapval_isNeedleString[k] = StringEquals(BytesLen, ConstBytes, ConstBytesLen);
         copyBytes(bytes, mapval_isNeedleString[k].bytes, BytesLen)
-        mapval_isNeedleString[k].pos <== mapval_decodeUint[k].nextpos; // pos before skipping
+        mapval_isNeedleString[k].pos <== mapval_decodeUint[k].nextPos; // pos before skipping
         mapval_isNeedleString[k].len <== mapval_value[k];
 
         // is current value interpreted as an integer is a 4 number?
@@ -122,14 +122,14 @@ template FindVCAndExp(BytesLen) {
         mapval_isExpAccepted[k] <== mapval_isExp[k] * mapval_withinMaplen[k].out;
 
         // put a vc pos candidate into NZCPCalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextpos + mapval_value[k]);
+        calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextPos + mapval_value[k]);
         
-        // put a exppos candidate into NZCPCalculateTotal to be able to get exp pos outside of the loop
-        calculateTotal_exppos.nums[k] <== mapval_isExpAccepted[k] * mapval_decodeUint[k].nextpos;
+        // put a expPos candidate into NZCPCalculateTotal to be able to get exp pos outside of the loop
+        calculateTotal_exppos.nums[k] <== mapval_isExpAccepted[k] * mapval_decodeUint[k].nextPos;
     }
 
     needlepos <== calculateTotal_foundpos.sum;
-    exppos <== calculateTotal_exppos.sum;
+    expPos <== calculateTotal_exppos.sum;
 }
 
 template FindCredSubj(BytesLen) {
@@ -167,7 +167,7 @@ template FindCredSubj(BytesLen) {
         // read type
         mapval_readType[k] = ReadType(BytesLen);
         copyBytes(bytes, mapval_readType[k].bytes, BytesLen)
-        mapval_readType[k].pos <== k == 0 ? pos : mapval_skipValue[k - 1].nextpos;
+        mapval_readType[k].pos <== k == 0 ? pos : mapval_skipValue[k - 1].nextPos;
         mapval_v[k] <== mapval_readType[k].v;
         mapval_type[k] <== mapval_readType[k].type;
 
@@ -175,7 +175,7 @@ template FindCredSubj(BytesLen) {
         mapval_decodeUint[k] = DecodeUint(BytesLen);
         mapval_decodeUint[k].v <== mapval_v[k];
         copyBytes(bytes, mapval_decodeUint[k].bytes, BytesLen)
-        mapval_decodeUint[k].pos <== mapval_readType[k].nextpos;
+        mapval_decodeUint[k].pos <== mapval_readType[k].nextPos;
         mapval_value[k] <== mapval_decodeUint[k].value;
 
         // is current value a string?
@@ -185,13 +185,13 @@ template FindCredSubj(BytesLen) {
 
         // skip value for next iteration
         mapval_skipValue[k] = SkipValue(BytesLen);
-        mapval_skipValue[k].pos <== mapval_decodeUint[k].nextpos + (mapval_value[k] * mapval_isString[k].out);
+        mapval_skipValue[k].pos <== mapval_decodeUint[k].nextPos + (mapval_value[k] * mapval_isString[k].out);
         copyBytes(bytes, mapval_skipValue[k].bytes, BytesLen)
 
         // is current value interpreted as a string is a "vc" string?
         mapval_isNeedleString[k] = StringEquals(BytesLen, ConstBytes, ConstBytesLen);
         copyBytes(bytes, mapval_isNeedleString[k].bytes, BytesLen)
-        mapval_isNeedleString[k].pos <== mapval_decodeUint[k].nextpos; // pos before skipping
+        mapval_isNeedleString[k].pos <== mapval_decodeUint[k].nextPos; // pos before skipping
         mapval_isNeedleString[k].len <== mapval_value[k];
 
         mapval_withinMaplen[k] = LessThan(8);
@@ -205,7 +205,7 @@ template FindCredSubj(BytesLen) {
         mapval_isAccepted[k] <== mapval_isNeedle[k] * mapval_withinMaplen[k].out;
 
         // put a vc pos candidate into NZCPCalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextpos + mapval_value[k]);
+        calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextPos + mapval_value[k]);
     }
 
     needlepos <== calculateTotal_foundpos.sum;
@@ -255,26 +255,26 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
         mapval_readStringLength[k] = ReadStringLength(BytesLen);
         copyBytes(bytes, mapval_readStringLength[k].bytes, BytesLen)
-        mapval_readStringLength[k].pos <== k == 0 ? pos : mapval_decodeString[k - 1].nextpos;
+        mapval_readStringLength[k].pos <== k == 0 ? pos : mapval_decodeString[k - 1].nextPos;
 
         mapval_isGivenName[k] = StringEquals(BytesLen, GIVEN_NAME_STR, GIVEN_NAME_LEN);
         copyBytes(bytes, mapval_isGivenName[k].bytes, BytesLen)
-        mapval_isGivenName[k].pos <== mapval_readStringLength[k].nextpos; // pos before skipping
+        mapval_isGivenName[k].pos <== mapval_readStringLength[k].nextPos; // pos before skipping
         mapval_isGivenName[k].len <== mapval_readStringLength[k].len;
 
         mapval_isFamilyName[k] = StringEquals(BytesLen, FAMILY_NAME_STR, FAMILY_NAME_LEN);
         copyBytes(bytes, mapval_isFamilyName[k].bytes, BytesLen)
-        mapval_isFamilyName[k].pos <== mapval_readStringLength[k].nextpos; // pos before skipping
+        mapval_isFamilyName[k].pos <== mapval_readStringLength[k].nextPos; // pos before skipping
         mapval_isFamilyName[k].len <== mapval_readStringLength[k].len;
 
         mapval_isDOB[k] = StringEquals(BytesLen, DOB_STR, DOB_LEN);
         copyBytes(bytes, mapval_isDOB[k].bytes, BytesLen)
-        mapval_isDOB[k].pos <== mapval_readStringLength[k].nextpos; // pos before skipping
+        mapval_isDOB[k].pos <== mapval_readStringLength[k].nextPos; // pos before skipping
         mapval_isDOB[k].len <== mapval_readStringLength[k].len;
 
         mapval_decodeString[k] = DecodeString(BytesLen, MaxStringLen);
         copyBytes(bytes, mapval_decodeString[k].bytes, BytesLen)
-        mapval_decodeString[k].pos <== mapval_readStringLength[k].nextpos + mapval_readStringLength[k].len;
+        mapval_decodeString[k].pos <== mapval_readStringLength[k].nextPos + mapval_readStringLength[k].len;
 
     }
 
@@ -498,24 +498,24 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     readMapLength.pos <== CLAIMS_SKIP_EXAMPLE;
 
     // find "vc" key pos in the map
-    signal vc_pos;
-    signal exp_pos;
+    signal vcPos;
+    signal expPos;
     component findVC = FindVCAndExp(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, findVC.bytes, MaxToBeSignedBytes)
-    findVC.pos <== readMapLength.nextpos;
+    findVC.pos <== readMapLength.nextPos;
     findVC.maplen <== readMapLength.len;
-    vc_pos <== findVC.needlepos;
-    exp_pos <== findVC.exppos;
-    log(vc_pos);
+    vcPos <== findVC.needlepos;
+    expPos <== findVC.expPos;
+    log(vcPos);
 
     // read exp field in the map
     component expReadType = ReadType(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, expReadType.bytes, MaxToBeSignedBytes)
-    expReadType.pos <== exp_pos;
+    expReadType.pos <== expPos;
     component expDecodeUint = DecodeUint(MaxToBeSignedBytes);
     expDecodeUint.v <== expReadType.v;
     copyBytes(ToBeSigned, expDecodeUint.bytes, MaxToBeSignedBytes)
-    expDecodeUint.pos <== expReadType.nextpos;
+    expDecodeUint.pos <== expReadType.nextPos;
     exp <== expDecodeUint.value;
     log(exp);
 
@@ -523,26 +523,26 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
     // find credential subject
     component readMapLength2 = ReadMapLength(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength2.bytes, MaxToBeSignedBytes)
-    readMapLength2.pos <== vc_pos;
+    readMapLength2.pos <== vcPos;
 
-    signal credSubj_pos;
+    signal credSubjPos;
     component findCredSubj = FindCredSubj(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, findCredSubj.bytes, MaxToBeSignedBytes)
-    findCredSubj.pos <== readMapLength2.nextpos;
+    findCredSubj.pos <== readMapLength2.nextPos;
     findCredSubj.maplen <== readMapLength2.len;
-    credSubj_pos <== findCredSubj.needlepos;
-    log(credSubj_pos);
+    credSubjPos <== findCredSubj.needlepos;
+    log(credSubjPos);
 
     // read credential subject map length
     component readMapLength3 = ReadMapLength(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength3.bytes, MaxToBeSignedBytes)
-    readMapLength3.pos <== credSubj_pos;
+    readMapLength3.pos <== credSubjPos;
 
 
     // read credential subject map
     component readCredSubj = ReadCredSubj(MaxToBeSignedBytes, MaxBufferLen);
     copyBytes(ToBeSigned, readCredSubj.bytes, MaxToBeSignedBytes)
-    readCredSubj.pos <== readMapLength3.nextpos;
+    readCredSubj.pos <== readMapLength3.nextPos;
     readCredSubj.maplen <== readMapLength3.len;
 
     // concat given name, family name and dob
