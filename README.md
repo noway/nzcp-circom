@@ -26,6 +26,12 @@ For live passes:
 - The length of the `ToBeSigned` value is limited to 355 bytes.
 - The length of the credential subject string (defined as `${familyName},${givenName},${dob}`) is limited to 64 bytes.
 
+## Tests
+- Create `.env` file in the root directory of the project
+- Populate it with at least 1 live pass URI. 
+    - Use `.env.example` as a reference.
+- Run `make test`
+
 ## Roadmap
 Depending on my availability:
 - Optimize the size and compile time of the circuit
