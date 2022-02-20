@@ -26,12 +26,10 @@ include "./cbor.circom";
 
 
 
-template FindVCAndExp(BytesLen, MaxCborArrayLen) {
+template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 2;
     var ConstBytes[ConstBytesLen] = [118, 99];
-    // usually is 5. TODO: allow for more? (yep that works)
-    var MAX_CWT_MAP_LEN = 5;
 
     // i/o signals
     signal input maplen;
@@ -42,28 +40,28 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen) {
     signal output expPos;
 
     // signals
-    signal mapval_v[MAX_CWT_MAP_LEN];
-    signal mapval_type[MAX_CWT_MAP_LEN];
-    signal mapval_value[MAX_CWT_MAP_LEN];
-    signal mapval_isNeedle[MAX_CWT_MAP_LEN];
-    signal mapval_isExp[MAX_CWT_MAP_LEN];
-    signal mapval_isAccepted[MAX_CWT_MAP_LEN];
-    signal mapval_isExpAccepted[MAX_CWT_MAP_LEN];
+    signal mapval_v[MaxCborMapLen];
+    signal mapval_type[MaxCborMapLen];
+    signal mapval_value[MaxCborMapLen];
+    signal mapval_isNeedle[MaxCborMapLen];
+    signal mapval_isExp[MaxCborMapLen];
+    signal mapval_isAccepted[MaxCborMapLen];
+    signal mapval_isExpAccepted[MaxCborMapLen];
 
-    component mapval_readType[MAX_CWT_MAP_LEN];
-    component mapval_decodeUint[MAX_CWT_MAP_LEN];
-    component mapval_decodeUintValue[MAX_CWT_MAP_LEN];
-    component mapval_skipValue[MAX_CWT_MAP_LEN];
-    component mapval_isString[MAX_CWT_MAP_LEN];
-    component mapval_isInt[MAX_CWT_MAP_LEN];
-    component mapval_isNeedleString[MAX_CWT_MAP_LEN];
-    component mapval_is4Int[MAX_CWT_MAP_LEN];
-    component mapval_withinMaplen[MAX_CWT_MAP_LEN];
+    component mapval_readType[MaxCborMapLen];
+    component mapval_decodeUint[MaxCborMapLen];
+    component mapval_decodeUintValue[MaxCborMapLen];
+    component mapval_skipValue[MaxCborMapLen];
+    component mapval_isString[MaxCborMapLen];
+    component mapval_isInt[MaxCborMapLen];
+    component mapval_isNeedleString[MaxCborMapLen];
+    component mapval_is4Int[MaxCborMapLen];
+    component mapval_withinMaplen[MaxCborMapLen];
 
-    component calculateTotal_foundpos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
-    component calculateTotal_exppos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
+    component calculateTotal_foundpos = NZCPCalculateTotal(MaxCborMapLen);
+    component calculateTotal_exppos = NZCPCalculateTotal(MaxCborMapLen);
 
-    for (var k = 0; k < MAX_CWT_MAP_LEN; k++) { 
+    for (var k = 0; k < MaxCborMapLen; k++) { 
 
         // read type
         mapval_readType[k] = ReadType(BytesLen);
@@ -133,12 +131,10 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen) {
     expPos <== calculateTotal_exppos.sum;
 }
 
-template FindCredSubj(BytesLen, MaxCborArrayLen) {
+template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 17;
     var ConstBytes[ConstBytesLen] = [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116];
-    // usually is 5. TODO: allow for more? (yep that works)
-    var MAX_CWT_MAP_LEN = 8;
 
     // i/o signals
     signal input maplen;
@@ -148,22 +144,22 @@ template FindCredSubj(BytesLen, MaxCborArrayLen) {
     signal output needlepos;
 
     // signals
-    signal mapval_v[MAX_CWT_MAP_LEN];
-    signal mapval_type[MAX_CWT_MAP_LEN];
-    signal mapval_value[MAX_CWT_MAP_LEN];
-    signal mapval_isNeedle[MAX_CWT_MAP_LEN];
-    signal mapval_isAccepted[MAX_CWT_MAP_LEN];
+    signal mapval_v[MaxCborMapLen];
+    signal mapval_type[MaxCborMapLen];
+    signal mapval_value[MaxCborMapLen];
+    signal mapval_isNeedle[MaxCborMapLen];
+    signal mapval_isAccepted[MaxCborMapLen];
 
-    component mapval_readType[MAX_CWT_MAP_LEN];
-    component mapval_decodeUint[MAX_CWT_MAP_LEN];
-    component mapval_skipValue[MAX_CWT_MAP_LEN];
-    component mapval_isString[MAX_CWT_MAP_LEN];
-    component mapval_isNeedleString[MAX_CWT_MAP_LEN];
-    component mapval_withinMaplen[MAX_CWT_MAP_LEN];
+    component mapval_readType[MaxCborMapLen];
+    component mapval_decodeUint[MaxCborMapLen];
+    component mapval_skipValue[MaxCborMapLen];
+    component mapval_isString[MaxCborMapLen];
+    component mapval_isNeedleString[MaxCborMapLen];
+    component mapval_withinMaplen[MaxCborMapLen];
 
-    component calculateTotal_foundpos = NZCPCalculateTotal(MAX_CWT_MAP_LEN);
+    component calculateTotal_foundpos = NZCPCalculateTotal(MaxCborMapLen);
 
-    for (var k = 0; k < MAX_CWT_MAP_LEN; k++) { 
+    for (var k = 0; k < MaxCborMapLen; k++) { 
 
         // read type
         mapval_readType[k] = ReadType(BytesLen);
@@ -417,7 +413,7 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
-template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen) {
+template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var SHA256_LEN = 256;
     var BLOCK_SIZE = 512;
@@ -508,7 +504,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen) {
     // find "vc" key pos in the map
     signal vcPos;
     signal expPos;
-    component findVC = FindVCAndExp(MaxToBeSignedBytes, MaxCborArrayLen);
+    component findVC = FindVCAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen);
     copyBytes(ToBeSigned, findVC.bytes, MaxToBeSignedBytes)
     findVC.pos <== readMapLength.nextPos;
     findVC.maplen <== readMapLength.len;
@@ -534,7 +530,7 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen) {
     readMapLength2.pos <== vcPos;
 
     signal credSubjPos;
-    component findCredSubj = FindCredSubj(MaxToBeSignedBytes, MaxCborArrayLen);
+    component findCredSubj = FindCredSubj(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen);
     copyBytes(ToBeSigned, findCredSubj.bytes, MaxToBeSignedBytes)
     findCredSubj.pos <== readMapLength2.nextPos;
     findCredSubj.maplen <== readMapLength2.len;
@@ -591,5 +587,5 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes, MaxCborArrayLen) {
 }
 
 // TODO: dynamic (yep that works ok)
-component main = NZCPCredSubjHashAndExp(314, 4);
+component main = NZCPCredSubjHashAndExp(314, 4, 5);
 
