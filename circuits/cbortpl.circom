@@ -22,6 +22,7 @@ include "./incrementalQuinTree.circom";
 
 // get CBOR type
 // CBOR type is the value of v bit shifted to the right by 5 bits
+// input MUST be a byte
 template GetType() {
     // TODO: assert 8 bits here and in all other places
     // constants
@@ -53,6 +54,7 @@ template GetType() {
 
 // get CBOR x value
 // CBOR x value is the 5 lowest bits of v
+// input MUST be a byte
 template GetX() {
     // TODO: assert 8 bits
     signal input v;
@@ -74,6 +76,7 @@ template GetX() {
 
 // get CBOR v
 // CBOR v is the element of array `bytes` at index `pos`
+// input MUST be a byte array
 template GetV(BytesLen) {
     signal input bytes[BytesLen];
     signal input pos;
@@ -89,6 +92,7 @@ template GetV(BytesLen) {
 
 // decode a CBOR integer
 // supports <=23 integers
+// input MUST be a byte
 template DecodeUint23() {
     signal input v;
     signal output value;
@@ -107,6 +111,7 @@ template DecodeUint23() {
 
 // decode a CBOR integer
 // Supports <=23 integers as well as 8-bit, 16-bit and 32-bit integers
+// input MUST be a byte array
 template DecodeUint(BytesLen) {
     signal input v;
     signal input bytes[BytesLen];
@@ -234,6 +239,7 @@ template DecodeUint(BytesLen) {
 // TODO: test
 // read a CBOR type
 // returns the next position and v
+// input MUST be a byte array
 template ReadType(BytesLen) {
 
     signal input bytes[BytesLen];
@@ -256,6 +262,7 @@ template ReadType(BytesLen) {
 
 // TODO: test
 // skip a scalar CBOR value, only ints and strings are supported atm.
+// input MUST be a byte array
 template SkipValueScalar(BytesLen) {
 
     // signals
@@ -294,6 +301,7 @@ template SkipValueScalar(BytesLen) {
 
 // TODO: test
 // skip a CBOR value. supports everything that SkipValueScalar supports plus arrays
+// input MUST be a byte array
 template SkipValue(BytesLen) {
 
     // constants
@@ -356,6 +364,7 @@ template SkipValue(BytesLen) {
 
 // TODO: test
 // check if a CBOR string equals to a given string
+// input MUST be a byte array
 template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
     signal input bytes[BytesLen];
     signal input pos;
@@ -390,6 +399,7 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
 
 // reads CBOR string length
 // returns the next position and string length
+// input MUST be a byte array
 template ReadStringLength(BytesLen) {
     // i/o signals
     signal input bytes[BytesLen];
@@ -414,6 +424,7 @@ template ReadStringLength(BytesLen) {
 
 // reads CBOR map length
 // returns the next position and map length
+// input MUST be a byte array
 template ReadMapLength(ToBeSignedBytes) {
     // i/o signals
     signal input pos;
@@ -438,6 +449,7 @@ template ReadMapLength(ToBeSignedBytes) {
 // TODO: test
 // copies over a CBOR string value to a given array `outbytes`
 // returns the next position and string length
+// input MUST be a byte array
 template CopyString(BytesLen, MaxLen) {
     // i/o signals
     signal input bytes[BytesLen];
