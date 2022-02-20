@@ -472,14 +472,19 @@ template NZCPCredSubjHashAndExp(MaxToBeSignedBytes) {
 
 
     // convert bits to bytes
+    // zero-out everything after the length
     signal ToBeSigned[MaxToBeSignedBytes];
     component b2n[MaxToBeSignedBytes];
+    component ltLen[MaxToBeSignedBytes];
     for (var k = 0; k < MaxToBeSignedBytes; k++) {
         b2n[k] = Bits2Num(8);
         for (var i = 0; i < 8; i++) {
             b2n[k].in[i] <== toBeSigned[k * 8 + (7 - i)];
         }
-        ToBeSigned[k] <== b2n[k].out;
+        ltLen[k] = LessThan(log2(MaxToBeSignedBytes) + 1);
+        ltLen[k].in[0] <== k;
+        ltLen[k].in[1] <== toBeSignedLen;
+        ToBeSigned[k] <== b2n[k].out * ltLen[k].out;
     }
 
     component readMapLength = ReadMapLength(MaxToBeSignedBytes);
