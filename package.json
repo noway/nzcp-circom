@@ -5,6 +5,7 @@
   "author": "Ilia Sidorenko <ilia.sidorenko.421@gmail.com>",
   "dependencies": {
     "@vaxxnz/nzcp": "^1.1.1",
+    "chai-as-promised": "^7.1.1",
     "circom_tester": "^0.0.9",
     "dotenv": "^16.0.0",
     "mocha": "^9.2.0",
