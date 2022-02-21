@@ -320,19 +320,6 @@ template SkipValue(BytesLen, MaxArrayLen) {
     decodeUint.pos <== readType.nextPos;
 
 
-    // calculate nextPos if an array
-    signal nextPosArray[MaxArrayLen];
-    component skipValue[MaxArrayLen];
-    component qs = QuinSelectorUnchecked(MaxArrayLen);
-    for (var i = 0; i < MaxArrayLen; i++) {
-        skipValue[i] = SkipValueScalar(BytesLen);
-        copyBytes(bytes, skipValue[i].bytes, BytesLen)
-        skipValue[i].pos <== i == 0 ? decodeUint.nextPos : nextPosArray[i - 1];
-        nextPosArray[i] <== skipValue[i].nextPos;
-        qs.in[i] <== skipValue[i].nextPos;
-    }
-    qs.index <== decodeUint.value - 1;
-
     // if (cbortype == MAJOR_TYPE_INT) 
     component isInt = IsEqual();
     isInt.in[0] <== readType.type;
@@ -347,6 +334,19 @@ template SkipValue(BytesLen, MaxArrayLen) {
     component isArray = IsEqual();
     isArray.in[0] <== readType.type;
     isArray.in[1] <== MAJOR_TYPE_ARRAY;
+
+    // calculate nextPos if an array
+    signal nextPosArray[MaxArrayLen];
+    component skipValue[MaxArrayLen];
+    component qs = QuinSelectorUnchecked(MaxArrayLen);
+    for (var i = 0; i < MaxArrayLen; i++) {
+        skipValue[i] = SkipValueScalar(BytesLen);
+        copyBytes(bytes, skipValue[i].bytes, BytesLen)
+        skipValue[i].pos <== i == 0 ? decodeUint.nextPos * isArray.out : nextPosArray[i - 1] * isArray.out;
+        nextPosArray[i] <== skipValue[i].nextPos;
+        qs.in[i] <== skipValue[i].nextPos;
+    }
+    qs.index <== decodeUint.value - 1;
 
     // return
     component calculateTotal = NZCPCalculateTotal(3);
