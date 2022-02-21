@@ -232,7 +232,7 @@ describe("CBOR SkipValueScalar", function () {
         }
     });
 
-    it ("SkipValueScalar int with value <= 23", async () => {
+    it ("SkipValueScalar int with decodeUint23", async () => {
         for (var value = 0; value <= 23; value++) {
             const bytes = [(MAJOR_TYPE_INT << 5) | value, 0, 0, 0, 0];
             const pos = 0;
@@ -241,6 +241,36 @@ describe("CBOR SkipValueScalar", function () {
             assert.equal(witness[1], nextpos);
         }
     });
-    // TODO: 24, 25, 26
+    it ("SkipValueScalar int with decodeUint24", async () => {
+        const value = 24;
+        const v = 255;
+        const bytes = [(MAJOR_TYPE_INT << 5) | value, v, 0, 0, 0];
+        const pos = 0;
+        const nextpos = 2;
+        const witness = await cir.calculateWitness({ bytes, pos }, true);
+        assert.equal(witness[1], nextpos);
+    });
+    it ("SkipValueScalar int with decodeUint25", async () => {
+        const value = 25;
+        const v1 = 255;
+        const v2 = 255;
+        const bytes = [(MAJOR_TYPE_INT << 5) | value, v1, v2, 0, 0];
+        const pos = 0;
+        const nextpos = 3;
+        const witness = await cir.calculateWitness({ bytes, pos }, true);
+        assert.equal(witness[1], nextpos);
+    });
+    it ("SkipValueScalar int with decodeUint26", async () => {
+        const value = 26;
+        const v1 = 255;
+        const v2 = 255;
+        const v3 = 255;
+        const v4 = 255;
+        const bytes = [(MAJOR_TYPE_INT << 5) | value, v1, v2, v3, v4];
+        const pos = 0;
+        const nextpos = 5;
+        const witness = await cir.calculateWitness({ bytes, pos }, true);
+        assert.equal(witness[1], nextpos);
+    });
 
 });
