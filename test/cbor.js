@@ -261,52 +261,31 @@ describe("CBOR SkipValueScalar", function () {
     it ("SkipValueScalar string with strlen <= 4", async () => {
         for (var strlen = 0; strlen <= 4; strlen++) {
             const bytes = padArray(encodeString(strlen), 5);
-            const pos = 0;
-            const nextpos = strlen + 1
-            const witness1 = await cirScalar.calculateWitness({ bytes, pos }, true);
-            assert.equal(witness1[1], nextpos);    
-            const witness2 = await cirNormal.calculateWitness({ bytes, pos }, true);
-            assert.equal(witness2[1], nextpos);    
+            const witness1 = await cirScalar.calculateWitness({ bytes, pos: 0 }, true);
+            assert.equal(witness1[1], strlen + 1);    
         }
     });
-
     it ("SkipValueScalar int with decodeUint23", async () => {
         for (var value = 0; value <= 23; value++) {
             const bytes = padArray(encodeUint(value), 5);
-            const pos = 0;
-            const nextpos = 1
-            const witness1 = await cirScalar.calculateWitness({ bytes, pos }, true);
-            assert.equal(witness1[1], nextpos);
-            const witness2 = await cirNormal.calculateWitness({ bytes, pos }, true);
-            assert.equal(witness2[1], nextpos);
+            const witness1 = await cirScalar.calculateWitness({ bytes, pos: 0 }, true);
+            assert.equal(witness1[1], 1);
         }
     });
     it ("SkipValueScalar int with decodeUint24", async () => {
         const bytes = padArray(encodeUint(0xFF), 5);
-        const pos = 0;
-        const nextpos = 2;
-        const witness1 = await cirScalar.calculateWitness({ bytes, pos }, true);
-        assert.equal(witness1[1], nextpos);
-        const witness2 = await cirNormal.calculateWitness({ bytes, pos }, true);
-        assert.equal(witness2[1], nextpos);
+        const witness1 = await cirScalar.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], 2);
     });
     it ("SkipValueScalar int with decodeUint25", async () => {
         const bytes = padArray(encodeUint(0xFFFF), 5);
-        const pos = 0;
-        const nextpos = 3;
-        const witness1 = await cirScalar.calculateWitness({ bytes, pos }, true);
-        assert.equal(witness1[1], nextpos);
-        const witness2 = await cirNormal.calculateWitness({ bytes, pos }, true);
-        assert.equal(witness2[1], nextpos);
+        const witness1 = await cirScalar.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], 3);
     });
     it ("SkipValueScalar int with decodeUint26", async () => {
         const bytes = padArray(encodeUint(0xFFFFFFFF), 5);
-        const pos = 0;
-        const nextpos = 5;
-        const witness1 = await cirScalar.calculateWitness({ bytes, pos }, true);
-        assert.equal(witness1[1], nextpos);
-        const witness2 = await cirNormal.calculateWitness({ bytes, pos }, true);
-        assert.equal(witness2[1], nextpos);
+        const witness1 = await cirScalar.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], 5);
     });
 
 });
