@@ -24,6 +24,7 @@ template NZCPCalculateTotal(n) {
 // https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/incrementalQuinTree.circom
 // Optimized + added support for any number of choises
 // License: MIT
+// TODO: test
 template QuinSelector(choices) {
     signal input in[choices];
     signal input index;
