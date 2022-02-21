@@ -211,4 +211,36 @@ describe("CBOR ReadType", function () {
         }
     });
 
+
+});
+
+var MAJOR_TYPE_INT = 0
+var MAJOR_TYPE_STRING = 3
+
+describe("CBOR SkipValueScalar", function () {
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/skipValueScalar_test.circom`);
+    })
+    it ("SkipValueScalar string with strlen <= 4", async () => {
+        for (var strlen = 0; strlen <= 4; strlen++) {
+            const bytes = [(MAJOR_TYPE_STRING << 5) | strlen, 0, 0, 0, 0];
+            const pos = 0;
+            const nextpos = strlen + 1
+            const witness = await cir.calculateWitness({ bytes, pos }, true);
+            assert.equal(witness[1], nextpos);    
+        }
+    });
+
+    it ("SkipValueScalar int with value <= 23", async () => {
+        for (var value = 0; value <= 23; value++) {
+            const bytes = [(MAJOR_TYPE_INT << 5) | value, 0, 0, 0, 0];
+            const pos = 0;
+            const nextpos = 1
+            const witness = await cir.calculateWitness({ bytes, pos }, true);
+            assert.equal(witness[1], nextpos);
+        }
+    });
+    // TODO: 24, 25, 26
+
 });
