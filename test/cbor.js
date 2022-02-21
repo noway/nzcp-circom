@@ -102,6 +102,27 @@ describe("CBOR getV(5)", function () {
 });
 
 
+describe("CBOR DecodeUin32", function () {
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/decodeUint32_test.circom`);
+    })
+
+    // if (x <= 23)
+    it ("DecodeUint32(v) == v", async () => {
+        for (let v = 0; v < 256; v++) {
+            const x = v & 31;
+            if (x <= 23) {
+                const witness = await cir.calculateWitness({ v }, true);
+                assert.equal(witness[1], x);
+            }
+            else {
+                await assert.isRejected(cir.calculateWitness({ v }, true))
+            }
+        }
+    });
+})
+
 describe("CBOR DecodeUint", function () {
     let cir
     before(async () => {
