@@ -174,3 +174,41 @@ describe("CBOR DecodeUint", function () {
     });
 
 });
+
+describe("CBOR ReadType", function () {
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/readType_test.circom`);
+    })
+    it ("ReadType([0, 0, v], 2) == (v >> 5, v)", async () => {
+        for (var v = 0; v < 256; v++) {
+            const pos = 2
+            const bytes = [0, 0, v]
+            const witness = await cir.calculateWitness({ bytes, pos }, true);
+            assert.equal(witness[1], pos + 1);
+            assert.equal(witness[2], v >> 5);
+            assert.equal(witness[3], v);
+        }
+    });
+    it ("ReadType([0, v, 0], 1) == (v >> 5, v)", async () => {
+        for (var v = 0; v < 256; v++) {
+            const pos = 1
+            const bytes = [0, v, 0]
+            const witness = await cir.calculateWitness({ bytes, pos }, true);
+            assert.equal(witness[1], pos + 1);
+            assert.equal(witness[2], v >> 5);
+            assert.equal(witness[3], v);
+        }
+    });
+    it ("ReadType([v, 0, 0], 2) == (v >> 5, v)", async () => {
+        for (var v = 0; v < 256; v++) {
+            const pos = 0
+            const bytes = [v, 0, 0]
+            const witness = await cir.calculateWitness({ bytes, pos }, true);
+            assert.equal(witness[1], pos + 1);
+            assert.equal(witness[2], v >> 5);
+            assert.equal(witness[3], v);
+        }
+    });
+
+});
