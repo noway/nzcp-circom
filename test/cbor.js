@@ -215,7 +215,12 @@ describe("CBOR ReadType", function () {
 });
 
 var MAJOR_TYPE_INT = 0
+var MAJOR_TYPE_NEGATIVE_INT = 1
+var MAJOR_TYPE_BYTES = 2
 var MAJOR_TYPE_STRING = 3
+var MAJOR_TYPE_ARRAY = 4
+var MAJOR_TYPE_MAP = 5
+var MAJOR_TYPE_TAG = 6
 
 function encodeUint(val) {
     if (val <= 23) {
@@ -246,6 +251,11 @@ function encodeInt(val) {
 function encodeString(strlen) {
     const [x, ...rest] = encodeUint(strlen);
     return [(MAJOR_TYPE_STRING << 5) | x, ...rest];
+}
+
+function encodeArray(arr) {
+    const [x, ...rest] = encodeUint(arr.length);
+    return [(MAJOR_TYPE_ARRAY << 5) | x, ...rest, ...arr.flat()];
 }
 
 function padArray(arr, len) {
@@ -289,38 +299,48 @@ describe("CBOR SkipValueScalar", function () {
 });
 
 describe("CBOR SkipValue", function () {
+    const MAX_LEN = 5
     let cir
     before(async () => {
         cir = await wasm_tester(`${__dirname}/../circuits/skipValue_test.circom`);
     })
     it ("SkipValue string with strlen <= 4", async () => {
         for (var strlen = 0; strlen <= 4; strlen++) {
-            const bytes = padArray(encodeString(strlen), 5);
+            const bytes = padArray(encodeString(strlen), MAX_LEN);
             const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
             assert.equal(witness1[1], strlen + 1);    
         }
     });
     it ("SkipValue int with decodeUint23", async () => {
         for (var value = 0; value <= 23; value++) {
-            const bytes = padArray(encodeInt(value), 5);
+            const bytes = padArray(encodeInt(value), MAX_LEN);
             const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
             assert.equal(witness1[1], 1);
         }
     });
     it ("SkipValue int with decodeUint24", async () => {
-        const bytes = padArray(encodeInt(0xFF), 5);
+        const bytes = padArray(encodeInt(0xFF), MAX_LEN);
         const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], 2);
     });
     it ("SkipValue int with decodeUint25", async () => {
-        const bytes = padArray(encodeInt(0xFFFF), 5);
+        const bytes = padArray(encodeInt(0xFFFF), MAX_LEN);
         const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], 3);
     });
     it ("SkipValue int with decodeUint26", async () => {
-        const bytes = padArray(encodeInt(0xFFFFFFFF), 5);
+        const bytes = padArray(encodeInt(0xFFFFFFFF), MAX_LEN);
         const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], 5);
     });
+    it ("SkipValue array of 3 ints", async () => {
+        const arr = encodeArray([encodeInt(20), encodeInt(20), encodeInt(20)])
+        const bytes = padArray([...arr], MAX_LEN);
+        console.log(bytes)
+        const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], arr.length);
+    });
+
+    
 
 });
