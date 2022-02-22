@@ -338,7 +338,7 @@ template SkipValue(BytesLen, MaxArrayLen) {
     // calculate nextPos if an array
     signal nextPosArray[MaxArrayLen];
     component skipValue[MaxArrayLen];
-    component qs = QuinSelectorUnchecked(MaxArrayLen);
+    component qs = QuinSelector(MaxArrayLen);
     for (var i = 0; i < MaxArrayLen; i++) {
         skipValue[i] = SkipValueScalar(BytesLen);
         copyBytes(bytes, skipValue[i].bytes, BytesLen)
@@ -346,7 +346,7 @@ template SkipValue(BytesLen, MaxArrayLen) {
         nextPosArray[i] <== skipValue[i].nextPos;
         qs.in[i] <== skipValue[i].nextPos;
     }
-    qs.index <== decodeUint.value - 1;
+    qs.index <== isArray.out * (decodeUint.value - 1);
 
     // return
     component calculateTotal = NZCPCalculateTotal(3);
