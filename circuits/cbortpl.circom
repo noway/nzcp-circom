@@ -122,6 +122,31 @@ template DecodeUint(BytesLen) {
     getX.v <== v;
     x <== getX.x;
 
+    // prepare conditions
+    component lessThan = LessThan(8); // 8 bits should be enough
+    lessThan.in[0] <== x;
+    lessThan.in[1] <== 24;
+    signal condition_23;
+    condition_23 <== lessThan.out;
+
+    component isEqual24 = IsEqual();
+    isEqual24.in[0] <== x;
+    isEqual24.in[1] <== 24;
+    signal condition_24;
+    condition_24 <== isEqual24.out;
+
+    component isEqual25 = IsEqual();
+    isEqual25.in[0] <== x;
+    isEqual25.in[1] <== 25;
+    signal condition_25;
+    condition_25 <== isEqual25.out;
+
+    component isEqual26 = IsEqual();
+    isEqual26.in[0] <== x;
+    isEqual26.in[1] <== 26;
+    signal condition_26;
+    condition_26 <== isEqual26.out;
+
     // if (x <= 23)
     signal value_23;
     value_23 <== x;
@@ -191,31 +216,6 @@ template DecodeUint(BytesLen) {
     signal nextPos_26;
     nextPos_26 <== pos + 4;
 
-
-    // execture conditions
-    component lessThan = LessThan(8); // 8 bits should be enough
-    lessThan.in[0] <== x;
-    lessThan.in[1] <== 24;
-    signal condition_23;
-    condition_23 <== lessThan.out;
-
-    component isEqual24 = IsEqual();
-    isEqual24.in[0] <== x;
-    isEqual24.in[1] <== 24;
-    signal condition_24;
-    condition_24 <== isEqual24.out;
-
-    component isEqual25 = IsEqual();
-    isEqual25.in[0] <== x;
-    isEqual25.in[1] <== 25;
-    signal condition_25;
-    condition_25 <== isEqual25.out;
-
-    component isEqual26 = IsEqual();
-    isEqual26.in[0] <== x;
-    isEqual26.in[1] <== 26;
-    signal condition_26;
-    condition_26 <== isEqual26.out;
 
 
     // return
