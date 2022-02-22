@@ -365,4 +365,11 @@ describe("CBOR SkipValue", function () {
         assert.equal(witness1[1], cbor.length);
     });
 
+    it ("SkipValue array of 1 3-byte int", async () => {
+        const cbor = encodeArray([encodeInt(0xFFFF)])
+        const bytes = padArray(cbor, MAX_LEN);
+        console.log(bytes)
+        const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], cbor.length);
+    });
 });
