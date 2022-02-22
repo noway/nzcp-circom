@@ -339,10 +339,19 @@ template SkipValue(BytesLen, MaxArrayLen) {
     signal nextPosArray[MaxArrayLen];
     component skipValue[MaxArrayLen];
     component qs = QuinSelector(MaxArrayLen);
+    
+    component lt[MaxArrayLen];
+    signal shouldConsider[MaxArrayLen];
     for (var i = 0; i < MaxArrayLen; i++) {
+        var bits = log2(MaxArrayLen) + 1;
+        lt[i] = LessThan(bits);
+        lt[i].in[0] <== i;
+        lt[i].in[1] <== isArray.out * decodeUint.value;
+        shouldConsider[i] <== isArray.out * lt[i].out;
+        
         skipValue[i] = SkipValueScalar(BytesLen);
         copyBytes(bytes, skipValue[i].bytes, BytesLen)
-        skipValue[i].pos <== i == 0 ? decodeUint.nextPos * isArray.out : nextPosArray[i - 1] * isArray.out;
+        skipValue[i].pos <== i == 0 ? decodeUint.nextPos * shouldConsider[i] : nextPosArray[i - 1] * shouldConsider[i];
         nextPosArray[i] <== skipValue[i].nextPos;
         qs.in[i] <== skipValue[i].nextPos;
     }
