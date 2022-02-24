@@ -1,23 +1,7 @@
 pragma circom 2.0.0;
 
 include "./log2.circom";
-
-
-// https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/calculateTotal.circom
-// License: MIT
-template NZCPCalculateTotal(n) {
-    signal input nums[n];
-    signal output sum;
-
-    signal sums[n];
-    sums[0] <== nums[0];
-
-    for (var i=1; i < n; i++) {
-        sums[i] <== sums[i - 1] + nums[i];
-    }
-
-    sum <== sums[n - 1];
-}
+include "../sha256-var-circom-main/snark-jwt-verify/circuits/calculate_total.circom";
 
 
 // Based on the following:

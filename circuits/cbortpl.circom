@@ -219,14 +219,14 @@ template DecodeUint(BytesLen) {
 
 
     // return
-    component calculateTotal_value = NZCPCalculateTotal(4);
+    component calculateTotal_value = CalculateTotal(4);
     calculateTotal_value.nums[0] <== condition_23 * value_23;
     calculateTotal_value.nums[1] <== condition_24 * value_24;
     calculateTotal_value.nums[2] <== condition_25 * value_25;
     calculateTotal_value.nums[3] <== condition_26 * value_26;
     value <== calculateTotal_value.sum;
 
-    component calculateTotal_nextPos = NZCPCalculateTotal(4);
+    component calculateTotal_nextPos = CalculateTotal(4);
     calculateTotal_nextPos.nums[0] <== condition_23 * nextPos_23;
     calculateTotal_nextPos.nums[1] <== condition_24 * nextPos_24;
     calculateTotal_nextPos.nums[2] <== condition_25 * nextPos_25;
@@ -288,7 +288,7 @@ template SkipValueScalar(BytesLen) {
     isString.in[1] <== MAJOR_TYPE_STRING;
 
     // return
-    component calculateTotal = NZCPCalculateTotal(2);
+    component calculateTotal = CalculateTotal(2);
     calculateTotal.nums[0] <== isInt.out * decodeUint.nextPos;
     calculateTotal.nums[1] <== isString.out * (decodeUint.nextPos + decodeUint.value);
     nextPos <== calculateTotal.sum;
@@ -355,7 +355,7 @@ template SkipValue(BytesLen, MaxArrayLen) {
     qs.index <== isArray.out * (decodeUint.value - 1);
 
     // return
-    component calculateTotal = NZCPCalculateTotal(3);
+    component calculateTotal = CalculateTotal(3);
     calculateTotal.nums[0] <== isInt.out * decodeUint.nextPos;
     calculateTotal.nums[1] <== isString.out * (decodeUint.nextPos + decodeUint.value);
     calculateTotal.nums[2] <== isArray.out * qs.out;
