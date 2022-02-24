@@ -451,7 +451,6 @@ template ReadMapLength(ToBeSignedBytes) {
     len <== dUint23.value;
 }
 
-// TODO: test
 // copies over a CBOR string value to a given array `outbytes`
 // returns the next position and string length
 // input MUST be a byte array
