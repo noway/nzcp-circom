@@ -366,6 +366,9 @@ template SkipValue(BytesLen, MaxArrayLen) {
 // check if a CBOR string equals to a given string
 // input MUST be a byte array
 template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
+
+    assert(ConstBytesLen <= BytesLen);
+
     // i/o signals
     signal input bytes[BytesLen];
     signal input pos;
