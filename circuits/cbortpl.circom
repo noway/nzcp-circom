@@ -456,6 +456,9 @@ template ReadMapLength(ToBeSignedBytes) {
 // returns the next position and string length
 // input MUST be a byte array
 template CopyString(BytesLen, MaxLen) {
+
+    assert(MaxLen <= BytesLen);
+
     // i/o signals
     signal input bytes[BytesLen];
     signal input pos;
