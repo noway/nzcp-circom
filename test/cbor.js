@@ -250,7 +250,11 @@ function encodeInt(val) {
 
 function encodeString(str) {
     const [x, ...rest] = encodeUint(str.length);
-    return [(MAJOR_TYPE_STRING << 5) | x, ...rest, ...str.split('').map(c => c.charCodeAt(0))];
+    return [(MAJOR_TYPE_STRING << 5) | x, ...rest, ...stringToArray(str)];
+}
+
+function stringToArray(str) {
+    return str.split('').map(c => c.charCodeAt(0));
 }
 
 function encodeArray(arr) {
@@ -425,5 +429,20 @@ describe("CBOR ReadStringLength", function () {
             assert.equal(witness1[1], strlen);    
             assert.equal(witness1[2], encodeInt(strlen).length);    
         }
+    });
+});
+
+describe("CBOR StringEquals", function () {
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/stringEquals_test.circom`);
+    })
+    it ("StringEquals string 'abcde'", async () => {
+        const strArray = stringToArray('abcde');
+        const bytes = padArray(strArray, 5);
+        const len = strArray.length
+        console.log('bytes',bytes)
+        const witness1 = await cir.calculateWitness({ bytes, len, pos: 0 }, true);
+        assert.equal(witness1[1], 1);    
     });
 });
