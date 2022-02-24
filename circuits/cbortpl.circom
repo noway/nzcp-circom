@@ -362,7 +362,6 @@ template SkipValue(BytesLen, MaxArrayLen) {
     nextPos <== calculateTotal.sum;
 }
 
-// TODO: test
 // check if a CBOR string equals to a given string
 // input MUST be a byte array
 template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
