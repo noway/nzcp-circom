@@ -259,7 +259,8 @@ function encodeArray(arr) {
 }
 
 function padArray(arr, len) {
-    return arr.concat(Array(len).fill(0)).slice(0, len);
+    const extraZeroes = Math.max(len - arr.length, 0);
+    return [...arr, ...Array(extraZeroes).fill(0)];
 }
   
 describe("CBOR SkipValueScalar", function () {
