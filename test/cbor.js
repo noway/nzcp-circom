@@ -263,7 +263,7 @@ function padArray(arr, len) {
     return [...arr, ...Array(extraZeroes).fill(0)];
 }
   
-describe("CBOR SkipValueScalar", function () {
+describe("CBOR SkipValueScalar (scalar)", function () {
     let cir
     before(async () => {
         cir = await wasm_tester(`${__dirname}/../circuits/skipValueScalar_test.circom`);
@@ -304,14 +304,11 @@ describe("CBOR SkipValueScalar", function () {
     });
 });
 
-describe("CBOR SkipValue", function () {
+describe("CBOR SkipValue (scalar)", function () {
     const MAX_LEN_5 = 5
-    const MAX_LEN_6 = 6
     let cir5
-    let cir6
     before(async () => {
         cir5 = await wasm_tester(`${__dirname}/../circuits/skipValue5_test.circom`);
-        cir6 = await wasm_tester(`${__dirname}/../circuits/skipValue6_test.circom`);
     })
     it ("SkipValue string with strlen <= 4", async () => {
         for (var strlen = 0; strlen <= 4; strlen++) {
@@ -347,6 +344,18 @@ describe("CBOR SkipValue", function () {
         const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], cbor.length);
     });
+});
+
+
+describe("CBOR SkipValue (array)", function () {
+    const MAX_LEN_5 = 5
+    const MAX_LEN_6 = 6
+    let cir5
+    let cir6
+    before(async () => {
+        cir5 = await wasm_tester(`${__dirname}/../circuits/skipValue5_test.circom`);
+        cir6 = await wasm_tester(`${__dirname}/../circuits/skipValue6_test.circom`);
+    })
     it ("SkipValue array of 3 ints", async () => {
         const cbor = encodeArray([encodeInt(23), encodeInt(23), encodeInt(23)])
         const bytes = padArray(cbor, MAX_LEN_5);
