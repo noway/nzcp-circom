@@ -411,3 +411,19 @@ describe("CBOR SkipValue (array)", function () {
         assert.equal(witness1[1], cbor.length);
     });
 });
+
+describe("CBOR ReadStringLength", function () {
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/readStringLength_test.circom`);
+    })
+    it ("ReadStringLength string with strlen <= 4", async () => {
+        for (var strlen = 0; strlen <= 4; strlen++) {
+            const cbor = encodeString(Array(strlen).fill('a').join(''));
+            const bytes = padArray(cbor, 5);
+            const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
+            assert.equal(witness1[1], strlen);    
+            assert.equal(witness1[2], encodeInt(strlen).length);    
+        }
+    });
+});
