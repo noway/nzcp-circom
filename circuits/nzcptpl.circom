@@ -25,7 +25,7 @@ include "./cbor.circom";
 #define NOT(in) (1 + in - 2*in)
 
 
-
+// TODO: test
 template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 2;
