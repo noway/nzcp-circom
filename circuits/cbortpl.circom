@@ -366,16 +366,18 @@ template SkipValue(BytesLen, MaxArrayLen) {
 // check if a CBOR string equals to a given string
 // input MUST be a byte array
 template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
+    // i/o signals
     signal input bytes[BytesLen];
     signal input pos;
     signal input len;
-    
     signal output out;
 
+    // check if length matches
     component isSameLen = IsEqual();
     isSameLen.in[0] <== len;
     isSameLen.in[1] <== ConstBytesLen;
 
+    // compare every character
     var conditionsSum = isSameLen.out;
     component isEqual[ConstBytesLen];
     component getV[ConstBytesLen];
@@ -391,6 +393,7 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
         conditionsSum = conditionsSum + isEqual[i].out;
     }
 
+    // return
     var allConditionsAreTrue = ConstBytesLen + 1;
     component isZero = IsZero();
     isZero.in <== allConditionsAreTrue - conditionsSum;
