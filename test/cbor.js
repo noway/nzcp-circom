@@ -252,6 +252,10 @@ function encodeString(strlen) {
     const [x, ...rest] = encodeUint(strlen);
     return [(MAJOR_TYPE_STRING << 5) | x, ...rest];
 }
+function encodeStr(str) {
+    const [x, ...rest] = encodeUint(str.length);
+    return [(MAJOR_TYPE_STRING << 5) | x, ...rest, ...str.split('').map(c => c.charCodeAt(0))];
+}
 
 function encodeArray(arr) {
     const [x, ...rest] = encodeUint(arr.length);
@@ -389,6 +393,20 @@ describe("CBOR SkipValue (array)", function () {
         const bytes = padArray(cbor, MAX_LEN_6);
         console.log(bytes)
         const witness1 = await cir6.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], cbor.length);
+    });
+    it ("SkipValue array of 2 2-byte strings", async () => {
+        const cbor = encodeArray([encodeStr('q'), encodeStr('q')])
+        const bytes = padArray(cbor, MAX_LEN_5);
+        console.log(bytes)
+        const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], cbor.length);
+    });
+    it ("SkipValue array of 1 4-byte strings", async () => {
+        const cbor = encodeArray([encodeStr('qwe')])
+        const bytes = padArray(cbor, MAX_LEN_5);
+        console.log(bytes)
+        const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], cbor.length);
     });
 });
