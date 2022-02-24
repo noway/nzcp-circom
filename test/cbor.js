@@ -262,6 +262,11 @@ function encodeArray(arr) {
     return [(MAJOR_TYPE_ARRAY << 5) | x, ...rest, ...arr.flat()];
 }
 
+function encodeMap(obj) {
+    const [x, ...rest] = encodeUint(Object.keys(obj).length);
+    return [(MAJOR_TYPE_MAP << 5) | x, ...rest, ...Object.entries(obj).map(entry => [parseInt(entry[0], 10), entry[1]].flat()).flat()];
+}
+
 function padArray(arr, len) {
     const extraZeroes = Math.max(len - arr.length, 0);
     return [...arr, ...Array(extraZeroes).fill(0)];
@@ -452,5 +457,30 @@ describe("CBOR StringEquals", function () {
             const witness1 = await cir.calculateWitness({ bytes, len, pos: 0 }, true);
             assert.equal(witness1[1], 0);    
         }
+    });
+});
+
+describe("CBOR ReadMapLength", function () {
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/readMapLength_test.circom`);
+    })
+    it ("ReadMapLength 1 key", async () => {
+        const cbor = encodeMap({ [encodeInt(4)]: encodeInt(5) })
+        const bytes = padArray(cbor, 7);
+        const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], 1);    
+    });
+    it ("ReadMapLength 2 keys", async () => {
+        const cbor = encodeMap({ [encodeInt(4)]: encodeInt(5), [encodeInt(5)]: encodeInt(4) })
+        const bytes = padArray(cbor, 7);
+        const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], 2);    
+    });
+    it ("ReadMapLength 3 keys", async () => {
+        const cbor = encodeMap({ [encodeInt(4)]: encodeInt(5), [encodeInt(5)]: encodeInt(4), [encodeInt(7)]: encodeInt(3) })
+        const bytes = padArray(cbor, 7);
+        const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], 3);    
     });
 });
