@@ -248,11 +248,7 @@ function encodeInt(val) {
     return [(MAJOR_TYPE_INT << 5) | x, ...rest];
 }
 
-function encodeString(strlen) {
-    const [x, ...rest] = encodeUint(strlen);
-    return [(MAJOR_TYPE_STRING << 5) | x, ...rest];
-}
-function encodeStr(str) {
+function encodeString(str) {
     const [x, ...rest] = encodeUint(str.length);
     return [(MAJOR_TYPE_STRING << 5) | x, ...rest, ...str.split('').map(c => c.charCodeAt(0))];
 }
@@ -274,7 +270,7 @@ describe("CBOR SkipValueScalar (scalar)", function () {
     })
     it ("SkipValueScalar string with strlen <= 4", async () => {
         for (var strlen = 0; strlen <= 4; strlen++) {
-            const cbor = encodeString(strlen);
+            const cbor = encodeString(Array(strlen).fill('a').join(''));
             const bytes = padArray(cbor, 5);
             const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
             assert.equal(witness1[1], strlen + 1);    
@@ -316,7 +312,7 @@ describe("CBOR SkipValue (scalar)", function () {
     })
     it ("SkipValue string with strlen <= 4", async () => {
         for (var strlen = 0; strlen <= 4; strlen++) {
-            const cbor = encodeString(strlen);
+            const cbor = encodeString(Array(strlen).fill('a').join(''));
             const bytes = padArray(cbor, MAX_LEN_5);
             const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
             assert.equal(witness1[1], strlen + 1);    
@@ -391,25 +387,25 @@ describe("CBOR SkipValue (array)", function () {
         assert.equal(witness1[1], cbor.length);
     });
     it ("SkipValue array of 2 2-byte strings", async () => {
-        const cbor = encodeArray([encodeStr('q'), encodeStr('q')])
+        const cbor = encodeArray([encodeString('q'), encodeString('q')])
         const bytes = padArray(cbor, MAX_LEN_5);
         const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], cbor.length);
     });
     it ("SkipValue array of 1 4-byte string", async () => {
-        const cbor = encodeArray([encodeStr('qwe')])
+        const cbor = encodeArray([encodeString('qwe')])
         const bytes = padArray(cbor, MAX_LEN_5);
         const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], cbor.length);
     });
     it ("SkipValue array of 2-byte string and 2-byte int", async () => {
-        const cbor = encodeArray([encodeStr('q'), encodeInt(0xFF)])
+        const cbor = encodeArray([encodeString('q'), encodeInt(0xFF)])
         const bytes = padArray(cbor, MAX_LEN_5);
         const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], cbor.length);
     });
     it ("SkipValue array of 2-byte string and 2 1-byte ints", async () => {
-        const cbor = encodeArray([encodeStr('q'), encodeInt(23), encodeInt(23)])
+        const cbor = encodeArray([encodeString('q'), encodeInt(23), encodeInt(23)])
         const bytes = padArray(cbor, MAX_LEN_5);
         const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], cbor.length);
