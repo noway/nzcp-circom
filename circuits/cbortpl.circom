@@ -397,6 +397,7 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
     out <== isZero.out;
 }
 
+// TODO: test
 // reads CBOR string length
 // returns the next position and string length
 // input MUST be a byte array
@@ -422,6 +423,7 @@ template ReadStringLength(BytesLen) {
     len <== dUint.value;
 }
 
+// TODO: test
 // reads CBOR map length
 // returns the next position and map length
 // input MUST be a byte array
