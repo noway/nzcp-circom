@@ -219,14 +219,14 @@ template DecodeUint(BytesLen) {
 
 
     // return
-    component calculateTotal_value = NZCPCalculateTotal(4);
+    component calculateTotal_value = CalculateTotal(4);
     calculateTotal_value.nums[0] <== condition_23 * value_23;
     calculateTotal_value.nums[1] <== condition_24 * value_24;
     calculateTotal_value.nums[2] <== condition_25 * value_25;
     calculateTotal_value.nums[3] <== condition_26 * value_26;
     value <== calculateTotal_value.sum;
 
-    component calculateTotal_nextPos = NZCPCalculateTotal(4);
+    component calculateTotal_nextPos = CalculateTotal(4);
     calculateTotal_nextPos.nums[0] <== condition_23 * nextPos_23;
     calculateTotal_nextPos.nums[1] <== condition_24 * nextPos_24;
     calculateTotal_nextPos.nums[2] <== condition_25 * nextPos_25;
@@ -288,7 +288,7 @@ template SkipValueScalar(BytesLen) {
     isString.in[1] <== MAJOR_TYPE_STRING;
 
     // return
-    component calculateTotal = NZCPCalculateTotal(2);
+    component calculateTotal = CalculateTotal(2);
     calculateTotal.nums[0] <== isInt.out * decodeUint.nextPos;
     calculateTotal.nums[1] <== isString.out * (decodeUint.nextPos + decodeUint.value);
     nextPos <== calculateTotal.sum;
@@ -355,27 +355,31 @@ template SkipValue(BytesLen, MaxArrayLen) {
     qs.index <== isArray.out * (decodeUint.value - 1);
 
     // return
-    component calculateTotal = NZCPCalculateTotal(3);
+    component calculateTotal = CalculateTotal(3);
     calculateTotal.nums[0] <== isInt.out * decodeUint.nextPos;
     calculateTotal.nums[1] <== isString.out * (decodeUint.nextPos + decodeUint.value);
     calculateTotal.nums[2] <== isArray.out * qs.out;
     nextPos <== calculateTotal.sum;
 }
 
-// TODO: test
 // check if a CBOR string equals to a given string
 // input MUST be a byte array
 template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
+
+    assert(ConstBytesLen <= BytesLen);
+
+    // i/o signals
     signal input bytes[BytesLen];
     signal input pos;
     signal input len;
-    
     signal output out;
 
+    // check if length matches
     component isSameLen = IsEqual();
     isSameLen.in[0] <== len;
     isSameLen.in[1] <== ConstBytesLen;
 
+    // compare every character
     var conditionsSum = isSameLen.out;
     component isEqual[ConstBytesLen];
     component getV[ConstBytesLen];
@@ -391,6 +395,7 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
         conditionsSum = conditionsSum + isEqual[i].out;
     }
 
+    // return
     var allConditionsAreTrue = ConstBytesLen + 1;
     component isZero = IsZero();
     isZero.in <== allConditionsAreTrue - conditionsSum;
@@ -446,11 +451,13 @@ template ReadMapLength(ToBeSignedBytes) {
     len <== dUint23.value;
 }
 
-// TODO: test
 // copies over a CBOR string value to a given array `outbytes`
 // returns the next position and string length
 // input MUST be a byte array
 template CopyString(BytesLen, MaxLen) {
+
+    assert(MaxLen <= BytesLen);
+
     // i/o signals
     signal input bytes[BytesLen];
     signal input pos;

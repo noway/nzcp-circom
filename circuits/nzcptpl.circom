@@ -25,7 +25,7 @@ include "./cbor.circom";
 #define NOT(in) (1 + in - 2*in)
 
 
-
+// TODO: test
 template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 2;
@@ -58,8 +58,8 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     component mapval_is4Int[MaxCborMapLen];
     component mapval_withinMaplen[MaxCborMapLen];
 
-    component calculateTotal_foundpos = NZCPCalculateTotal(MaxCborMapLen);
-    component calculateTotal_exppos = NZCPCalculateTotal(MaxCborMapLen);
+    component calculateTotal_foundpos = CalculateTotal(MaxCborMapLen);
+    component calculateTotal_exppos = CalculateTotal(MaxCborMapLen);
 
     for (var k = 0; k < MaxCborMapLen; k++) { 
 
@@ -120,10 +120,10 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
         // should we select this exp candidate?
         mapval_isExpAccepted[k] <== mapval_isExp[k] * mapval_withinMaplen[k].out;
 
-        // put a vc pos candidate into NZCPCalculateTotal to be able to get vc pos outside of the loop
+        // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
         calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextPos + mapval_value[k]);
         
-        // put a expPos candidate into NZCPCalculateTotal to be able to get exp pos outside of the loop
+        // put a expPos candidate into CalculateTotal to be able to get exp pos outside of the loop
         calculateTotal_exppos.nums[k] <== mapval_isExpAccepted[k] * mapval_decodeUint[k].nextPos;
     }
 
@@ -157,7 +157,7 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     component mapval_isNeedleString[MaxCborMapLen];
     component mapval_withinMaplen[MaxCborMapLen];
 
-    component calculateTotal_foundpos = NZCPCalculateTotal(MaxCborMapLen);
+    component calculateTotal_foundpos = CalculateTotal(MaxCborMapLen);
 
     for (var k = 0; k < MaxCborMapLen; k++) { 
 
@@ -201,7 +201,7 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
         // should we select this vc pos candidate?
         mapval_isAccepted[k] <== mapval_isNeedle[k] * mapval_withinMaplen[k].out;
 
-        // put a vc pos candidate into NZCPCalculateTotal to be able to get vc pos outside of the loop
+        // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
         calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextPos + mapval_value[k]);
     }
 
@@ -279,7 +279,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     // assign givenName
     component givenName_charsCalculateTotal[MaxStringLen];
     for(var h = 0; h<MaxStringLen; h++) {
-        givenName_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        givenName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
             givenName_charsCalculateTotal[h].nums[i] <== mapval_isGivenName[i].out * mapval_copyString[i].outbytes[h];
         }
@@ -287,7 +287,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     }
     for(var h = MaxStringLen; h < MaxBufferLen; h++) { givenName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
     component givenName_lenCalculateTotal;
-    givenName_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    givenName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
         givenName_lenCalculateTotal.nums[i] <== mapval_isGivenName[i].out * mapval_copyString[i].len;
     }
@@ -297,7 +297,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     // assign familyName
     component familyName_charsCalculateTotal[MaxStringLen];
     for(var h = 0; h<MaxStringLen; h++) {
-        familyName_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        familyName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
             familyName_charsCalculateTotal[h].nums[i] <== mapval_isFamilyName[i].out * mapval_copyString[i].outbytes[h];
         }
@@ -305,7 +305,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     }
     for(var h = MaxStringLen; h < MaxBufferLen; h++) { familyName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
     component familyName_lenCalculateTotal;
-    familyName_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    familyName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
         familyName_lenCalculateTotal.nums[i] <== mapval_isFamilyName[i].out * mapval_copyString[i].len;
     }
@@ -315,7 +315,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     // assign dob
     component dob_charsCalculateTotal[MaxStringLen];
     for(var h = 0; h<MaxStringLen; h++) {
-        dob_charsCalculateTotal[h] = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        dob_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
             dob_charsCalculateTotal[h].nums[i] <== mapval_isDOB[i].out * mapval_copyString[i].outbytes[h];
         }
@@ -323,7 +323,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     }
     for(var h = MaxStringLen; h < MaxBufferLen; h++) { dob[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
     component dob_lenCalculateTotal;
-    dob_lenCalculateTotal = NZCPCalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    dob_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
         dob_lenCalculateTotal.nums[i] <== mapval_isDOB[i].out * mapval_copyString[i].len;
     }
