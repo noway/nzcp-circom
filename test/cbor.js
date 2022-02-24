@@ -441,7 +441,6 @@ describe("CBOR StringEquals", function () {
         const strArray = stringToArray('abcde');
         const bytes = padArray(strArray, 5);
         const len = strArray.length
-        console.log('bytes',bytes)
         const witness1 = await cir.calculateWitness({ bytes, len, pos: 0 }, true);
         assert.equal(witness1[1], 1);    
     });
@@ -450,7 +449,6 @@ describe("CBOR StringEquals", function () {
             const strArray = stringToArray(Array(strlen).fill('b').join(''));
             const bytes = padArray(strArray, 5);
             const len = strArray.length
-            console.log('bytes',bytes)
             const witness1 = await cir.calculateWitness({ bytes, len, pos: 0 }, true);
             assert.equal(witness1[1], 0);    
         }
