@@ -492,6 +492,30 @@ describe("CBOR CopyString", function () {
     before(async () => {
         cir = await wasm_tester(`${__dirname}/../circuits/copyString_test.circom`);
     })
+    it ("CopyString string ''", async () => {
+        const str = '';
+        const strArray = encodeString(str);
+        const bytes = padArray(strArray, 5);
+        const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], 0);    
+        assert.equal(witness1[2], 0);    
+        assert.equal(witness1[3], 0);    
+        assert.equal(witness1[4], 0);    
+        assert.equal(witness1[5], str.length + 1);    
+        assert.equal(witness1[6], str.length);    
+    });
+    it ("CopyString string 'ab'", async () => {
+        const str = 'ab';
+        const strArray = encodeString(str);
+        const bytes = padArray(strArray, 5);
+        const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], str[0].charCodeAt(0));    
+        assert.equal(witness1[2], str[1].charCodeAt(0));    
+        assert.equal(witness1[3], 0);    
+        assert.equal(witness1[4], 0);    
+        assert.equal(witness1[5], str.length + 1);    
+        assert.equal(witness1[6], str.length);    
+    });
     it ("CopyString string 'abcd'", async () => {
         const str = 'abcd';
         const strArray = encodeString(str);
