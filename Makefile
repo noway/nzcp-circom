@@ -1,4 +1,4 @@
-.PHONY: nzcp/nzcp.wasm circuits/nzcp.circom circuits/cbor.circom clean
+.PHONY: circuits/nzcp.circom circuits/cbor.circom test clean
 
 all: node_modules circuits/nzcp.circom
 
@@ -10,13 +10,13 @@ sha256-var-circom.zip:
 	
 sha256-var-circom-main/: sha256-var-circom.zip
 	unzip $<
-	cd sha256-var-circom-main && make
+	cd $@ && make
 
-circuits/nzcp.circom: circuits/cbor.circom  sha256-var-circom-main
-	cpp -P circuits/nzcptpl.circom > circuits/nzcp.circom
+circuits/nzcp.circom: circuits/cbor.circom sha256-var-circom-main
+	cpp -P circuits/nzcptpl.circom > $@
 
 circuits/cbor.circom: sha256-var-circom-main
-	cpp -P circuits/cbortpl.circom > circuits/cbor.circom
+	cpp -P circuits/cbortpl.circom > $@
 
 node_modules/:
 	yarn

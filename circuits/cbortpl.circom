@@ -7,7 +7,7 @@ include "./incrementalQuinTree.circom";
 /* check through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)
 
-#define copyBytes(b, a, c) for(var z = 0; z<c; z++) { a[z] <== b[z]; }
+#define copyBytes(b, a, c) for(var z = 0; z < c; z++) { a[z] <== b[z]; }
 
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
@@ -122,77 +122,7 @@ template DecodeUint(BytesLen) {
     getX.v <== v;
     x <== getX.x;
 
-    // if (x <= 23)
-    signal value_23;
-    value_23 <== x;
-    signal nextPos_23;
-    nextPos_23 <== pos;
-
-    // if(x == 24)
-    component getV_24 = GetV(BytesLen);
-
-    copyBytes(bytes, getV_24.bytes, BytesLen)
-    getV_24.pos <== pos;
-    signal value_24;
-    value_24 <== getV_24.v;
-    signal nextPos_24;
-    nextPos_24 <== pos + 1;
-
-    // if(x == 25)
-    component getV1_25 = GetV(BytesLen);
-    component getV2_25 = GetV(BytesLen);
-    copyBytes(bytes, getV1_25.bytes, BytesLen)
-    copyBytes(bytes, getV2_25.bytes, BytesLen)
-
-    getV1_25.pos <== pos;
-    signal value_1_25;
-    value_1_25 <== getV1_25.v * 256; // 2**8
-
-    getV2_25.pos <== pos + 1;
-    signal value_2_25;
-    value_2_25 <== getV2_25.v;
-
-    signal value_25;
-    value_25 <== value_1_25 + value_2_25;
-
-    signal nextPos_25;
-    nextPos_25 <== pos + 2;
-
-    // if(x == 26)
-    component getV1_26 = GetV(BytesLen);
-    component getV2_26 = GetV(BytesLen);
-    component getV3_26 = GetV(BytesLen);
-    component getV4_26 = GetV(BytesLen);
-
-    copyBytes(bytes, getV1_26.bytes, BytesLen)
-    copyBytes(bytes, getV2_26.bytes, BytesLen)
-    copyBytes(bytes, getV3_26.bytes, BytesLen)
-    copyBytes(bytes, getV4_26.bytes, BytesLen)
-
-    getV1_26.pos <== pos;
-    signal value_1_26;
-    value_1_26 <== getV1_26.v * 16777216; // 2**24
-
-    getV2_26.pos <== pos + 1;
-    signal value_2_26;
-    value_2_26 <== getV2_26.v * 65536; // 2**16
-
-    getV3_26.pos <== pos + 2;
-    signal value_3_26;
-    value_3_26 <== getV3_26.v * 256; // 2**8
-
-    getV4_26.pos <== pos + 3;
-    signal value_4_26;
-    value_4_26 <== getV4_26.v;
-
-    signal value_26;
-    value_26 <== value_1_26 + value_2_26 + value_3_26 + value_4_26;
-
-    signal nextPos_26;
-    nextPos_26 <== pos + 4;
-
-
-    // execture conditions
+    // prepare conditions
     component lessThan = LessThan(8); // 8 bits should be enough
     lessThan.in[0] <== x;
     lessThan.in[1] <== 24;
@@ -217,6 +147,76 @@ template DecodeUint(BytesLen) {
     signal condition_26;
     condition_26 <== isEqual26.out;
 
+    // if (x <= 23)
+    signal value_23;
+    value_23 <== x;
+    signal nextPos_23;
+    nextPos_23 <== pos;
+
+    // if(x == 24)
+    component getV_24 = GetV(BytesLen);
+
+    copyBytes(bytes, getV_24.bytes, BytesLen)
+    getV_24.pos <== condition_24 * pos;
+    signal value_24;
+    value_24 <== getV_24.v;
+    signal nextPos_24;
+    nextPos_24 <== pos + 1;
+
+    // if(x == 25)
+    component getV1_25 = GetV(BytesLen);
+    component getV2_25 = GetV(BytesLen);
+    copyBytes(bytes, getV1_25.bytes, BytesLen)
+    copyBytes(bytes, getV2_25.bytes, BytesLen)
+
+    getV1_25.pos <== condition_25 * pos;
+    signal value_1_25;
+    value_1_25 <== getV1_25.v * 256; // 2**8
+
+    getV2_25.pos <== condition_25 * (pos + 1);
+    signal value_2_25;
+    value_2_25 <== getV2_25.v;
+
+    signal value_25;
+    value_25 <== value_1_25 + value_2_25;
+
+    signal nextPos_25;
+    nextPos_25 <== pos + 2;
+
+    // if(x == 26)
+    component getV1_26 = GetV(BytesLen);
+    component getV2_26 = GetV(BytesLen);
+    component getV3_26 = GetV(BytesLen);
+    component getV4_26 = GetV(BytesLen);
+
+    copyBytes(bytes, getV1_26.bytes, BytesLen)
+    copyBytes(bytes, getV2_26.bytes, BytesLen)
+    copyBytes(bytes, getV3_26.bytes, BytesLen)
+    copyBytes(bytes, getV4_26.bytes, BytesLen)
+
+    getV1_26.pos <== condition_26 * pos;
+    signal value_1_26;
+    value_1_26 <== getV1_26.v * 16777216; // 2**24
+
+    getV2_26.pos <== condition_26 * (pos + 1);
+    signal value_2_26;
+    value_2_26 <== getV2_26.v * 65536; // 2**16
+
+    getV3_26.pos <== condition_26 * (pos + 2);
+    signal value_3_26;
+    value_3_26 <== getV3_26.v * 256; // 2**8
+
+    getV4_26.pos <== condition_26 * (pos + 3);
+    signal value_4_26;
+    value_4_26 <== getV4_26.v;
+
+    signal value_26;
+    value_26 <== value_1_26 + value_2_26 + value_3_26 + value_4_26;
+
+    signal nextPos_26;
+    nextPos_26 <== pos + 4;
+
+
 
     // return
     component calculateTotal_value = NZCPCalculateTotal(4);
@@ -234,7 +234,6 @@ template DecodeUint(BytesLen) {
     nextPos <== calculateTotal_nextPos.sum;
 }
 
-// TODO: test
 // read a CBOR type
 // returns the next position and v
 // input MUST be a byte array
@@ -258,7 +257,6 @@ template ReadType(BytesLen) {
     nextPos <== pos + 1;
 }
 
-// TODO: test
 // skip a scalar CBOR value, only ints and strings are supported atm.
 // input MUST be a byte array
 template SkipValueScalar(BytesLen) {
@@ -297,7 +295,6 @@ template SkipValueScalar(BytesLen) {
 }
 
 
-// TODO: test
 // skip a CBOR value. supports everything that SkipValueScalar supports plus arrays
 // input MUST be a byte array
 template SkipValue(BytesLen, MaxArrayLen) {
@@ -320,19 +317,6 @@ template SkipValue(BytesLen, MaxArrayLen) {
     decodeUint.pos <== readType.nextPos;
 
 
-    // calculate nextPos if an array
-    signal nextPosArray[MaxArrayLen];
-    component skipValue[MaxArrayLen];
-    component qs = QuinSelectorUnchecked(MaxArrayLen);
-    for (var i = 0; i < MaxArrayLen; i++) {
-        skipValue[i] = SkipValueScalar(BytesLen);
-        copyBytes(bytes, skipValue[i].bytes, BytesLen)
-        skipValue[i].pos <== i == 0 ? decodeUint.nextPos : nextPosArray[i - 1];
-        nextPosArray[i] <== skipValue[i].nextPos;
-        qs.in[i] <== skipValue[i].nextPos;
-    }
-    qs.index <== decodeUint.value - 1;
-
     // if (cbortype == MAJOR_TYPE_INT) 
     component isInt = IsEqual();
     isInt.in[0] <== readType.type;
@@ -347,6 +331,28 @@ template SkipValue(BytesLen, MaxArrayLen) {
     component isArray = IsEqual();
     isArray.in[0] <== readType.type;
     isArray.in[1] <== MAJOR_TYPE_ARRAY;
+
+    // calculate nextPos if an array
+    signal nextPosArray[MaxArrayLen];
+    component skipValue[MaxArrayLen];
+    component qs = QuinSelector(MaxArrayLen);
+    
+    component lt[MaxArrayLen];
+    signal shouldConsider[MaxArrayLen];
+    for (var i = 0; i < MaxArrayLen; i++) {
+        var bits = log2(MaxArrayLen) + 1;
+        lt[i] = LessThan(bits);
+        lt[i].in[0] <== i;
+        lt[i].in[1] <== isArray.out * decodeUint.value;
+        shouldConsider[i] <== isArray.out * lt[i].out;
+        
+        skipValue[i] = SkipValueScalar(BytesLen);
+        copyBytes(bytes, skipValue[i].bytes, BytesLen)
+        skipValue[i].pos <== i == 0 ? decodeUint.nextPos * shouldConsider[i] : nextPosArray[i - 1] * shouldConsider[i];
+        nextPosArray[i] <== skipValue[i].nextPos;
+        qs.in[i] <== skipValue[i].nextPos;
+    }
+    qs.index <== isArray.out * (decodeUint.value - 1);
 
     // return
     component calculateTotal = NZCPCalculateTotal(3);

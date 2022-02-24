@@ -1,24 +1,22 @@
-const chai = require("chai");
-const path = require("path");
 const crypto = require("crypto");
-const wasm_tester = require("circom_tester").wasm;
+const { assert } = require("chai");
+const { wasm: wasm_tester } = require("circom_tester");
 const { verifyPassURIOffline, DID_DOCUMENTS } = require("@vaxxnz/nzcp");
-const { getToBeSignedAndRs } = require('./helpers/nzcp');
 const { buffer2bitArray, bitArray2buffer } = require("./helpers/utils");
+const { getToBeSignedAndRs } = require('./helpers/nzcp');
 
 require('dotenv').config()
-const assert = chai.assert;
 
 function prepareNZCPCredSubjHashInput(input, maxLen) {
     const buffer = Buffer.alloc(maxLen).fill(0);
     input.copy(buffer, 0);
-    return {toBeSigned: buffer2bitArray(buffer), toBeSignedLen: input.length}
+    return { toBeSigned: buffer2bitArray(buffer), toBeSignedLen: input.length }
 }
 
 function getNZCPPubIdentity(passURI, isLive) {
     const verificationResult = verifyPassURIOffline(passURI, { didDocument: isLive ? DID_DOCUMENTS.MOH_LIVE : DID_DOCUMENTS.MOH_EXAMPLE })
-    const credSubj = verificationResult.credentialSubject;
-    const credSubjConcat = `${credSubj.givenName},${credSubj.familyName},${credSubj.dob}`
+    const { givenName, familyName, dob } = verificationResult.credentialSubject;
+    const credSubjConcat = `${givenName},${familyName},${dob}`
     const toBeSignedByteArray = Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex");
     const credSubjHash = crypto.createHash('sha256').update(credSubjConcat).digest('hex')
     const toBeSignedHash = crypto.createHash('sha256').update(toBeSignedByteArray).digest('hex')
@@ -54,11 +52,10 @@ describe("NZCP credential subject hash - example pass", function () {
 
     let cir
     before(async () => {
-        cir = await wasm_tester(path.join(__dirname, "../circuits/nzcp_exampleTest.circom"));
+        cir = await wasm_tester(`${__dirname}/../circuits/nzcp_exampleTest.circom`);
     })
 
     it ("Should parse ToBeSigned", async () => {
-
         await testNZCPCredSubjHash(cir, EXAMPLE_PASS_URI, false, 314);
     });
 });
@@ -73,7 +70,7 @@ describe("NZCP credential subject hash - live pass", function () {
 
     let cir
     before(async () => {
-        cir = await wasm_tester(path.join(__dirname, "../circuits/nzcp_liveTest.circom"));
+        cir = await wasm_tester(`${__dirname}/../circuits/nzcp_liveTest.circom`);
     })
 
     it ("Should generate credential hash and output exp for LIVE_PASS_URI_1", async () => {
