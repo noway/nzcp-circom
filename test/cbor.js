@@ -484,3 +484,24 @@ describe("CBOR ReadMapLength", function () {
         assert.equal(witness1[1], 3);    
     });
 });
+
+
+
+describe("CBOR CopyString", function () {
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/copyString_test.circom`);
+    })
+    it ("CopyString string 'abcd'", async () => {
+        const str = 'abcd';
+        const strArray = encodeString(str);
+        const bytes = padArray(strArray, 5);
+        const witness1 = await cir.calculateWitness({ bytes, pos: 0 }, true);
+        assert.equal(witness1[1], str[0].charCodeAt(0));    
+        assert.equal(witness1[2], str[1].charCodeAt(0));    
+        assert.equal(witness1[3], str[2].charCodeAt(0));    
+        assert.equal(witness1[4], str[3].charCodeAt(0));    
+        assert.equal(witness1[5], str.length + 1);    
+        assert.equal(witness1[6], str.length);    
+    });
+});
