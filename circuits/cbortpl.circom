@@ -234,7 +234,6 @@ template DecodeUint(BytesLen) {
     nextPos <== calculateTotal_nextPos.sum;
 }
 
-// TODO: test
 // read a CBOR type
 // returns the next position and v
 // input MUST be a byte array
@@ -258,7 +257,6 @@ template ReadType(BytesLen) {
     nextPos <== pos + 1;
 }
 
-// TODO: test
 // skip a scalar CBOR value, only ints and strings are supported atm.
 // input MUST be a byte array
 template SkipValueScalar(BytesLen) {
@@ -297,7 +295,6 @@ template SkipValueScalar(BytesLen) {
 }
 
 
-// TODO: test
 // skip a CBOR value. supports everything that SkipValueScalar supports plus arrays
 // input MUST be a byte array
 template SkipValue(BytesLen, MaxArrayLen) {
