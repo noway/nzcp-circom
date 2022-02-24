@@ -397,7 +397,6 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
     out <== isZero.out;
 }
 
-// TODO: test
 // reads CBOR string length
 // returns the next position and string length
 // input MUST be a byte array
