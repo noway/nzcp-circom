@@ -360,13 +360,13 @@ describe("CBOR SkipValue (array)", function () {
         cir5 = await wasm_tester(`${__dirname}/../circuits/skipValue5_test.circom`);
         cir6 = await wasm_tester(`${__dirname}/../circuits/skipValue6_test.circom`);
     })
-    it ("SkipValue array of 3 ints", async () => {
+    it ("SkipValue array of 3 1-byte ints", async () => {
         const cbor = encodeArray([encodeInt(23), encodeInt(23), encodeInt(23)])
         const bytes = padArray(cbor, MAX_LEN_5);
         const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], cbor.length);
     });
-    it ("SkipValue array of 4 ints", async () => {
+    it ("SkipValue array of 4 1-byte ints", async () => {
         const cbor = encodeArray([encodeInt(23), encodeInt(23), encodeInt(23), encodeInt(23)])
         const bytes = padArray(cbor, MAX_LEN_5);
         const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
@@ -396,7 +396,7 @@ describe("CBOR SkipValue (array)", function () {
         const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
         assert.equal(witness1[1], cbor.length);
     });
-    it ("SkipValue array of 1 4-byte strings", async () => {
+    it ("SkipValue array of 1 4-byte string", async () => {
         const cbor = encodeArray([encodeStr('qwe')])
         const bytes = padArray(cbor, MAX_LEN_5);
         const witness1 = await cir5.calculateWitness({ bytes, pos: 0 }, true);
