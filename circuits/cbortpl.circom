@@ -427,7 +427,6 @@ template ReadStringLength(BytesLen) {
     len <== dUint.value;
 }
 
-// TODO: test
 // reads CBOR map length
 // returns the next position and map length
 // input MUST be a byte array
