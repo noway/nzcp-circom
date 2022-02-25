@@ -131,6 +131,7 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     expPos <== calculateTotal_exppos.sum;
 }
 
+// TODO: test
 template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 17;
@@ -209,6 +210,7 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
 }
 
 
+// TODO: test
 template ReadCredSubj(BytesLen, MaxBufferLen) {
 
     // constants
@@ -331,6 +333,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
 }
 
+// TODO: test
 // concat givenName, familyName and dob with comma as separator
 template ConcatCredSubj(MaxBufferLen) {
     var COMMA_CHAR = 44;
