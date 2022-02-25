@@ -40,23 +40,23 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     signal output expPos;
 
     // signals
-    signal mapval_v[MaxCborMapLen];
-    signal mapval_type[MaxCborMapLen];
-    signal mapval_value[MaxCborMapLen];
-    signal mapval_isNeedle[MaxCborMapLen];
-    signal mapval_isExp[MaxCborMapLen];
-    signal mapval_isAccepted[MaxCborMapLen];
-    signal mapval_isExpAccepted[MaxCborMapLen];
+    signal v[MaxCborMapLen];
+    signal type[MaxCborMapLen];
+    signal value[MaxCborMapLen];
+    signal isNeedle[MaxCborMapLen];
+    signal isExp[MaxCborMapLen];
+    signal isAccepted[MaxCborMapLen];
+    signal isExpAccepted[MaxCborMapLen];
 
-    component mapval_readType[MaxCborMapLen];
-    component mapval_decodeUint[MaxCborMapLen];
-    component mapval_decodeUintValue[MaxCborMapLen];
-    component mapval_skipValue[MaxCborMapLen];
-    component mapval_isString[MaxCborMapLen];
-    component mapval_isInt[MaxCborMapLen];
-    component mapval_isNeedleString[MaxCborMapLen];
-    component mapval_is4Int[MaxCborMapLen];
-    component mapval_withinMaplen[MaxCborMapLen];
+    component readType[MaxCborMapLen];
+    component decodeUint[MaxCborMapLen];
+    component decodeUintValue[MaxCborMapLen];
+    component skipValue[MaxCborMapLen];
+    component isString[MaxCborMapLen];
+    component isInt[MaxCborMapLen];
+    component isNeedleString[MaxCborMapLen];
+    component is4Int[MaxCborMapLen];
+    component withinMaplen[MaxCborMapLen];
 
     component calculateTotal_foundpos = CalculateTotal(MaxCborMapLen);
     component calculateTotal_exppos = CalculateTotal(MaxCborMapLen);
@@ -64,67 +64,67 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     for (var k = 0; k < MaxCborMapLen; k++) { 
 
         // read type
-        mapval_readType[k] = ReadType(BytesLen);
-        copyBytes(bytes, mapval_readType[k].bytes, BytesLen)
-        mapval_readType[k].pos <== k == 0 ? pos : mapval_skipValue[k - 1].nextPos;
-        mapval_v[k] <== mapval_readType[k].v;
-        mapval_type[k] <== mapval_readType[k].type;
+        readType[k] = ReadType(BytesLen);
+        copyBytes(bytes, readType[k].bytes, BytesLen)
+        readType[k].pos <== k == 0 ? pos : skipValue[k - 1].nextPos;
+        v[k] <== readType[k].v;
+        type[k] <== readType[k].type;
 
         // decode uint
-        mapval_decodeUint[k] = DecodeUint(BytesLen);
-        mapval_decodeUint[k].v <== mapval_v[k];
-        copyBytes(bytes, mapval_decodeUint[k].bytes, BytesLen)
-        mapval_decodeUint[k].pos <== mapval_readType[k].nextPos;
-        mapval_value[k] <== mapval_decodeUint[k].value;
+        decodeUint[k] = DecodeUint(BytesLen);
+        decodeUint[k].v <== v[k];
+        copyBytes(bytes, decodeUint[k].bytes, BytesLen)
+        decodeUint[k].pos <== readType[k].nextPos;
+        value[k] <== decodeUint[k].value;
 
         // is current value a string?
-        mapval_isString[k] = IsEqual();
-        mapval_isString[k].in[0] <== mapval_type[k];
-        mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
+        isString[k] = IsEqual();
+        isString[k].in[0] <== type[k];
+        isString[k].in[1] <== MAJOR_TYPE_STRING;
 
         // is current value an integer?
-        mapval_isInt[k] = IsEqual();
-        mapval_isInt[k].in[0] <== mapval_type[k];
-        mapval_isInt[k].in[1] <== MAJOR_TYPE_INT;
+        isInt[k] = IsEqual();
+        isInt[k].in[0] <== type[k];
+        isInt[k].in[1] <== MAJOR_TYPE_INT;
 
         // skip value for next iteration
-        mapval_skipValue[k] = SkipValue(BytesLen, MaxCborArrayLen);
-        mapval_skipValue[k].pos <== mapval_decodeUint[k].nextPos + (mapval_value[k] * mapval_isString[k].out);
-        copyBytes(bytes, mapval_skipValue[k].bytes, BytesLen)
+        skipValue[k] = SkipValue(BytesLen, MaxCborArrayLen);
+        skipValue[k].pos <== decodeUint[k].nextPos + (value[k] * isString[k].out);
+        copyBytes(bytes, skipValue[k].bytes, BytesLen)
 
         // is current value interpreted as a string is a "vc" string?
-        mapval_isNeedleString[k] = StringEquals(BytesLen, ConstBytes, ConstBytesLen);
-        copyBytes(bytes, mapval_isNeedleString[k].bytes, BytesLen)
-        mapval_isNeedleString[k].pos <== mapval_decodeUint[k].nextPos; // pos before skipping
-        mapval_isNeedleString[k].len <== mapval_value[k];
+        isNeedleString[k] = StringEquals(BytesLen, ConstBytes, ConstBytesLen);
+        copyBytes(bytes, isNeedleString[k].bytes, BytesLen)
+        isNeedleString[k].pos <== decodeUint[k].nextPos; // pos before skipping
+        isNeedleString[k].len <== value[k];
 
         // is current value interpreted as an integer is a 4 number?
-        mapval_is4Int[k] = IsEqual();
-        mapval_is4Int[k].in[0] <== 4;
-        mapval_is4Int[k].in[1] <== mapval_value[k]; // pos before skipping
+        is4Int[k] = IsEqual();
+        is4Int[k].in[0] <== 4;
+        is4Int[k].in[1] <== value[k]; // pos before skipping
 
         // are we within map bounds?
-        mapval_withinMaplen[k] = LessThan(8);
-        mapval_withinMaplen[k].in[0] <== k;
-        mapval_withinMaplen[k].in[1] <== maplen;
+        withinMaplen[k] = LessThan(8);
+        withinMaplen[k].in[0] <== k;
+        withinMaplen[k].in[1] <== maplen;
 
         // is current value a "vc" string?
-        mapval_isNeedle[k] <== mapval_isString[k].out * mapval_isNeedleString[k].out;
+        isNeedle[k] <== isString[k].out * isNeedleString[k].out;
 
         // is current value a 4 int?
-        mapval_isExp[k] <== mapval_isInt[k].out * mapval_is4Int[k].out;
+        isExp[k] <== isInt[k].out * is4Int[k].out;
 
         // should we select this vc pos candidate?
-        mapval_isAccepted[k] <== mapval_isNeedle[k] * mapval_withinMaplen[k].out;
+        isAccepted[k] <== isNeedle[k] * withinMaplen[k].out;
 
         // should we select this exp candidate?
-        mapval_isExpAccepted[k] <== mapval_isExp[k] * mapval_withinMaplen[k].out;
+        isExpAccepted[k] <== isExp[k] * withinMaplen[k].out;
 
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextPos + mapval_value[k]);
+        calculateTotal_foundpos.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
         
         // put a expPos candidate into CalculateTotal to be able to get exp pos outside of the loop
-        calculateTotal_exppos.nums[k] <== mapval_isExpAccepted[k] * mapval_decodeUint[k].nextPos;
+        calculateTotal_exppos.nums[k] <== isExpAccepted[k] * decodeUint[k].nextPos;
     }
 
     needlepos <== calculateTotal_foundpos.sum;
@@ -145,65 +145,65 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     signal output needlepos;
 
     // signals
-    signal mapval_v[MaxCborMapLen];
-    signal mapval_type[MaxCborMapLen];
-    signal mapval_value[MaxCborMapLen];
-    signal mapval_isNeedle[MaxCborMapLen];
-    signal mapval_isAccepted[MaxCborMapLen];
+    signal v[MaxCborMapLen];
+    signal type[MaxCborMapLen];
+    signal value[MaxCborMapLen];
+    signal isNeedle[MaxCborMapLen];
+    signal isAccepted[MaxCborMapLen];
 
-    component mapval_readType[MaxCborMapLen];
-    component mapval_decodeUint[MaxCborMapLen];
-    component mapval_skipValue[MaxCborMapLen];
-    component mapval_isString[MaxCborMapLen];
-    component mapval_isNeedleString[MaxCborMapLen];
-    component mapval_withinMaplen[MaxCborMapLen];
+    component readType[MaxCborMapLen];
+    component decodeUint[MaxCborMapLen];
+    component skipValue[MaxCborMapLen];
+    component isString[MaxCborMapLen];
+    component isNeedleString[MaxCborMapLen];
+    component withinMaplen[MaxCborMapLen];
 
     component calculateTotal_foundpos = CalculateTotal(MaxCborMapLen);
 
     for (var k = 0; k < MaxCborMapLen; k++) { 
 
         // read type
-        mapval_readType[k] = ReadType(BytesLen);
-        copyBytes(bytes, mapval_readType[k].bytes, BytesLen)
-        mapval_readType[k].pos <== k == 0 ? pos : mapval_skipValue[k - 1].nextPos;
-        mapval_v[k] <== mapval_readType[k].v;
-        mapval_type[k] <== mapval_readType[k].type;
+        readType[k] = ReadType(BytesLen);
+        copyBytes(bytes, readType[k].bytes, BytesLen)
+        readType[k].pos <== k == 0 ? pos : skipValue[k - 1].nextPos;
+        v[k] <== readType[k].v;
+        type[k] <== readType[k].type;
 
         // decode uint
-        mapval_decodeUint[k] = DecodeUint(BytesLen);
-        mapval_decodeUint[k].v <== mapval_v[k];
-        copyBytes(bytes, mapval_decodeUint[k].bytes, BytesLen)
-        mapval_decodeUint[k].pos <== mapval_readType[k].nextPos;
-        mapval_value[k] <== mapval_decodeUint[k].value;
+        decodeUint[k] = DecodeUint(BytesLen);
+        decodeUint[k].v <== v[k];
+        copyBytes(bytes, decodeUint[k].bytes, BytesLen)
+        decodeUint[k].pos <== readType[k].nextPos;
+        value[k] <== decodeUint[k].value;
 
         // is current value a string?
-        mapval_isString[k] = IsEqual();
-        mapval_isString[k].in[0] <== mapval_type[k];
-        mapval_isString[k].in[1] <== MAJOR_TYPE_STRING;
+        isString[k] = IsEqual();
+        isString[k].in[0] <== type[k];
+        isString[k].in[1] <== MAJOR_TYPE_STRING;
 
         // skip value for next iteration
-        mapval_skipValue[k] = SkipValue(BytesLen, MaxCborArrayLen);
-        mapval_skipValue[k].pos <== mapval_decodeUint[k].nextPos + (mapval_value[k] * mapval_isString[k].out);
-        copyBytes(bytes, mapval_skipValue[k].bytes, BytesLen)
+        skipValue[k] = SkipValue(BytesLen, MaxCborArrayLen);
+        skipValue[k].pos <== decodeUint[k].nextPos + (value[k] * isString[k].out);
+        copyBytes(bytes, skipValue[k].bytes, BytesLen)
 
         // is current value interpreted as a string is a "vc" string?
-        mapval_isNeedleString[k] = StringEquals(BytesLen, ConstBytes, ConstBytesLen);
-        copyBytes(bytes, mapval_isNeedleString[k].bytes, BytesLen)
-        mapval_isNeedleString[k].pos <== mapval_decodeUint[k].nextPos; // pos before skipping
-        mapval_isNeedleString[k].len <== mapval_value[k];
+        isNeedleString[k] = StringEquals(BytesLen, ConstBytes, ConstBytesLen);
+        copyBytes(bytes, isNeedleString[k].bytes, BytesLen)
+        isNeedleString[k].pos <== decodeUint[k].nextPos; // pos before skipping
+        isNeedleString[k].len <== value[k];
 
-        mapval_withinMaplen[k] = LessThan(8);
-        mapval_withinMaplen[k].in[0] <== k;
-        mapval_withinMaplen[k].in[1] <== maplen;
+        withinMaplen[k] = LessThan(8);
+        withinMaplen[k].in[0] <== k;
+        withinMaplen[k].in[1] <== maplen;
 
         // is current value a "vc" string?
-        mapval_isNeedle[k] <== mapval_isString[k].out * mapval_isNeedleString[k].out;
+        isNeedle[k] <== isString[k].out * isNeedleString[k].out;
 
         // should we select this vc pos candidate?
-        mapval_isAccepted[k] <== mapval_isNeedle[k] * mapval_withinMaplen[k].out;
+        isAccepted[k] <== isNeedle[k] * withinMaplen[k].out;
 
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_foundpos.nums[k] <== mapval_isAccepted[k] * (mapval_decodeUint[k].nextPos + mapval_value[k]);
+        calculateTotal_foundpos.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
     }
 
     needlepos <== calculateTotal_foundpos.sum;
@@ -243,37 +243,37 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     hardcore_assert(maplen, CREDENTIAL_SUBJECT_MAP_LEN);
 
 
-    component mapval_readStringLength[CREDENTIAL_SUBJECT_MAP_LEN];
+    component readStringLength[CREDENTIAL_SUBJECT_MAP_LEN];
 
-    component mapval_isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
-    component mapval_isFamilyName[CREDENTIAL_SUBJECT_MAP_LEN];
-    component mapval_isDOB[CREDENTIAL_SUBJECT_MAP_LEN];
-    component mapval_copyString[CREDENTIAL_SUBJECT_MAP_LEN];
+    component isGivenName[CREDENTIAL_SUBJECT_MAP_LEN];
+    component isFamilyName[CREDENTIAL_SUBJECT_MAP_LEN];
+    component isDOB[CREDENTIAL_SUBJECT_MAP_LEN];
+    component copyString[CREDENTIAL_SUBJECT_MAP_LEN];
 
     for(var k = 0; k < CREDENTIAL_SUBJECT_MAP_LEN; k++) {
 
-        mapval_readStringLength[k] = ReadStringLength(BytesLen);
-        copyBytes(bytes, mapval_readStringLength[k].bytes, BytesLen)
-        mapval_readStringLength[k].pos <== k == 0 ? pos : mapval_copyString[k - 1].nextPos;
+        readStringLength[k] = ReadStringLength(BytesLen);
+        copyBytes(bytes, readStringLength[k].bytes, BytesLen)
+        readStringLength[k].pos <== k == 0 ? pos : copyString[k - 1].nextPos;
 
-        mapval_isGivenName[k] = StringEquals(BytesLen, GIVEN_NAME_STR, GIVEN_NAME_LEN);
-        copyBytes(bytes, mapval_isGivenName[k].bytes, BytesLen)
-        mapval_isGivenName[k].pos <== mapval_readStringLength[k].nextPos; // pos before skipping
-        mapval_isGivenName[k].len <== mapval_readStringLength[k].len;
+        isGivenName[k] = StringEquals(BytesLen, GIVEN_NAME_STR, GIVEN_NAME_LEN);
+        copyBytes(bytes, isGivenName[k].bytes, BytesLen)
+        isGivenName[k].pos <== readStringLength[k].nextPos; // pos before skipping
+        isGivenName[k].len <== readStringLength[k].len;
 
-        mapval_isFamilyName[k] = StringEquals(BytesLen, FAMILY_NAME_STR, FAMILY_NAME_LEN);
-        copyBytes(bytes, mapval_isFamilyName[k].bytes, BytesLen)
-        mapval_isFamilyName[k].pos <== mapval_readStringLength[k].nextPos; // pos before skipping
-        mapval_isFamilyName[k].len <== mapval_readStringLength[k].len;
+        isFamilyName[k] = StringEquals(BytesLen, FAMILY_NAME_STR, FAMILY_NAME_LEN);
+        copyBytes(bytes, isFamilyName[k].bytes, BytesLen)
+        isFamilyName[k].pos <== readStringLength[k].nextPos; // pos before skipping
+        isFamilyName[k].len <== readStringLength[k].len;
 
-        mapval_isDOB[k] = StringEquals(BytesLen, DOB_STR, DOB_LEN);
-        copyBytes(bytes, mapval_isDOB[k].bytes, BytesLen)
-        mapval_isDOB[k].pos <== mapval_readStringLength[k].nextPos; // pos before skipping
-        mapval_isDOB[k].len <== mapval_readStringLength[k].len;
+        isDOB[k] = StringEquals(BytesLen, DOB_STR, DOB_LEN);
+        copyBytes(bytes, isDOB[k].bytes, BytesLen)
+        isDOB[k].pos <== readStringLength[k].nextPos; // pos before skipping
+        isDOB[k].len <== readStringLength[k].len;
 
-        mapval_copyString[k] = CopyString(BytesLen, MaxStringLen);
-        copyBytes(bytes, mapval_copyString[k].bytes, BytesLen)
-        mapval_copyString[k].pos <== mapval_readStringLength[k].nextPos + mapval_readStringLength[k].len;
+        copyString[k] = CopyString(BytesLen, MaxStringLen);
+        copyBytes(bytes, copyString[k].bytes, BytesLen)
+        copyString[k].pos <== readStringLength[k].nextPos + readStringLength[k].len;
 
     }
 
@@ -283,7 +283,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     for(var h = 0; h<MaxStringLen; h++) {
         givenName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            givenName_charsCalculateTotal[h].nums[i] <== mapval_isGivenName[i].out * mapval_copyString[i].outbytes[h];
+            givenName_charsCalculateTotal[h].nums[i] <== isGivenName[i].out * copyString[i].outbytes[h];
         }
         givenName[h] <== givenName_charsCalculateTotal[h].sum;
     }
@@ -291,7 +291,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     component givenName_lenCalculateTotal;
     givenName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        givenName_lenCalculateTotal.nums[i] <== mapval_isGivenName[i].out * mapval_copyString[i].len;
+        givenName_lenCalculateTotal.nums[i] <== isGivenName[i].out * copyString[i].len;
     }
     givenNameLen <== givenName_lenCalculateTotal.sum;
 
@@ -301,7 +301,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     for(var h = 0; h<MaxStringLen; h++) {
         familyName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            familyName_charsCalculateTotal[h].nums[i] <== mapval_isFamilyName[i].out * mapval_copyString[i].outbytes[h];
+            familyName_charsCalculateTotal[h].nums[i] <== isFamilyName[i].out * copyString[i].outbytes[h];
         }
         familyName[h] <== familyName_charsCalculateTotal[h].sum;
     }
@@ -309,7 +309,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     component familyName_lenCalculateTotal;
     familyName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        familyName_lenCalculateTotal.nums[i] <== mapval_isFamilyName[i].out * mapval_copyString[i].len;
+        familyName_lenCalculateTotal.nums[i] <== isFamilyName[i].out * copyString[i].len;
     }
     familyNameLen <== familyName_lenCalculateTotal.sum;
 
@@ -319,7 +319,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     for(var h = 0; h<MaxStringLen; h++) {
         dob_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            dob_charsCalculateTotal[h].nums[i] <== mapval_isDOB[i].out * mapval_copyString[i].outbytes[h];
+            dob_charsCalculateTotal[h].nums[i] <== isDOB[i].out * copyString[i].outbytes[h];
         }
         dob[h] <== dob_charsCalculateTotal[h].sum;
     }
@@ -327,7 +327,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     component dob_lenCalculateTotal;
     dob_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        dob_lenCalculateTotal.nums[i] <== mapval_isDOB[i].out * mapval_copyString[i].len;
+        dob_lenCalculateTotal.nums[i] <== isDOB[i].out * copyString[i].len;
     }
     dobLen <== dob_lenCalculateTotal.sum;
 
