@@ -10,6 +10,10 @@ include "../sha256-var-circom-main/snark-jwt-verify/circuits/calculate_total.cir
 // License: MIT
 // TODO: test
 template QuinSelector(choices) {
+
+    assert(choices > 0);
+
+    // i/o signals
     signal input in[choices];
     signal input index;
     signal output out;
