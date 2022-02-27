@@ -414,7 +414,7 @@ template ConcatCredSubj(MaxBufferLen) {
 }
 
 // get NZCP public identity based on ToBeSigned
-template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen, CredSubjMaxBufferSpace) {
+template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborMapLenVC, MaxCborArrayLenCredSubj, MaxCborMapLenCredSubj, CredSubjMaxBufferSpace) {
     // constants
     var SHA256_LEN = 256;
     var BLOCK_SIZE = 512;
@@ -508,7 +508,7 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMap
     // find "vc" key pos in the map
     signal vcPos;
     signal expPos;
-    component findVC = FindVCAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen);
+    component findVC = FindVCAndExp(MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborMapLenVC);
     copyBytes(ToBeSigned, findVC.bytes, MaxToBeSignedBytes)
     findVC.pos <== readMapLength.nextPos;
     findVC.maplen <== readMapLength.len;
@@ -533,7 +533,7 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMap
     readMapLength2.pos <== vcPos;
 
     signal credSubjPos;
-    component findCredSubj = FindCredSubj(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen);
+    component findCredSubj = FindCredSubj(MaxToBeSignedBytes, MaxCborArrayLenCredSubj, MaxCborMapLenCredSubj);
     copyBytes(ToBeSigned, findCredSubj.bytes, MaxToBeSignedBytes)
     findCredSubj.pos <== readMapLength2.nextPos;
     findCredSubj.maplen <== readMapLength2.len;
