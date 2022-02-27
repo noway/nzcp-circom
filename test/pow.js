@@ -1,12 +1,12 @@
 const { assert } = require("chai");
 const { wasm: wasm_tester } = require("circom_tester");
 
-describe("log2 function", function () {
+describe("pow function", function () {
     let cir
     before(async () => {
-        cir = await wasm_tester(`${__dirname}/../circuits/log2_test.circom`);
+        cir = await wasm_tester(`${__dirname}/../circuits/pow_test.circom`);
     })
-    it ("log2 works", async () => {
+    it ("pow works", async () => {
         const witness = await cir.calculateWitness({}, true);
     });
 });
