@@ -298,6 +298,7 @@ template SkipValueScalar(BytesLen) {
 // skip a CBOR value. supports everything that SkipValueScalar supports plus arrays
 // input MUST be a byte array
 template SkipValue(BytesLen, MaxArrayLen) {
+    // TODO: allow MaxArrayLen to be 0
 
     // i/o signals
     signal input bytes[BytesLen];
