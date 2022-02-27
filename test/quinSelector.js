@@ -55,4 +55,5 @@ describe("QuinSelector", function () {
             assert.equal(witness[1], inArray[index]);    
         }
     });
+    // TODO: test overflow throw
 });
