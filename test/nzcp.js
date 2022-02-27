@@ -209,7 +209,7 @@ async function testReadCredSubj(cir, passURI, isLive, pos, maxLen, maxBufferLen)
     assert.deepEqual(actualDob, padArray(stringToArray(dob), maxBufferLen));
     assert.equal(actualDobLen, dob.length);
 }
-describe("NZCP read cred subj - example pass", function () {
+describe("NZCP read credential subject - example pass", function () {
     this.timeout(100000);
 
     let cir
@@ -217,7 +217,7 @@ describe("NZCP read cred subj - example pass", function () {
         cir = await wasm_tester(`${__dirname}/../circuits/readCredSubj_exampleTest.circom`);
     })
 
-    it ("Should parse ToBeSigned", async () => {
+    it ("Should read credential subject of EXAMPLE_PASS_URI", async () => {
         await testReadCredSubj(cir, EXAMPLE_PASS_URI, 0, 247, 314, 32);
     });
 });
