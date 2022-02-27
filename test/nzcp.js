@@ -58,9 +58,12 @@ describe("NZCP find vc and exp - example pass", function () {
         cir = await wasm_tester(`${__dirname}/../circuits/findVCAndExp_test.circom`);
     })
 
-    it ("Should parse ToBeSigned", async () => {
+    it ("Should parse ToBeSigned and return vc and exp pos", async () => {
+        const pos = 28;
+        const maplen = 5;
         const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(EXAMPLE_PASS_URI).ToBeSigned, "hex"), maxLen);
-        const witness = await cir.calculateWitness({ maplen: 5, bytes: bufferToBytes(input.bytes), pos: 28 }, true);
+        const bytes = bufferToBytes(input.bytes)
+        const witness = await cir.calculateWitness({ maplen, bytes, pos }, true);
 
         const actualVCPos = Number(witness[1]);
         assert.equal(actualVCPos, 76);
