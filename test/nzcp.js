@@ -71,12 +71,8 @@ async function testFindVCAndExp(cir, passURI, isLive, pos, maxLen, expectedVCPos
     assert.equal(actualExpPos, expectedExpPos);
 
     // assert that expiry date is at the right position
-    // TODO: use slice or something?
-    assert.equal(input.bytes[actualExpPos + 0], encodeUint(exp)[0]);
-    assert.equal(input.bytes[actualExpPos + 1], encodeUint(exp)[1]);
-    assert.equal(input.bytes[actualExpPos + 2], encodeUint(exp)[2]);
-    assert.equal(input.bytes[actualExpPos + 3], encodeUint(exp)[3]);
-    assert.equal(input.bytes[actualExpPos + 4], encodeUint(exp)[4]);
+    const actualExp = bufferToBytes(input.bytes.slice(actualExpPos, actualExpPos + 5));
+    assert.deepEqual(actualExp, encodeUint(exp));
 
 }
 describe("NZCP find vc and exp - example pass", function () {
