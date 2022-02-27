@@ -76,6 +76,7 @@ template GetX() {
 // @dev get CBOR v
 // CBOR v is the element of array `bytes` at index `pos`
 // input MUST be a byte array
+// @param BytesLen - length of the byte array
 template GetV(BytesLen) {
     signal input bytes[BytesLen];
     signal input pos;
@@ -111,6 +112,7 @@ template DecodeUint23() {
 // @dev decode a CBOR integer
 // Supports <=23 integers as well as 8-bit, 16-bit and 32-bit integers
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
 template DecodeUint(BytesLen) {
     signal input v;
     signal input bytes[BytesLen];
@@ -238,6 +240,7 @@ template DecodeUint(BytesLen) {
 // @dev read a CBOR type
 // returns the next position and v
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
 template ReadType(BytesLen) {
 
     signal input bytes[BytesLen];
@@ -260,6 +263,7 @@ template ReadType(BytesLen) {
 
 // @dev skip a scalar CBOR value, only ints and strings are supported atm.
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
 template SkipValueScalar(BytesLen) {
 
     // signals
@@ -298,6 +302,8 @@ template SkipValueScalar(BytesLen) {
 
 // @dev skip a CBOR value. supports everything that SkipValueScalar supports plus arrays
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
+// @param MaxArrayLen - maximum number of elements in the CBOR array
 template SkipValue(BytesLen, MaxArrayLen) {
     // i/o signals
     signal input bytes[BytesLen];
@@ -364,6 +370,9 @@ template SkipValue(BytesLen, MaxArrayLen) {
 
 // @dev check if a CBOR string equals to a given string
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
+// @param ConstBytes - constant byte array to compare to
+// @param ConstBytesLen - length of the constant byte array
 template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
 
     assert(ConstBytesLen <= BytesLen);
@@ -405,6 +414,7 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
 // @dev reads CBOR string length
 // returns the next position and string length
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
 template ReadStringLength(BytesLen) {
     // i/o signals
     signal input bytes[BytesLen];
@@ -430,6 +440,7 @@ template ReadStringLength(BytesLen) {
 // @dev reads CBOR map length
 // returns the next position and map length
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
 template ReadMapLength(BytesLen) {
     // i/o signals
     signal input pos;
@@ -454,6 +465,8 @@ template ReadMapLength(BytesLen) {
 // @dev copies over a CBOR string value to a given array `outbytes`
 // returns the next position and string length
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
+// @param MaxLen - maximum length of the output array
 template CopyString(BytesLen, MaxLen) {
 
     assert(MaxLen <= BytesLen);
