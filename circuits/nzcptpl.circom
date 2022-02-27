@@ -130,7 +130,6 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     expPos <== calculateTotal_exppos.sum;
 }
 
-// TODO: test
 template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 17;
