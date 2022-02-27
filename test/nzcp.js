@@ -2,15 +2,16 @@ const crypto = require("crypto");
 const { assert } = require("chai");
 const { wasm: wasm_tester } = require("circom_tester");
 const { verifyPassURIOffline, DID_DOCUMENTS } = require("@vaxxnz/nzcp");
-const { buffer2bitArray, bitArray2buffer } = require("./helpers/utils");
+const { buffer2bitArray, bitArray2buffer, bufferToBytes } = require("./helpers/utils");
 const { getToBeSignedAndRs } = require('./helpers/nzcp');
 
 require('dotenv').config()
 
 function prepareNZCPCredSubjHashInput(input, maxLen) {
-    const buffer = Buffer.alloc(maxLen).fill(0);
-    input.copy(buffer, 0);
-    return { toBeSigned: buffer2bitArray(buffer), toBeSignedLen: input.length }
+    const bytes = Buffer.alloc(maxLen).fill(0);
+    input.copy(bytes, 0);
+    const byteslen = input.length;
+    return { bytes, byteslen }
 }
 
 function getNZCPPubIdentity(passURI, isLive) {
@@ -47,6 +48,34 @@ async function testNZCPCredSubjHash(cir, passURI, isLive, maxLen) {
 
 const EXAMPLE_PASS_URI = "NZCP:/1/2KCEVIQEIVVWK6JNGEASNICZAEP2KALYDZSGSZB2O5SWEOTOPJRXALTDN53GSZBRHEXGQZLBNR2GQLTOPICRUYMBTIFAIGTUKBAAUYTWMOSGQQDDN5XHIZLYOSBHQJTIOR2HA4Z2F4XXO53XFZ3TGLTPOJTS6MRQGE4C6Y3SMVSGK3TUNFQWY4ZPOYYXQKTIOR2HA4Z2F4XW46TDOAXGG33WNFSDCOJONBSWC3DUNAXG46RPMNXW45DFPB2HGL3WGFTXMZLSONUW63TFGEXDALRQMR2HS4DFQJ2FMZLSNFTGSYLCNRSUG4TFMRSW45DJMFWG6UDVMJWGSY2DN53GSZCQMFZXG4LDOJSWIZLOORUWC3CTOVRGUZLDOSRWSZ3JOZSW4TTBNVSWISTBMNVWUZTBNVUWY6KOMFWWKZ2TOBQXE4TPO5RWI33CNIYTSNRQFUYDILJRGYDVAYFE6VGU4MCDGK7DHLLYWHVPUS2YIDJOA6Y524TD3AZRM263WTY2BE4DPKIF27WKF3UDNNVSVWRDYIYVJ65IRJJJ6Z25M2DO4YZLBHWFQGVQR5ZLIWEQJOZTS3IQ7JTNCFDX";
 
+
+describe("NZCP find vc and exp - example pass", function () {
+    this.timeout(100000);
+
+    const maxLen = 314;
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/findVCAndExp_test.circom`);
+    })
+
+    it ("Should parse ToBeSigned", async () => {
+        const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(EXAMPLE_PASS_URI).ToBeSigned, "hex"), maxLen);
+        const witness = await cir.calculateWitness({ maplen: 5, bytes: bufferToBytes(input.bytes), pos: 28 }, true);
+
+        const actualVCPos = Number(witness[1]);
+        assert.equal(actualVCPos, 76);
+
+        const actualExpPos = Number(witness[2]);
+        assert.equal(actualExpPos, 68);
+
+        // assert that expiry date is at the right position
+        assert.equal(input.bytes[actualExpPos], 26);
+        assert.equal(input.bytes[actualExpPos + 1], 116);
+        assert.equal(input.bytes[actualExpPos + 2], 80);
+        assert.equal(input.bytes[actualExpPos + 3], 64);
+        assert.equal(input.bytes[actualExpPos + 4], 10);
+    });
+});
 describe("NZCP credential subject hash - example pass", function () {
     this.timeout(100000);
 
