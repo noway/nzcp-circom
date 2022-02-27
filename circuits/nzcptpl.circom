@@ -25,18 +25,18 @@ include "./cbor.circom";
 #define NOT(in) (1 + in - 2*in)
 
 
-// TODO: test
+// find verifiable credential and expiry date positions
 template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 2;
     var ConstBytes[ConstBytesLen] = [118, 99];
 
     // i/o signals
-    signal input maplen;
+    signal input maplen; // TODO: rename to mapLen?
     signal input bytes[BytesLen];
     signal input pos;
 
-    signal output needlepos;
+    signal output needlepos; // TODO: rename to needlePos
     signal output expPos;
 
     // signals
@@ -131,7 +131,7 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     expPos <== calculateTotal_exppos.sum;
 }
 
-// TODO: test
+// find credential subject position
 template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 17;
@@ -209,8 +209,7 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     needlepos <== calculateTotal_foundpos.sum;
 }
 
-
-// TODO: test
+// read credential subject
 template ReadCredSubj(BytesLen, MaxBufferLen) {
 
     // constants
@@ -333,7 +332,6 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
 }
 
-// TODO: test
 // concat givenName, familyName and dob with comma as separator
 template ConcatCredSubj(MaxBufferLen) {
     var COMMA_CHAR = 44;
@@ -415,7 +413,9 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
-template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen, CredSubjMaxBufferSpace) {
+// get NZCP public identity based on ToBeSigned
+// TODO: document parameters
+template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborMapLenVC, MaxCborArrayLenCredSubj, MaxCborMapLenCredSubj, CredSubjMaxBufferSpace) {
     // constants
     var SHA256_LEN = 256;
     var BLOCK_SIZE = 512;
@@ -509,7 +509,7 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMap
     // find "vc" key pos in the map
     signal vcPos;
     signal expPos;
-    component findVC = FindVCAndExp(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen);
+    component findVC = FindVCAndExp(MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborMapLenVC);
     copyBytes(ToBeSigned, findVC.bytes, MaxToBeSignedBytes)
     findVC.pos <== readMapLength.nextPos;
     findVC.maplen <== readMapLength.len;
@@ -528,12 +528,13 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMap
 
 
     // find credential subject
+    // TODO: better naming for these signals?
     component readMapLength2 = ReadMapLength(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength2.bytes, MaxToBeSignedBytes)
     readMapLength2.pos <== vcPos;
 
     signal credSubjPos;
-    component findCredSubj = FindCredSubj(MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen);
+    component findCredSubj = FindCredSubj(MaxToBeSignedBytes, MaxCborArrayLenCredSubj, MaxCborMapLenCredSubj);
     copyBytes(ToBeSigned, findCredSubj.bytes, MaxToBeSignedBytes)
     findCredSubj.pos <== readMapLength2.nextPos;
     findCredSubj.maplen <== readMapLength2.len;

@@ -10,8 +10,6 @@ include "../sha256-var-circom-main/snark-jwt-verify/circuits/calculate_total.cir
 // License: MIT
 template QuinSelector(choices) {
 
-    assert(choices > 0);
-
     // i/o signals
     signal input in[choices];
     signal input index;
@@ -20,9 +18,11 @@ template QuinSelector(choices) {
     // Ensure that index < choices
     var bits = log2(choices) + 1;
     component lessThan = LessThan(bits);
-    lessThan.in[0] <== index;
-    lessThan.in[1] <== choices;
-    lessThan.out === 1;
+    if (choices > 0) {
+        lessThan.in[0] <== index;
+        lessThan.in[1] <== choices;
+        lessThan.out === 1;
+    }
 
     component eqs[choices];
     signal sums[choices];
@@ -38,5 +38,5 @@ template QuinSelector(choices) {
     }
 
     // Returns 0 + 0 + ... + item
-    out <== sums[choices - 1];
+    out <== choices > 0 ? sums[choices - 1] : 0;
 }
