@@ -11,8 +11,8 @@ require('dotenv').config()
 function prepareNZCPCredSubjHashInput(input, maxLen) {
     const bytes = Buffer.alloc(maxLen).fill(0);
     input.copy(bytes, 0);
-    const byteslen = input.length;
-    return { bytes, byteslen }
+    const bytesLen = input.length;
+    return { bytes, bytesLen }
 }
 
 function getNZCPPubIdentity(passURI, isLive) {
@@ -35,7 +35,7 @@ async function testNZCPCredSubjHash(cir, passURI, isLive, maxLen) {
     const expected = getNZCPPubIdentity(passURI, isLive);
 
     const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
-    const witness = await cir.calculateWitness({ toBeSigned: bufferToBitArray(input.bytes), toBeSignedLen: input.byteslen }, true);
+    const witness = await cir.calculateWitness({ toBeSigned: bufferToBitArray(input.bytes), toBeSignedLen: input.bytesLen }, true);
 
     const credSubjHash = bitArrayToBuffer(witness.slice(1, 1 + SHA256_BITS)).toString("hex");
     assert.equal(credSubjHash, expected.credSubjHash);
