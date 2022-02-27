@@ -250,6 +250,62 @@ describe("NZCP read credential subject - live pass", function () {
     }
 });
 
+async function testCredSubjConcat(cir, passURI, isLive) {
+    const maxBufferLen = 64;
+
+    const verificationResult = verifyPassURIOffline(passURI, { didDocument: isLive ? DID_DOCUMENTS.MOH_LIVE : DID_DOCUMENTS.MOH_EXAMPLE })
+    const { givenName, familyName, dob } = verificationResult.credentialSubject;
+
+    const expectedResult = `${givenName},${familyName},${dob}`
+
+    const witness = await cir.calculateWitness({ 
+        givenName: padArray(stringToArray(givenName), maxBufferLen),
+        givenNameLen: givenName.length,
+        familyName: padArray(stringToArray(familyName), maxBufferLen),
+        familyNameLen: familyName.length,
+        dob: padArray(stringToArray(dob), maxBufferLen),
+        dobLen: dob.length,
+     }, true);
+
+
+     const actualResult = witness.slice(1, 1 + maxBufferLen).map(e => Number(e));
+     const actualResultLen = witness[1 + maxBufferLen];
+
+     assert.deepEqual(actualResult, padArray(stringToArray(expectedResult), maxBufferLen));
+     assert.equal(actualResultLen, expectedResult.length);
+}
+
+describe("NZCP credential subject concat - example pass", function () {
+    this.timeout(100000);
+
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/concatCredSubj_test.circom`);
+    })
+
+    it ("Should concat credential subject for EXAMPLE_PASS_URI", async () => {
+        await testCredSubjConcat(cir, EXAMPLE_PASS_URI, false, 64);
+    });
+
+    it ("Should concat credential subject for LIVE_PASS_URI_1", async () => {
+        await testCredSubjConcat(cir, LIVE_PASS_URI_1, true, 64);
+    });
+    if (LIVE_PASS_URI_2) {
+        it ("Should concat credential subject for LIVE_PASS_URI_2", async () => {
+            await testCredSubjConcat(cir, LIVE_PASS_URI_2, true, 64);
+        });
+    }
+    if (LIVE_PASS_URI_3) {
+        it ("Should concat credential subject for LIVE_PASS_URI_3", async () => {
+            await testCredSubjConcat(cir, LIVE_PASS_URI_3, true, 64);
+        });
+    }
+    if (LIVE_PASS_URI_4) {
+        it ("Should concat credential subject for LIVE_PASS_URI_4", async () => {
+            await testCredSubjConcat(cir, LIVE_PASS_URI_4, true, 64);
+        });
+    }
+});
 // TODO: rename to pub identity
 describe("NZCP credential subject hash - example pass", function () {
     this.timeout(100000);
