@@ -221,6 +221,35 @@ describe("NZCP read cred subj - example pass", function () {
         await testReadCredSubj(cir, EXAMPLE_PASS_URI, 0, 247, 314, 32);
     });
 });
+
+describe("NZCP read credential subject - live pass", function () {
+    this.timeout(100000);
+
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/readCredSubj_liveTest.circom`);
+    })
+
+    it ("Should read credential subject of LIVE_PASS_URI_1", async () => {
+        await testReadCredSubj(cir, LIVE_PASS_URI_1, 1, 251, 355, 64);
+    });
+    if (LIVE_PASS_URI_2) {
+        it ("Should read credential subject of LIVE_PASS_URI_2", async () => {
+            await testReadCredSubj(cir, LIVE_PASS_URI_2, 1, 251, 355, 64);
+        });
+    }
+    if (LIVE_PASS_URI_3) {
+        it ("Should read credential subject of LIVE_PASS_URI_3", async () => {
+            await testReadCredSubj(cir, LIVE_PASS_URI_3, 1, 251, 355, 64);
+        });
+    }
+    if (LIVE_PASS_URI_4) {
+        it ("Should read credential subject of LIVE_PASS_URI_4", async () => {
+            await testReadCredSubj(cir, LIVE_PASS_URI_4, 1, 251, 355, 64);
+        });
+    }
+});
+
 // TODO: rename to pub identity
 describe("NZCP credential subject hash - example pass", function () {
     this.timeout(100000);
