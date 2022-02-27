@@ -1,4 +1,4 @@
-pragma circom 2.0.0;
+pragma circom 2.0.3;
 
 // @dev x raised to the power of y
 function pow(x, y) {
