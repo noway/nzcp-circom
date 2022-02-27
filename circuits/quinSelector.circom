@@ -1,4 +1,4 @@
-pragma circom 2.0.0;
+pragma circom 2.0.3;
 
 include "./log2.circom";
 include "../sha256-var-circom-main/snark-jwt-verify/circuits/calculate_total.circom";
