@@ -502,17 +502,17 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborM
         ToBeSigned[k] <== b2n[k].out * ltLen[k].out;
     }
 
-    component readMapLength = ReadMapLength(MaxToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength.bytes, MaxToBeSignedBytes)
-    readMapLength.pos <== ClaimsSkip;
+    component readMapLengthClaims = ReadMapLength(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLengthClaims.bytes, MaxToBeSignedBytes)
+    readMapLengthClaims.pos <== ClaimsSkip;
 
     // find "vc" key pos in the map
     signal vcPos;
     signal expPos;
     component findVC = FindVCAndExp(MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborMapLenVC);
     copyBytes(ToBeSigned, findVC.bytes, MaxToBeSignedBytes)
-    findVC.pos <== readMapLength.nextPos;
-    findVC.mapLen <== readMapLength.len;
+    findVC.pos <== readMapLengthClaims.nextPos;
+    findVC.mapLen <== readMapLengthClaims.len;
     vcPos <== findVC.needlePos;
     expPos <== findVC.expPos;
 
@@ -529,28 +529,28 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborM
 
     // find credential subject
     // TODO: better naming for these signals?
-    component readMapLength2 = ReadMapLength(MaxToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength2.bytes, MaxToBeSignedBytes)
-    readMapLength2.pos <== vcPos;
+    component readMapLengthVC = ReadMapLength(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLengthVC.bytes, MaxToBeSignedBytes)
+    readMapLengthVC.pos <== vcPos;
 
     signal credSubjPos;
     component findCredSubj = FindCredSubj(MaxToBeSignedBytes, MaxCborArrayLenCredSubj, MaxCborMapLenCredSubj);
     copyBytes(ToBeSigned, findCredSubj.bytes, MaxToBeSignedBytes)
-    findCredSubj.pos <== readMapLength2.nextPos;
-    findCredSubj.mapLen <== readMapLength2.len;
+    findCredSubj.pos <== readMapLengthVC.nextPos;
+    findCredSubj.mapLen <== readMapLengthVC.len;
     credSubjPos <== findCredSubj.needlePos;
 
     // read credential subject map length
-    component readMapLength3 = ReadMapLength(MaxToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength3.bytes, MaxToBeSignedBytes)
-    readMapLength3.pos <== credSubjPos;
+    component readMapLengthCredSubj = ReadMapLength(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLengthCredSubj.bytes, MaxToBeSignedBytes)
+    readMapLengthCredSubj.pos <== credSubjPos;
 
 
     // read credential subject map
     component readCredSubj = ReadCredSubj(MaxToBeSignedBytes, CredSubjMaxBufferLen);
     copyBytes(ToBeSigned, readCredSubj.bytes, MaxToBeSignedBytes)
-    readCredSubj.pos <== readMapLength3.nextPos;
-    readCredSubj.mapLen <== readMapLength3.len;
+    readCredSubj.pos <== readMapLengthCredSubj.nextPos;
+    readCredSubj.mapLen <== readMapLengthCredSubj.len;
 
     // concat given name, family name and dob
     component concatCredSubj = ConcatCredSubj(CredSubjMaxBufferLen);
