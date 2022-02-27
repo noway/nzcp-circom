@@ -430,16 +430,16 @@ template ReadStringLength(BytesLen) {
 // @dev reads CBOR map length
 // returns the next position and map length
 // input MUST be a byte array
-template ReadMapLength(ToBeSignedBytes) {
+template ReadMapLength(BytesLen) {
     // i/o signals
     signal input pos;
-    signal input bytes[ToBeSignedBytes];
+    signal input bytes[BytesLen];
     signal output len;
     signal output nextPos;
 
     // read type
-    component readType = ReadType(ToBeSignedBytes);
-    copyBytes(bytes, readType.bytes, ToBeSignedBytes)
+    component readType = ReadType(BytesLen);
+    copyBytes(bytes, readType.bytes, BytesLen)
     readType.pos <== pos; // 27 bytes initial skip for example MoH pass
     nextPos <== readType.nextPos;
     hardcore_assert(readType.type, MAJOR_TYPE_MAP);
