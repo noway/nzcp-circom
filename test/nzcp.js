@@ -84,7 +84,7 @@ describe("NZCP find vc and exp - example pass", function () {
         cir = await wasm_tester(`${__dirname}/../circuits/findVCAndExp_exampleTest.circom`);
     })
 
-    it ("Should find vc and exp pos of EXAMPLE_PASS_URI", async () => {
+    it ("Should find vc and exp of EXAMPLE_PASS_URI", async () => {
         await testFindVCAndExp(cir, EXAMPLE_PASS_URI, false, 28, maxLen, 76, 68);
     });
 });
@@ -98,21 +98,21 @@ describe("NZCP find vc and exp - live pass", function () {
         cir = await wasm_tester(`${__dirname}/../circuits/findVCAndExp_liveTest.circom`);
     })
 
-    it ("Should find vc and exp pos of LIVE_PASS_URI_1", async () => {
+    it ("Should find vc and exp of LIVE_PASS_URI_1", async () => {
         await testFindVCAndExp(cir, LIVE_PASS_URI_1, true, 31, maxLen, 80, 72);
     });
     if (LIVE_PASS_URI_2) {
-        it ("Should find vc and exp pos of LIVE_PASS_URI_2", async () => {
+        it ("Should find vc and exp of LIVE_PASS_URI_2", async () => {
             await testFindVCAndExp(cir, LIVE_PASS_URI_2, true, 31, maxLen, 80, 72);
         });
     }
     if (LIVE_PASS_URI_3) {
-        it ("Should find vc and exp pos of LIVE_PASS_URI_3", async () => {
+        it ("Should find vc and exp of LIVE_PASS_URI_3", async () => {
             await testFindVCAndExp(cir, LIVE_PASS_URI_3, true, 31, maxLen, 80, 72);
         });
     }
     if (LIVE_PASS_URI_4) {
-        it ("Should find vc and exp pos of LIVE_PASS_URI_4", async () => {
+        it ("Should find vc and exp of LIVE_PASS_URI_4", async () => {
             await testFindVCAndExp(cir, LIVE_PASS_URI_4, true, 31, maxLen, 80, 72);
         });
     }
