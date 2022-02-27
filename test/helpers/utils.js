@@ -21,8 +21,17 @@ function bitArray2buffer (a) {
     return b;
 }
 
+function bufferToBytes(b) {
+    const res = [];
+    for (let i = 0; i < b.length; i++) {
+            res.push(b[i]);
+    }
+    return res;
+}
+
 
 module.exports = {
     buffer2bitArray,
     bitArray2buffer,
+    bufferToBytes,
 }
