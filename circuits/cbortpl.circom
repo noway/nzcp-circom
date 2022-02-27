@@ -19,7 +19,6 @@ include "./quinSelector.circom";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
-// TODO: document parameters
 
 // @dev get CBOR type
 // CBOR type is the value of v bit shifted to the right by 5 bits
