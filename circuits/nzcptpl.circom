@@ -527,6 +527,7 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMap
 
 
     // find credential subject
+    // TODO: better naming for these signals?
     component readMapLength2 = ReadMapLength(MaxToBeSignedBytes);
     copyBytes(ToBeSigned, readMapLength2.bytes, MaxToBeSignedBytes)
     readMapLength2.pos <== vcPos;
