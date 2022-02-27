@@ -1,4 +1,4 @@
-pragma circom 2.0.0;
+pragma circom 2.0.3;
 
 include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/comparators.circom";
 include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/sha256/shift.circom";
@@ -20,7 +20,7 @@ include "./quinSelector.circom";
 #define MAJOR_TYPE_CONTENT_FREE 7
 
 
-// get CBOR type
+// @dev get CBOR type
 // CBOR type is the value of v bit shifted to the right by 5 bits
 // input MUST be a byte
 template GetType() {
@@ -51,7 +51,7 @@ template GetType() {
     type <== b2n.out;
 }
 
-// get CBOR x value
+// @dev get CBOR x value
 // CBOR x value is the 5 lowest bits of v
 // input MUST be a byte
 template GetX() {
@@ -72,9 +72,10 @@ template GetX() {
     x <== b2n.out;
 }
 
-// get CBOR v
+// @dev get CBOR v
 // CBOR v is the element of array `bytes` at index `pos`
 // input MUST be a byte array
+// @param BytesLen - length of the byte array
 template GetV(BytesLen) {
     signal input bytes[BytesLen];
     signal input pos;
@@ -88,7 +89,7 @@ template GetV(BytesLen) {
     v <== quinSelector.out;
 }
 
-// decode a CBOR integer
+// @dev decode a CBOR integer
 // supports <=23 integers
 // input MUST be a byte
 template DecodeUint23() {
@@ -107,9 +108,10 @@ template DecodeUint23() {
     value <== getX.x;
 }
 
-// decode a CBOR integer
+// @dev decode a CBOR integer
 // Supports <=23 integers as well as 8-bit, 16-bit and 32-bit integers
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
 template DecodeUint(BytesLen) {
     signal input v;
     signal input bytes[BytesLen];
@@ -126,42 +128,42 @@ template DecodeUint(BytesLen) {
     component lessThan = LessThan(8); // 8 bits should be enough
     lessThan.in[0] <== x;
     lessThan.in[1] <== 24;
-    signal condition_23;
-    condition_23 <== lessThan.out;
+    signal condition23;
+    condition23 <== lessThan.out;
 
     component isEqual24 = IsEqual();
     isEqual24.in[0] <== x;
     isEqual24.in[1] <== 24;
-    signal condition_24;
-    condition_24 <== isEqual24.out;
+    signal condition24;
+    condition24 <== isEqual24.out;
 
     component isEqual25 = IsEqual();
     isEqual25.in[0] <== x;
     isEqual25.in[1] <== 25;
-    signal condition_25;
-    condition_25 <== isEqual25.out;
+    signal condition25;
+    condition25 <== isEqual25.out;
 
     component isEqual26 = IsEqual();
     isEqual26.in[0] <== x;
     isEqual26.in[1] <== 26;
-    signal condition_26;
-    condition_26 <== isEqual26.out;
+    signal condition26;
+    condition26 <== isEqual26.out;
 
     // if (x <= 23)
-    signal value_23;
-    value_23 <== x;
-    signal nextPos_23;
-    nextPos_23 <== pos;
+    signal value23;
+    value23 <== x;
+    signal nextPos23;
+    nextPos23 <== pos;
 
     // if(x == 24)
     component getV_24 = GetV(BytesLen);
 
     copyBytes(bytes, getV_24.bytes, BytesLen)
-    getV_24.pos <== condition_24 * pos;
-    signal value_24;
-    value_24 <== getV_24.v;
-    signal nextPos_24;
-    nextPos_24 <== pos + 1;
+    getV_24.pos <== condition24 * pos;
+    signal value24;
+    value24 <== getV_24.v;
+    signal nextPos24;
+    nextPos24 <== pos + 1;
 
     // if(x == 25)
     component getV1_25 = GetV(BytesLen);
@@ -169,19 +171,19 @@ template DecodeUint(BytesLen) {
     copyBytes(bytes, getV1_25.bytes, BytesLen)
     copyBytes(bytes, getV2_25.bytes, BytesLen)
 
-    getV1_25.pos <== condition_25 * pos;
-    signal value_1_25;
-    value_1_25 <== getV1_25.v * 256; // 2**8
+    getV1_25.pos <== condition25 * pos;
+    signal value1_25;
+    value1_25 <== getV1_25.v * 256; // 2**8
 
-    getV2_25.pos <== condition_25 * (pos + 1);
-    signal value_2_25;
-    value_2_25 <== getV2_25.v;
+    getV2_25.pos <== condition25 * (pos + 1);
+    signal value2_25;
+    value2_25 <== getV2_25.v;
 
-    signal value_25;
-    value_25 <== value_1_25 + value_2_25;
+    signal value25;
+    value25 <== value1_25 + value2_25;
 
-    signal nextPos_25;
-    nextPos_25 <== pos + 2;
+    signal nextPos25;
+    nextPos25 <== pos + 2;
 
     // if(x == 26)
     component getV1_26 = GetV(BytesLen);
@@ -194,49 +196,50 @@ template DecodeUint(BytesLen) {
     copyBytes(bytes, getV3_26.bytes, BytesLen)
     copyBytes(bytes, getV4_26.bytes, BytesLen)
 
-    getV1_26.pos <== condition_26 * pos;
-    signal value_1_26;
-    value_1_26 <== getV1_26.v * 16777216; // 2**24
+    getV1_26.pos <== condition26 * pos;
+    signal value1_26;
+    value1_26 <== getV1_26.v * 16777216; // 2**24
 
-    getV2_26.pos <== condition_26 * (pos + 1);
-    signal value_2_26;
-    value_2_26 <== getV2_26.v * 65536; // 2**16
+    getV2_26.pos <== condition26 * (pos + 1);
+    signal value2_26;
+    value2_26 <== getV2_26.v * 65536; // 2**16
 
-    getV3_26.pos <== condition_26 * (pos + 2);
-    signal value_3_26;
-    value_3_26 <== getV3_26.v * 256; // 2**8
+    getV3_26.pos <== condition26 * (pos + 2);
+    signal value3_26;
+    value3_26 <== getV3_26.v * 256; // 2**8
 
-    getV4_26.pos <== condition_26 * (pos + 3);
-    signal value_4_26;
-    value_4_26 <== getV4_26.v;
+    getV4_26.pos <== condition26 * (pos + 3);
+    signal value4_26;
+    value4_26 <== getV4_26.v;
 
-    signal value_26;
-    value_26 <== value_1_26 + value_2_26 + value_3_26 + value_4_26;
+    signal value26;
+    value26 <== value1_26 + value2_26 + value3_26 + value4_26;
 
-    signal nextPos_26;
-    nextPos_26 <== pos + 4;
+    signal nextPos26;
+    nextPos26 <== pos + 4;
 
 
 
     // return
-    component calculateTotal_value = CalculateTotal(4);
-    calculateTotal_value.nums[0] <== condition_23 * value_23;
-    calculateTotal_value.nums[1] <== condition_24 * value_24;
-    calculateTotal_value.nums[2] <== condition_25 * value_25;
-    calculateTotal_value.nums[3] <== condition_26 * value_26;
-    value <== calculateTotal_value.sum;
+    component valueTally = CalculateTotal(4);
+    valueTally.nums[0] <== condition23 * value23;
+    valueTally.nums[1] <== condition24 * value24;
+    valueTally.nums[2] <== condition25 * value25;
+    valueTally.nums[3] <== condition26 * value26;
+    value <== valueTally.sum;
 
-    component calculateTotal_nextPos = CalculateTotal(4);
-    calculateTotal_nextPos.nums[0] <== condition_23 * nextPos_23;
-    calculateTotal_nextPos.nums[1] <== condition_24 * nextPos_24;
-    calculateTotal_nextPos.nums[2] <== condition_25 * nextPos_25;
-    calculateTotal_nextPos.nums[3] <== condition_26 * nextPos_26;
-    nextPos <== calculateTotal_nextPos.sum;
+    component nextPosTally = CalculateTotal(4);
+    nextPosTally.nums[0] <== condition23 * nextPos23;
+    nextPosTally.nums[1] <== condition24 * nextPos24;
+    nextPosTally.nums[2] <== condition25 * nextPos25;
+    nextPosTally.nums[3] <== condition26 * nextPos26;
+    nextPos <== nextPosTally.sum;
 }
 
-// read a CBOR type
+// @dev read a CBOR type
 // returns the next position and v
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
 template ReadType(BytesLen) {
 
     signal input bytes[BytesLen];
@@ -257,8 +260,9 @@ template ReadType(BytesLen) {
     nextPos <== pos + 1;
 }
 
-// skip a scalar CBOR value, only ints and strings are supported atm.
+// @dev skip a scalar CBOR value, only ints and strings are supported atm.
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
 template SkipValueScalar(BytesLen) {
 
     // signals
@@ -295,8 +299,10 @@ template SkipValueScalar(BytesLen) {
 }
 
 
-// skip a CBOR value. supports everything that SkipValueScalar supports plus arrays
+// @dev skip a CBOR value. supports everything that SkipValueScalar supports plus arrays
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
+// @param MaxArrayLen - maximum number of elements in the CBOR array
 template SkipValue(BytesLen, MaxArrayLen) {
     // i/o signals
     signal input bytes[BytesLen];
@@ -361,8 +367,11 @@ template SkipValue(BytesLen, MaxArrayLen) {
     nextPos <== calculateTotal.sum;
 }
 
-// check if a CBOR string equals to a given string
+// @dev check if a CBOR string equals to a given string
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
+// @param ConstBytes - constant byte array to compare to
+// @param ConstBytesLen - length of the constant byte array
 template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
 
     assert(ConstBytesLen <= BytesLen);
@@ -401,9 +410,10 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
     out <== isZero.out;
 }
 
-// reads CBOR string length
+// @dev reads CBOR string length
 // returns the next position and string length
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
 template ReadStringLength(BytesLen) {
     // i/o signals
     signal input bytes[BytesLen];
@@ -426,19 +436,20 @@ template ReadStringLength(BytesLen) {
     len <== dUint.value;
 }
 
-// reads CBOR map length
+// @dev reads CBOR map length
 // returns the next position and map length
 // input MUST be a byte array
-template ReadMapLength(ToBeSignedBytes) {
+// @param BytesLen - length of the cbor buffer
+template ReadMapLength(BytesLen) {
     // i/o signals
     signal input pos;
-    signal input bytes[ToBeSignedBytes];
+    signal input bytes[BytesLen];
     signal output len;
     signal output nextPos;
 
     // read type
-    component readType = ReadType(ToBeSignedBytes);
-    copyBytes(bytes, readType.bytes, ToBeSignedBytes)
+    component readType = ReadType(BytesLen);
+    copyBytes(bytes, readType.bytes, BytesLen)
     readType.pos <== pos; // 27 bytes initial skip for example MoH pass
     nextPos <== readType.nextPos;
     hardcore_assert(readType.type, MAJOR_TYPE_MAP);
@@ -450,9 +461,11 @@ template ReadMapLength(ToBeSignedBytes) {
     len <== dUint23.value;
 }
 
-// copies over a CBOR string value to a given array `outbytes`
+// @dev copies over a CBOR string value to a given array `outbytes`
 // returns the next position and string length
 // input MUST be a byte array
+// @param BytesLen - length of the cbor buffer
+// @param MaxLen - maximum length of the output array
 template CopyString(BytesLen, MaxLen) {
 
     assert(MaxLen <= BytesLen);

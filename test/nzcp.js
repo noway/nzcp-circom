@@ -59,10 +59,10 @@ async function testFindVCAndExp(cir, passURI, isLive, pos, maxLen, expectedVCPos
     const verificationResult = verifyPassURIOffline(passURI, { didDocument: isLive ? DID_DOCUMENTS.MOH_LIVE : DID_DOCUMENTS.MOH_EXAMPLE })
     const exp = verificationResult.raw.exp
 
-    const maplen = 5;
+    const mapLen = 5;
     const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
     const bytes = bufferToBytes(input.bytes)
-    const witness = await cir.calculateWitness({ maplen, bytes, pos }, true);
+    const witness = await cir.calculateWitness({ mapLen, bytes, pos }, true);
 
     const actualVCPos = Number(witness[1]);
     assert.equal(actualVCPos, expectedVCPos);
@@ -121,10 +121,10 @@ describe("NZCP find vc and exp - live pass", function () {
 
 async function testFindCredSubj(cir, passURI, pos, maxLen, expectedCredSubjPos) {
 
-    const maplen = 4;
+    const mapLen = 4;
     const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
     const bytes = bufferToBytes(input.bytes)
-    const witness = await cir.calculateWitness({ maplen, bytes, pos }, true);
+    const witness = await cir.calculateWitness({ mapLen, bytes, pos }, true);
 
     const actualCredSubjPos = Number(witness[1]);
     assert.equal(actualCredSubjPos, expectedCredSubjPos);
@@ -181,10 +181,10 @@ async function testReadCredSubj(cir, passURI, isLive, pos, maxLen, maxBufferLen)
     const verificationResult = verifyPassURIOffline(passURI, { didDocument: isLive ? DID_DOCUMENTS.MOH_LIVE : DID_DOCUMENTS.MOH_EXAMPLE })
     const { givenName, familyName, dob } = verificationResult.credentialSubject;
 
-    const maplen = 3;
+    const mapLen = 3;
     const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
     const bytes = bufferToBytes(input.bytes)
-    const witness = await cir.calculateWitness({ maplen, bytes, pos }, true);
+    const witness = await cir.calculateWitness({ mapLen, bytes, pos }, true);
 
     const actualGivenName = witness.slice(1, 1 + maxBufferLen).map(e => Number(e));
     const actualGivenNameLen = witness[1 + maxBufferLen];

@@ -1,4 +1,4 @@
-pragma circom 2.0.0;
+pragma circom 2.0.3;
 include "./nzcp.circom";
 
 component main = NZCPPubIdentity(0, 314, 0, 4, 2, 4, 5);

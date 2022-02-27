@@ -1,4 +1,4 @@
-pragma circom 2.0.0;
+pragma circom 2.0.3;
 
 include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/gates.circom";
 include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/comparators.circom";
@@ -25,18 +25,21 @@ include "./cbor.circom";
 #define NOT(in) (1 + in - 2*in)
 
 
-// find verifiable credential and expiry date positions
+// @dev find verifiable credential and expiry date positions
+// @param BytesLen - max bytes length of the cbor buffer
+// @param MaxCborArrayLen - maximum number of elements in the CBOR array
+// @param MaxCborMapLen - maximum number of elements in the CBOR map
 template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 2;
     var ConstBytes[ConstBytesLen] = [118, 99];
 
     // i/o signals
-    signal input maplen; // TODO: rename to mapLen?
+    signal input mapLen;
     signal input bytes[BytesLen];
     signal input pos;
 
-    signal output needlepos; // TODO: rename to needlePos
+    signal output needlePos;
     signal output expPos;
 
     // signals
@@ -56,10 +59,10 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     component isInt[MaxCborMapLen];
     component isNeedleString[MaxCborMapLen];
     component is4Int[MaxCborMapLen];
-    component withinMaplen[MaxCborMapLen];
+    component withinMapLen[MaxCborMapLen];
 
-    component calculateTotal_foundpos = CalculateTotal(MaxCborMapLen);
-    component calculateTotal_exppos = CalculateTotal(MaxCborMapLen);
+    component foundPosTally = CalculateTotal(MaxCborMapLen);
+    component expPosTally = CalculateTotal(MaxCborMapLen);
 
     for (var k = 0; k < MaxCborMapLen; k++) { 
 
@@ -104,9 +107,9 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
         is4Int[k].in[1] <== value[k]; // pos before skipping
 
         // are we within map bounds?
-        withinMaplen[k] = LessThan(8);
-        withinMaplen[k].in[0] <== k;
-        withinMaplen[k].in[1] <== maplen;
+        withinMapLen[k] = LessThan(8);
+        withinMapLen[k].in[0] <== k;
+        withinMapLen[k].in[1] <== mapLen;
 
         // is current value a "vc" string?
         isNeedle[k] <== isString[k].out * isNeedleString[k].out;
@@ -115,34 +118,37 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
         isExp[k] <== isInt[k].out * is4Int[k].out;
 
         // should we select this vc pos candidate?
-        isAccepted[k] <== isNeedle[k] * withinMaplen[k].out;
+        isAccepted[k] <== isNeedle[k] * withinMapLen[k].out;
 
         // should we select this exp candidate?
-        isExpAccepted[k] <== isExp[k] * withinMaplen[k].out;
+        isExpAccepted[k] <== isExp[k] * withinMapLen[k].out;
 
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_foundpos.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
+        foundPosTally.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
         
         // put a expPos candidate into CalculateTotal to be able to get exp pos outside of the loop
-        calculateTotal_exppos.nums[k] <== isExpAccepted[k] * decodeUint[k].nextPos;
+        expPosTally.nums[k] <== isExpAccepted[k] * decodeUint[k].nextPos;
     }
 
-    needlepos <== calculateTotal_foundpos.sum;
-    expPos <== calculateTotal_exppos.sum;
+    needlePos <== foundPosTally.sum;
+    expPos <== expPosTally.sum;
 }
 
-// find credential subject position
+// @dev find credential subject position
+// @param BytesLen - max bytes length of the cbor buffer
+// @param MaxCborArrayLen - maximum number of elements in the CBOR array
+// @param MaxCborMapLen - maximum number of elements in the CBOR map
 template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 17;
     var ConstBytes[ConstBytesLen] = [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116];
 
     // i/o signals
-    signal input maplen;
+    signal input mapLen;
     signal input bytes[BytesLen];
     signal input pos;
 
-    signal output needlepos;
+    signal output needlePos;
 
     // signals
     signal v[MaxCborMapLen];
@@ -156,9 +162,9 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     component skipValue[MaxCborMapLen];
     component isString[MaxCborMapLen];
     component isNeedleString[MaxCborMapLen];
-    component withinMaplen[MaxCborMapLen];
+    component withinMapLen[MaxCborMapLen];
 
-    component calculateTotal_foundpos = CalculateTotal(MaxCborMapLen);
+    component foundPosTally = CalculateTotal(MaxCborMapLen);
 
     for (var k = 0; k < MaxCborMapLen; k++) { 
 
@@ -192,24 +198,26 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
         isNeedleString[k].pos <== decodeUint[k].nextPos; // pos before skipping
         isNeedleString[k].len <== value[k];
 
-        withinMaplen[k] = LessThan(8);
-        withinMaplen[k].in[0] <== k;
-        withinMaplen[k].in[1] <== maplen;
+        withinMapLen[k] = LessThan(8);
+        withinMapLen[k].in[0] <== k;
+        withinMapLen[k].in[1] <== mapLen;
 
         // is current value a "vc" string?
         isNeedle[k] <== isString[k].out * isNeedleString[k].out;
 
         // should we select this vc pos candidate?
-        isAccepted[k] <== isNeedle[k] * withinMaplen[k].out;
+        isAccepted[k] <== isNeedle[k] * withinMapLen[k].out;
 
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_foundpos.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
+        foundPosTally.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
     }
 
-    needlepos <== calculateTotal_foundpos.sum;
+    needlePos <== foundPosTally.sum;
 }
 
-// read credential subject
+// @dev read credential subject
+// @param BytesLen - max bytes length of the cbor buffer
+// @param MaxBufferLen - max buffer length of every piece of credential subject (e.g. givenName, familyName, dob)
 template ReadCredSubj(BytesLen, MaxBufferLen) {
 
     // constants
@@ -225,7 +233,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     var DOB_STR[DOB_LEN] = [100, 111, 98];
 
     // i/o signals
-    signal input maplen;
+    signal input mapLen;
     signal input bytes[BytesLen];
     signal input pos;
 
@@ -239,7 +247,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
 
     // check that map length is exactly as per NZCP spec
-    hardcore_assert(maplen, CREDENTIAL_SUBJECT_MAP_LEN);
+    hardcore_assert(mapLen, CREDENTIAL_SUBJECT_MAP_LEN);
 
 
     component readStringLength[CREDENTIAL_SUBJECT_MAP_LEN];
@@ -278,61 +286,62 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
 
     // assign givenName
-    component givenName_charsCalculateTotal[MaxStringLen];
+    component givenNameCharTally[MaxStringLen];
     for(var h = 0; h<MaxStringLen; h++) {
-        givenName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        givenNameCharTally[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            givenName_charsCalculateTotal[h].nums[i] <== isGivenName[i].out * copyString[i].outbytes[h];
+            givenNameCharTally[h].nums[i] <== isGivenName[i].out * copyString[i].outbytes[h];
         }
-        givenName[h] <== givenName_charsCalculateTotal[h].sum;
+        givenName[h] <== givenNameCharTally[h].sum;
     }
     for(var h = MaxStringLen; h < MaxBufferLen; h++) { givenName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
-    component givenName_lenCalculateTotal;
-    givenName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    component givenNameLenTally;
+    givenNameLenTally = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        givenName_lenCalculateTotal.nums[i] <== isGivenName[i].out * copyString[i].len;
+        givenNameLenTally.nums[i] <== isGivenName[i].out * copyString[i].len;
     }
-    givenNameLen <== givenName_lenCalculateTotal.sum;
+    givenNameLen <== givenNameLenTally.sum;
 
 
     // assign familyName
-    component familyName_charsCalculateTotal[MaxStringLen];
+    component familyNameCharTally[MaxStringLen];
     for(var h = 0; h<MaxStringLen; h++) {
-        familyName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        familyNameCharTally[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            familyName_charsCalculateTotal[h].nums[i] <== isFamilyName[i].out * copyString[i].outbytes[h];
+            familyNameCharTally[h].nums[i] <== isFamilyName[i].out * copyString[i].outbytes[h];
         }
-        familyName[h] <== familyName_charsCalculateTotal[h].sum;
+        familyName[h] <== familyNameCharTally[h].sum;
     }
     for(var h = MaxStringLen; h < MaxBufferLen; h++) { familyName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
-    component familyName_lenCalculateTotal;
-    familyName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    component familyNameLenTally;
+    familyNameLenTally = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        familyName_lenCalculateTotal.nums[i] <== isFamilyName[i].out * copyString[i].len;
+        familyNameLenTally.nums[i] <== isFamilyName[i].out * copyString[i].len;
     }
-    familyNameLen <== familyName_lenCalculateTotal.sum;
+    familyNameLen <== familyNameLenTally.sum;
 
 
     // assign dob
-    component dob_charsCalculateTotal[MaxStringLen];
+    component dobCharTally[MaxStringLen];
     for(var h = 0; h<MaxStringLen; h++) {
-        dob_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        dobCharTally[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            dob_charsCalculateTotal[h].nums[i] <== isDOB[i].out * copyString[i].outbytes[h];
+            dobCharTally[h].nums[i] <== isDOB[i].out * copyString[i].outbytes[h];
         }
-        dob[h] <== dob_charsCalculateTotal[h].sum;
+        dob[h] <== dobCharTally[h].sum;
     }
     for(var h = MaxStringLen; h < MaxBufferLen; h++) { dob[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
-    component dob_lenCalculateTotal;
-    dob_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    component dobLenTally;
+    dobLenTally = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        dob_lenCalculateTotal.nums[i] <== isDOB[i].out * copyString[i].len;
+        dobLenTally.nums[i] <== isDOB[i].out * copyString[i].len;
     }
-    dobLen <== dob_lenCalculateTotal.sum;
+    dobLen <== dobLenTally.sum;
 
 }
 
-// concat givenName, familyName and dob with comma as separator
+// @dev concat givenName, familyName and dob with comma as separator
+// @param MaxBufferLen - max length of the buffer
 template ConcatCredSubj(MaxBufferLen) {
     var COMMA_CHAR = 44;
     var ConcatSizeBits = log2(MaxBufferLen) + 1;
@@ -413,8 +422,14 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
-// get NZCP public identity based on ToBeSigned
-// TODO: document parameters
+// @dev get NZCP public identity based on ToBeSigned
+// @param IsLive - are we to use live or example NZCP?
+// @param MaxToBeSignedBytes - maximum number of bytes in ToBeSigned
+// @param MaxCborArrayLenVC - maximum number of elements in the CBOR array for verifiable credential
+// @param MaxCborMapLenVC - maximum number of elements in the CBOR map for verifiable credential
+// @param MaxCborArrayLenCredSubj - maximum number of elements in the CBOR array for credential subject
+// @param MaxCborMapLenCredSubj - maximum number of elements in the CBOR map for credential subject
+// @param CredSubjMaxBufferSpace - maximum number of bytes in the buffer for concat credential subject
 template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborMapLenVC, MaxCborArrayLenCredSubj, MaxCborMapLenCredSubj, CredSubjMaxBufferSpace) {
     // constants
     var SHA256_LEN = 256;
@@ -502,18 +517,18 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborM
         ToBeSigned[k] <== b2n[k].out * ltLen[k].out;
     }
 
-    component readMapLength = ReadMapLength(MaxToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength.bytes, MaxToBeSignedBytes)
-    readMapLength.pos <== ClaimsSkip;
+    component readMapLengthClaims = ReadMapLength(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLengthClaims.bytes, MaxToBeSignedBytes)
+    readMapLengthClaims.pos <== ClaimsSkip;
 
     // find "vc" key pos in the map
     signal vcPos;
     signal expPos;
     component findVC = FindVCAndExp(MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborMapLenVC);
     copyBytes(ToBeSigned, findVC.bytes, MaxToBeSignedBytes)
-    findVC.pos <== readMapLength.nextPos;
-    findVC.maplen <== readMapLength.len;
-    vcPos <== findVC.needlepos;
+    findVC.pos <== readMapLengthClaims.nextPos;
+    findVC.mapLen <== readMapLengthClaims.len;
+    vcPos <== findVC.needlePos;
     expPos <== findVC.expPos;
 
     // read exp field in the map
@@ -528,29 +543,28 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborM
 
 
     // find credential subject
-    // TODO: better naming for these signals?
-    component readMapLength2 = ReadMapLength(MaxToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength2.bytes, MaxToBeSignedBytes)
-    readMapLength2.pos <== vcPos;
+    component readMapLengthVC = ReadMapLength(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLengthVC.bytes, MaxToBeSignedBytes)
+    readMapLengthVC.pos <== vcPos;
 
     signal credSubjPos;
     component findCredSubj = FindCredSubj(MaxToBeSignedBytes, MaxCborArrayLenCredSubj, MaxCborMapLenCredSubj);
     copyBytes(ToBeSigned, findCredSubj.bytes, MaxToBeSignedBytes)
-    findCredSubj.pos <== readMapLength2.nextPos;
-    findCredSubj.maplen <== readMapLength2.len;
-    credSubjPos <== findCredSubj.needlepos;
+    findCredSubj.pos <== readMapLengthVC.nextPos;
+    findCredSubj.mapLen <== readMapLengthVC.len;
+    credSubjPos <== findCredSubj.needlePos;
 
     // read credential subject map length
-    component readMapLength3 = ReadMapLength(MaxToBeSignedBytes);
-    copyBytes(ToBeSigned, readMapLength3.bytes, MaxToBeSignedBytes)
-    readMapLength3.pos <== credSubjPos;
+    component readMapLengthCredSubj = ReadMapLength(MaxToBeSignedBytes);
+    copyBytes(ToBeSigned, readMapLengthCredSubj.bytes, MaxToBeSignedBytes)
+    readMapLengthCredSubj.pos <== credSubjPos;
 
 
     // read credential subject map
     component readCredSubj = ReadCredSubj(MaxToBeSignedBytes, CredSubjMaxBufferLen);
     copyBytes(ToBeSigned, readCredSubj.bytes, MaxToBeSignedBytes)
-    readCredSubj.pos <== readMapLength3.nextPos;
-    readCredSubj.maplen <== readMapLength3.len;
+    readCredSubj.pos <== readMapLengthCredSubj.nextPos;
+    readCredSubj.mapLen <== readMapLengthCredSubj.len;
 
     // concat given name, family name and dob
     component concatCredSubj = ConcatCredSubj(CredSubjMaxBufferLen);
