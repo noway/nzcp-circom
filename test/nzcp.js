@@ -120,6 +120,65 @@ describe("NZCP find vc and exp - live pass", function () {
         });
     }
 });
+
+
+async function testFindCredSubj(cir, passURI, pos, maxLen, expectedCredSubjPos) {
+
+    const maplen = 4;
+    const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
+    const bytes = bufferToBytes(input.bytes)
+    const witness = await cir.calculateWitness({ maplen, bytes, pos }, true);
+
+    const actualCredSubjPos = Number(witness[1]);
+    assert.equal(actualCredSubjPos, expectedCredSubjPos);
+}
+
+describe("NZCP find credential subject - example pass", function () {
+    this.timeout(100000);
+
+    const maxLen = 314;
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/findCredSubj_exampleTest.circom`);
+    })
+
+    it ("Should find credential subject of EXAMPLE_PASS_URI", async () => {
+        await testFindCredSubj(cir, EXAMPLE_PASS_URI, 77, maxLen, 246);
+    });
+});
+
+describe("NZCP find credential subject - live pass", function () {
+    this.timeout(100000);
+
+    const maxLen = 355;
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/findCredSubj_liveTest.circom`);
+    })
+
+    it ("Should find credential subject of LIVE_PASS_URI_1", async () => {
+        await testFindCredSubj(cir, LIVE_PASS_URI_1, 81, maxLen, 250);
+    });
+
+    if (LIVE_PASS_URI_2) {
+        it ("Should find credential subject of LIVE_PASS_URI_2", async () => {
+            await testFindCredSubj(cir, LIVE_PASS_URI_2, 81, maxLen, 250);
+        });
+    }
+
+    if (LIVE_PASS_URI_3) {
+        it ("Should find credential subject of LIVE_PASS_URI_3", async () => {
+            await testFindCredSubj(cir, LIVE_PASS_URI_3, 81, maxLen, 250);
+        });
+    }
+
+    if (LIVE_PASS_URI_4) {
+        it ("Should find credential subject of LIVE_PASS_URI_4", async () => {
+            await testFindCredSubj(cir, LIVE_PASS_URI_4, 81, maxLen, 250);
+        });
+    }
+});
+
 describe("NZCP credential subject hash - example pass", function () {
     this.timeout(100000);
 
