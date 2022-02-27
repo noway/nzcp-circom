@@ -128,42 +128,42 @@ template DecodeUint(BytesLen) {
     component lessThan = LessThan(8); // 8 bits should be enough
     lessThan.in[0] <== x;
     lessThan.in[1] <== 24;
-    signal condition_23;
-    condition_23 <== lessThan.out;
+    signal condition23;
+    condition23 <== lessThan.out;
 
     component isEqual24 = IsEqual();
     isEqual24.in[0] <== x;
     isEqual24.in[1] <== 24;
-    signal condition_24;
-    condition_24 <== isEqual24.out;
+    signal condition24;
+    condition24 <== isEqual24.out;
 
     component isEqual25 = IsEqual();
     isEqual25.in[0] <== x;
     isEqual25.in[1] <== 25;
-    signal condition_25;
-    condition_25 <== isEqual25.out;
+    signal condition25;
+    condition25 <== isEqual25.out;
 
     component isEqual26 = IsEqual();
     isEqual26.in[0] <== x;
     isEqual26.in[1] <== 26;
-    signal condition_26;
-    condition_26 <== isEqual26.out;
+    signal condition26;
+    condition26 <== isEqual26.out;
 
     // if (x <= 23)
-    signal value_23;
-    value_23 <== x;
-    signal nextPos_23;
-    nextPos_23 <== pos;
+    signal value23;
+    value23 <== x;
+    signal nextPos23;
+    nextPos23 <== pos;
 
     // if(x == 24)
     component getV_24 = GetV(BytesLen);
 
     copyBytes(bytes, getV_24.bytes, BytesLen)
-    getV_24.pos <== condition_24 * pos;
-    signal value_24;
-    value_24 <== getV_24.v;
-    signal nextPos_24;
-    nextPos_24 <== pos + 1;
+    getV_24.pos <== condition24 * pos;
+    signal value24;
+    value24 <== getV_24.v;
+    signal nextPos24;
+    nextPos24 <== pos + 1;
 
     // if(x == 25)
     component getV1_25 = GetV(BytesLen);
@@ -171,19 +171,19 @@ template DecodeUint(BytesLen) {
     copyBytes(bytes, getV1_25.bytes, BytesLen)
     copyBytes(bytes, getV2_25.bytes, BytesLen)
 
-    getV1_25.pos <== condition_25 * pos;
-    signal value_1_25;
-    value_1_25 <== getV1_25.v * 256; // 2**8
+    getV1_25.pos <== condition25 * pos;
+    signal value1_25;
+    value1_25 <== getV1_25.v * 256; // 2**8
 
-    getV2_25.pos <== condition_25 * (pos + 1);
-    signal value_2_25;
-    value_2_25 <== getV2_25.v;
+    getV2_25.pos <== condition25 * (pos + 1);
+    signal value2_25;
+    value2_25 <== getV2_25.v;
 
-    signal value_25;
-    value_25 <== value_1_25 + value_2_25;
+    signal value25;
+    value25 <== value1_25 + value2_25;
 
-    signal nextPos_25;
-    nextPos_25 <== pos + 2;
+    signal nextPos25;
+    nextPos25 <== pos + 2;
 
     // if(x == 26)
     component getV1_26 = GetV(BytesLen);
@@ -196,44 +196,44 @@ template DecodeUint(BytesLen) {
     copyBytes(bytes, getV3_26.bytes, BytesLen)
     copyBytes(bytes, getV4_26.bytes, BytesLen)
 
-    getV1_26.pos <== condition_26 * pos;
-    signal value_1_26;
-    value_1_26 <== getV1_26.v * 16777216; // 2**24
+    getV1_26.pos <== condition26 * pos;
+    signal value1_26;
+    value1_26 <== getV1_26.v * 16777216; // 2**24
 
-    getV2_26.pos <== condition_26 * (pos + 1);
-    signal value_2_26;
-    value_2_26 <== getV2_26.v * 65536; // 2**16
+    getV2_26.pos <== condition26 * (pos + 1);
+    signal value2_26;
+    value2_26 <== getV2_26.v * 65536; // 2**16
 
-    getV3_26.pos <== condition_26 * (pos + 2);
-    signal value_3_26;
-    value_3_26 <== getV3_26.v * 256; // 2**8
+    getV3_26.pos <== condition26 * (pos + 2);
+    signal value3_26;
+    value3_26 <== getV3_26.v * 256; // 2**8
 
-    getV4_26.pos <== condition_26 * (pos + 3);
-    signal value_4_26;
-    value_4_26 <== getV4_26.v;
+    getV4_26.pos <== condition26 * (pos + 3);
+    signal value4_26;
+    value4_26 <== getV4_26.v;
 
-    signal value_26;
-    value_26 <== value_1_26 + value_2_26 + value_3_26 + value_4_26;
+    signal value26;
+    value26 <== value1_26 + value2_26 + value3_26 + value4_26;
 
-    signal nextPos_26;
-    nextPos_26 <== pos + 4;
+    signal nextPos26;
+    nextPos26 <== pos + 4;
 
 
 
     // return
-    component calculateTotal_value = CalculateTotal(4);
-    calculateTotal_value.nums[0] <== condition_23 * value_23;
-    calculateTotal_value.nums[1] <== condition_24 * value_24;
-    calculateTotal_value.nums[2] <== condition_25 * value_25;
-    calculateTotal_value.nums[3] <== condition_26 * value_26;
-    value <== calculateTotal_value.sum;
+    component valueTally = CalculateTotal(4);
+    valueTally.nums[0] <== condition23 * value23;
+    valueTally.nums[1] <== condition24 * value24;
+    valueTally.nums[2] <== condition25 * value25;
+    valueTally.nums[3] <== condition26 * value26;
+    value <== valueTally.sum;
 
-    component calculateTotal_nextPos = CalculateTotal(4);
-    calculateTotal_nextPos.nums[0] <== condition_23 * nextPos_23;
-    calculateTotal_nextPos.nums[1] <== condition_24 * nextPos_24;
-    calculateTotal_nextPos.nums[2] <== condition_25 * nextPos_25;
-    calculateTotal_nextPos.nums[3] <== condition_26 * nextPos_26;
-    nextPos <== calculateTotal_nextPos.sum;
+    component nextPosTally = CalculateTotal(4);
+    nextPosTally.nums[0] <== condition23 * nextPos23;
+    nextPosTally.nums[1] <== condition24 * nextPos24;
+    nextPosTally.nums[2] <== condition25 * nextPos25;
+    nextPosTally.nums[3] <== condition26 * nextPos26;
+    nextPos <== nextPosTally.sum;
 }
 
 // @dev read a CBOR type

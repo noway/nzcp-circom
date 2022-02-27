@@ -61,8 +61,8 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     component is4Int[MaxCborMapLen];
     component withinMapLen[MaxCborMapLen];
 
-    component calculateTotal_foundPos = CalculateTotal(MaxCborMapLen);
-    component calculateTotal_expPos = CalculateTotal(MaxCborMapLen);
+    component foundPosTally = CalculateTotal(MaxCborMapLen);
+    component expPosTally = CalculateTotal(MaxCborMapLen);
 
     for (var k = 0; k < MaxCborMapLen; k++) { 
 
@@ -124,14 +124,14 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
         isExpAccepted[k] <== isExp[k] * withinMapLen[k].out;
 
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_foundPos.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
+        foundPosTally.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
         
         // put a expPos candidate into CalculateTotal to be able to get exp pos outside of the loop
-        calculateTotal_expPos.nums[k] <== isExpAccepted[k] * decodeUint[k].nextPos;
+        expPosTally.nums[k] <== isExpAccepted[k] * decodeUint[k].nextPos;
     }
 
-    needlePos <== calculateTotal_foundPos.sum;
-    expPos <== calculateTotal_expPos.sum;
+    needlePos <== foundPosTally.sum;
+    expPos <== expPosTally.sum;
 }
 
 // @dev find credential subject position
@@ -164,7 +164,7 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     component isNeedleString[MaxCborMapLen];
     component withinMapLen[MaxCborMapLen];
 
-    component calculateTotal_foundPos = CalculateTotal(MaxCborMapLen);
+    component foundPosTally = CalculateTotal(MaxCborMapLen);
 
     for (var k = 0; k < MaxCborMapLen; k++) { 
 
@@ -209,10 +209,10 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
         isAccepted[k] <== isNeedle[k] * withinMapLen[k].out;
 
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
-        calculateTotal_foundPos.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
+        foundPosTally.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
     }
 
-    needlePos <== calculateTotal_foundPos.sum;
+    needlePos <== foundPosTally.sum;
 }
 
 // @dev read credential subject
@@ -286,57 +286,57 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
 
     // assign givenName
-    component givenName_charsCalculateTotal[MaxStringLen];
+    component givenNameCharTally[MaxStringLen];
     for(var h = 0; h<MaxStringLen; h++) {
-        givenName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        givenNameCharTally[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            givenName_charsCalculateTotal[h].nums[i] <== isGivenName[i].out * copyString[i].outbytes[h];
+            givenNameCharTally[h].nums[i] <== isGivenName[i].out * copyString[i].outbytes[h];
         }
-        givenName[h] <== givenName_charsCalculateTotal[h].sum;
+        givenName[h] <== givenNameCharTally[h].sum;
     }
     for(var h = MaxStringLen; h < MaxBufferLen; h++) { givenName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
-    component givenName_lenCalculateTotal;
-    givenName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    component givenNameLenTally;
+    givenNameLenTally = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        givenName_lenCalculateTotal.nums[i] <== isGivenName[i].out * copyString[i].len;
+        givenNameLenTally.nums[i] <== isGivenName[i].out * copyString[i].len;
     }
-    givenNameLen <== givenName_lenCalculateTotal.sum;
+    givenNameLen <== givenNameLenTally.sum;
 
 
     // assign familyName
-    component familyName_charsCalculateTotal[MaxStringLen];
+    component familyNameCharTally[MaxStringLen];
     for(var h = 0; h<MaxStringLen; h++) {
-        familyName_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        familyNameCharTally[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            familyName_charsCalculateTotal[h].nums[i] <== isFamilyName[i].out * copyString[i].outbytes[h];
+            familyNameCharTally[h].nums[i] <== isFamilyName[i].out * copyString[i].outbytes[h];
         }
-        familyName[h] <== familyName_charsCalculateTotal[h].sum;
+        familyName[h] <== familyNameCharTally[h].sum;
     }
     for(var h = MaxStringLen; h < MaxBufferLen; h++) { familyName[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
-    component familyName_lenCalculateTotal;
-    familyName_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    component familyNameLenTally;
+    familyNameLenTally = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        familyName_lenCalculateTotal.nums[i] <== isFamilyName[i].out * copyString[i].len;
+        familyNameLenTally.nums[i] <== isFamilyName[i].out * copyString[i].len;
     }
-    familyNameLen <== familyName_lenCalculateTotal.sum;
+    familyNameLen <== familyNameLenTally.sum;
 
 
     // assign dob
-    component dob_charsCalculateTotal[MaxStringLen];
+    component dobCharTally[MaxStringLen];
     for(var h = 0; h<MaxStringLen; h++) {
-        dob_charsCalculateTotal[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+        dobCharTally[h] = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
         for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-            dob_charsCalculateTotal[h].nums[i] <== isDOB[i].out * copyString[i].outbytes[h];
+            dobCharTally[h].nums[i] <== isDOB[i].out * copyString[i].outbytes[h];
         }
-        dob[h] <== dob_charsCalculateTotal[h].sum;
+        dob[h] <== dobCharTally[h].sum;
     }
     for(var h = MaxStringLen; h < MaxBufferLen; h++) { dob[h] <== 0; } // pad out the rest of the string with zeros to avoid invalid access
-    component dob_lenCalculateTotal;
-    dob_lenCalculateTotal = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
+    component dobLenTally;
+    dobLenTally = CalculateTotal(CREDENTIAL_SUBJECT_MAP_LEN);
     for(var i = 0; i < CREDENTIAL_SUBJECT_MAP_LEN; i++) {
-        dob_lenCalculateTotal.nums[i] <== isDOB[i].out * copyString[i].len;
+        dobLenTally.nums[i] <== isDOB[i].out * copyString[i].len;
     }
-    dobLen <== dob_lenCalculateTotal.sum;
+    dobLen <== dobLenTally.sum;
 
 }
 
