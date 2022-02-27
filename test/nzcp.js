@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const { assert } = require("chai");
 const { wasm: wasm_tester } = require("circom_tester");
 const { verifyPassURIOffline, DID_DOCUMENTS } = require("@vaxxnz/nzcp");
-const { buffer2bitArray, bitArray2buffer, bufferToBytes } = require("./helpers/utils");
+const { bufferToBitArray, bitArrayToBuffer, bufferToBytes } = require("./helpers/utils");
 const { getToBeSignedAndRs } = require('./helpers/nzcp');
 const { encodeUint, stringToArray, padArray } = require('./helpers/cbor');
 
@@ -35,12 +35,12 @@ async function testNZCPCredSubjHash(cir, passURI, isLive, maxLen) {
     const expected = getNZCPPubIdentity(passURI, isLive);
 
     const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
-    const witness = await cir.calculateWitness({ toBeSigned: buffer2bitArray(input.bytes), toBeSignedLen: input.byteslen }, true);
+    const witness = await cir.calculateWitness({ toBeSigned: bufferToBitArray(input.bytes), toBeSignedLen: input.byteslen }, true);
 
-    const credSubjHash = bitArray2buffer(witness.slice(1, 1 + SHA256_BITS)).toString("hex");
+    const credSubjHash = bitArrayToBuffer(witness.slice(1, 1 + SHA256_BITS)).toString("hex");
     assert.equal(credSubjHash, expected.credSubjHash);
 
-    const toBeSignedHash = bitArray2buffer(witness.slice(1 + SHA256_BITS, 1 + 2 * SHA256_BITS)).toString("hex");
+    const toBeSignedHash = bitArrayToBuffer(witness.slice(1 + SHA256_BITS, 1 + 2 * SHA256_BITS)).toString("hex");
     assert.equal(toBeSignedHash, expected.toBeSignedHash);
 
     const exp = witness[1 + 2 * SHA256_BITS];
