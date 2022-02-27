@@ -1,4 +1,5 @@
 
+// TODO rename to bufferToBitArray and prettify
 function buffer2bitArray (b) {
     const res = [];
     for (let i=0; i<b.length; i++) {
