@@ -25,6 +25,7 @@ include "./cbor.circom";
 #define NOT(in) (1 + in - 2*in)
 
 
+// find verifiable credential and expiry date positions
 template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 2;
@@ -130,6 +131,7 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     expPos <== calculateTotal_exppos.sum;
 }
 
+// find credential subject position
 template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 17;
@@ -207,7 +209,7 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     needlepos <== calculateTotal_foundpos.sum;
 }
 
-
+// read credential subject
 template ReadCredSubj(BytesLen, MaxBufferLen) {
 
     // constants
@@ -411,6 +413,7 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
+// get NZCP public identity based on ToBeSigned
 template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLen, MaxCborMapLen, CredSubjMaxBufferSpace) {
     // constants
     var SHA256_LEN = 256;
