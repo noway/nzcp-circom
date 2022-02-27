@@ -54,7 +54,6 @@ const LIVE_PASS_URI_2 = process.env.LIVE_PASS_URI_2;
 const LIVE_PASS_URI_3 = process.env.LIVE_PASS_URI_3;
 const LIVE_PASS_URI_4 = process.env.LIVE_PASS_URI_4;
 
-// TODO: use false/true for isLive
 async function testFindVCAndExp(cir, passURI, isLive, pos, maxLen, expectedVCPos, expectedExpPos) {
 
     const verificationResult = verifyPassURIOffline(passURI, { didDocument: isLive ? DID_DOCUMENTS.MOH_LIVE : DID_DOCUMENTS.MOH_EXAMPLE })
@@ -90,7 +89,7 @@ describe("NZCP find vc and exp - example pass", function () {
     })
 
     it ("Should find vc and exp pos of EXAMPLE_PASS_URI", async () => {
-        await testFindVCAndExp(cir, EXAMPLE_PASS_URI, 0, 28, maxLen, 76, 68);
+        await testFindVCAndExp(cir, EXAMPLE_PASS_URI, false, 28, maxLen, 76, 68);
     });
 });
 
@@ -104,21 +103,21 @@ describe("NZCP find vc and exp - live pass", function () {
     })
 
     it ("Should find vc and exp pos of LIVE_PASS_URI_1", async () => {
-        await testFindVCAndExp(cir, LIVE_PASS_URI_1, 1, 31, maxLen, 80, 72);
+        await testFindVCAndExp(cir, LIVE_PASS_URI_1, true, 31, maxLen, 80, 72);
     });
     if (LIVE_PASS_URI_2) {
         it ("Should find vc and exp pos of LIVE_PASS_URI_2", async () => {
-            await testFindVCAndExp(cir, LIVE_PASS_URI_2, 1, 31, maxLen, 80, 72);
+            await testFindVCAndExp(cir, LIVE_PASS_URI_2, true, 31, maxLen, 80, 72);
         });
     }
     if (LIVE_PASS_URI_3) {
         it ("Should find vc and exp pos of LIVE_PASS_URI_3", async () => {
-            await testFindVCAndExp(cir, LIVE_PASS_URI_3, 1, 31, maxLen, 80, 72);
+            await testFindVCAndExp(cir, LIVE_PASS_URI_3, true, 31, maxLen, 80, 72);
         });
     }
     if (LIVE_PASS_URI_4) {
         it ("Should find vc and exp pos of LIVE_PASS_URI_4", async () => {
-            await testFindVCAndExp(cir, LIVE_PASS_URI_4, 1, 31, maxLen, 80, 72);
+            await testFindVCAndExp(cir, LIVE_PASS_URI_4, true, 31, maxLen, 80, 72);
         });
     }
 });
@@ -218,7 +217,7 @@ describe("NZCP read credential subject - example pass", function () {
     })
 
     it ("Should read credential subject of EXAMPLE_PASS_URI", async () => {
-        await testReadCredSubj(cir, EXAMPLE_PASS_URI, 0, 247, 314, 32);
+        await testReadCredSubj(cir, EXAMPLE_PASS_URI, false, 247, 314, 32);
     });
 });
 
@@ -231,21 +230,21 @@ describe("NZCP read credential subject - live pass", function () {
     })
 
     it ("Should read credential subject of LIVE_PASS_URI_1", async () => {
-        await testReadCredSubj(cir, LIVE_PASS_URI_1, 1, 251, 355, 64);
+        await testReadCredSubj(cir, LIVE_PASS_URI_1, true, 251, 355, 64);
     });
     if (LIVE_PASS_URI_2) {
         it ("Should read credential subject of LIVE_PASS_URI_2", async () => {
-            await testReadCredSubj(cir, LIVE_PASS_URI_2, 1, 251, 355, 64);
+            await testReadCredSubj(cir, LIVE_PASS_URI_2, true, 251, 355, 64);
         });
     }
     if (LIVE_PASS_URI_3) {
         it ("Should read credential subject of LIVE_PASS_URI_3", async () => {
-            await testReadCredSubj(cir, LIVE_PASS_URI_3, 1, 251, 355, 64);
+            await testReadCredSubj(cir, LIVE_PASS_URI_3, true, 251, 355, 64);
         });
     }
     if (LIVE_PASS_URI_4) {
         it ("Should read credential subject of LIVE_PASS_URI_4", async () => {
-            await testReadCredSubj(cir, LIVE_PASS_URI_4, 1, 251, 355, 64);
+            await testReadCredSubj(cir, LIVE_PASS_URI_4, true, 251, 355, 64);
         });
     }
 });
