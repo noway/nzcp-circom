@@ -32,7 +32,7 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     var ConstBytes[ConstBytesLen] = [118, 99];
 
     // i/o signals
-    signal input maplen; // TODO: rename to mapLen?
+    signal input mapLen; // TODO: rename to mapLen?
     signal input bytes[BytesLen];
     signal input pos;
 
@@ -56,7 +56,7 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     component isInt[MaxCborMapLen];
     component isNeedleString[MaxCborMapLen];
     component is4Int[MaxCborMapLen];
-    component withinMaplen[MaxCborMapLen];
+    component withinMapLen[MaxCborMapLen];
 
     component calculateTotal_foundpos = CalculateTotal(MaxCborMapLen);
     component calculateTotal_exppos = CalculateTotal(MaxCborMapLen);
@@ -104,9 +104,9 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
         is4Int[k].in[1] <== value[k]; // pos before skipping
 
         // are we within map bounds?
-        withinMaplen[k] = LessThan(8);
-        withinMaplen[k].in[0] <== k;
-        withinMaplen[k].in[1] <== maplen;
+        withinMapLen[k] = LessThan(8);
+        withinMapLen[k].in[0] <== k;
+        withinMapLen[k].in[1] <== mapLen;
 
         // is current value a "vc" string?
         isNeedle[k] <== isString[k].out * isNeedleString[k].out;
@@ -115,10 +115,10 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
         isExp[k] <== isInt[k].out * is4Int[k].out;
 
         // should we select this vc pos candidate?
-        isAccepted[k] <== isNeedle[k] * withinMaplen[k].out;
+        isAccepted[k] <== isNeedle[k] * withinMapLen[k].out;
 
         // should we select this exp candidate?
-        isExpAccepted[k] <== isExp[k] * withinMaplen[k].out;
+        isExpAccepted[k] <== isExp[k] * withinMapLen[k].out;
 
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
         calculateTotal_foundpos.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
@@ -138,7 +138,7 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     var ConstBytes[ConstBytesLen] = [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 83, 117, 98, 106, 101, 99, 116];
 
     // i/o signals
-    signal input maplen;
+    signal input mapLen;
     signal input bytes[BytesLen];
     signal input pos;
 
@@ -156,7 +156,7 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     component skipValue[MaxCborMapLen];
     component isString[MaxCborMapLen];
     component isNeedleString[MaxCborMapLen];
-    component withinMaplen[MaxCborMapLen];
+    component withinMapLen[MaxCborMapLen];
 
     component calculateTotal_foundpos = CalculateTotal(MaxCborMapLen);
 
@@ -192,15 +192,15 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
         isNeedleString[k].pos <== decodeUint[k].nextPos; // pos before skipping
         isNeedleString[k].len <== value[k];
 
-        withinMaplen[k] = LessThan(8);
-        withinMaplen[k].in[0] <== k;
-        withinMaplen[k].in[1] <== maplen;
+        withinMapLen[k] = LessThan(8);
+        withinMapLen[k].in[0] <== k;
+        withinMapLen[k].in[1] <== mapLen;
 
         // is current value a "vc" string?
         isNeedle[k] <== isString[k].out * isNeedleString[k].out;
 
         // should we select this vc pos candidate?
-        isAccepted[k] <== isNeedle[k] * withinMaplen[k].out;
+        isAccepted[k] <== isNeedle[k] * withinMapLen[k].out;
 
         // put a vc pos candidate into CalculateTotal to be able to get vc pos outside of the loop
         calculateTotal_foundpos.nums[k] <== isAccepted[k] * (decodeUint[k].nextPos + value[k]);
@@ -225,7 +225,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
     var DOB_STR[DOB_LEN] = [100, 111, 98];
 
     // i/o signals
-    signal input maplen;
+    signal input mapLen;
     signal input bytes[BytesLen];
     signal input pos;
 
@@ -239,7 +239,7 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
 
     // check that map length is exactly as per NZCP spec
-    hardcore_assert(maplen, CREDENTIAL_SUBJECT_MAP_LEN);
+    hardcore_assert(mapLen, CREDENTIAL_SUBJECT_MAP_LEN);
 
 
     component readStringLength[CREDENTIAL_SUBJECT_MAP_LEN];
@@ -512,7 +512,7 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborM
     component findVC = FindVCAndExp(MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborMapLenVC);
     copyBytes(ToBeSigned, findVC.bytes, MaxToBeSignedBytes)
     findVC.pos <== readMapLength.nextPos;
-    findVC.maplen <== readMapLength.len;
+    findVC.mapLen <== readMapLength.len;
     vcPos <== findVC.needlepos;
     expPos <== findVC.expPos;
 
@@ -537,7 +537,7 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborM
     component findCredSubj = FindCredSubj(MaxToBeSignedBytes, MaxCborArrayLenCredSubj, MaxCborMapLenCredSubj);
     copyBytes(ToBeSigned, findCredSubj.bytes, MaxToBeSignedBytes)
     findCredSubj.pos <== readMapLength2.nextPos;
-    findCredSubj.maplen <== readMapLength2.len;
+    findCredSubj.mapLen <== readMapLength2.len;
     credSubjPos <== findCredSubj.needlepos;
 
     // read credential subject map length
@@ -550,7 +550,7 @@ template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborM
     component readCredSubj = ReadCredSubj(MaxToBeSignedBytes, CredSubjMaxBufferLen);
     copyBytes(ToBeSigned, readCredSubj.bytes, MaxToBeSignedBytes)
     readCredSubj.pos <== readMapLength3.nextPos;
-    readCredSubj.maplen <== readMapLength3.len;
+    readCredSubj.mapLen <== readMapLength3.len;
 
     // concat given name, family name and dob
     component concatCredSubj = ConcatCredSubj(CredSubjMaxBufferLen);

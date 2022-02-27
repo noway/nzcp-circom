@@ -223,12 +223,12 @@ describe("CBOR SkipValueScalar (scalar)", function () {
     before(async () => {
         cir = await wasm_tester(`${__dirname}/../circuits/skipValueScalar_test.circom`);
     })
-    it ("SkipValueScalar string with strlen <= 4", async () => {
-        for (var strlen = 0; strlen <= 4; strlen++) {
-            const cbor = encodeString(Array(strlen).fill('a').join(''));
+    it ("SkipValueScalar string with strLen <= 4", async () => {
+        for (var strLen = 0; strLen <= 4; strLen++) {
+            const cbor = encodeString(Array(strLen).fill('a').join(''));
             const bytes = padArray(cbor, 5);
             const witness = await cir.calculateWitness({ bytes, pos: 0 }, true);
-            assert.equal(witness[1], strlen + 1);    
+            assert.equal(witness[1], strLen + 1);    
         }
     });
     it ("SkipValueScalar int with decodeUint23", async () => {
@@ -265,12 +265,12 @@ describe("CBOR SkipValue (scalar)", function () {
     before(async () => {
         cir5 = await wasm_tester(`${__dirname}/../circuits/skipValue5_test.circom`);
     })
-    it ("SkipValue string with strlen <= 4", async () => {
-        for (var strlen = 0; strlen <= 4; strlen++) {
-            const cbor = encodeString(Array(strlen).fill('a').join(''));
+    it ("SkipValue string with strLen <= 4", async () => {
+        for (var strLen = 0; strLen <= 4; strLen++) {
+            const cbor = encodeString(Array(strLen).fill('a').join(''));
             const bytes = padArray(cbor, MAX_LEN_5);
             const witness = await cir5.calculateWitness({ bytes, pos: 0 }, true);
-            assert.equal(witness[1], strlen + 1);    
+            assert.equal(witness[1], strLen + 1);    
         }
     });
     it ("SkipValue int with decodeUint23", async () => {
@@ -372,13 +372,13 @@ describe("CBOR ReadStringLength", function () {
     before(async () => {
         cir = await wasm_tester(`${__dirname}/../circuits/readStringLength_test.circom`);
     })
-    it ("ReadStringLength string with strlen <= 4", async () => {
-        for (var strlen = 0; strlen <= 4; strlen++) {
-            const cbor = encodeString(Array(strlen).fill('a').join(''));
+    it ("ReadStringLength string with strLen <= 4", async () => {
+        for (var strLen = 0; strLen <= 4; strLen++) {
+            const cbor = encodeString(Array(strLen).fill('a').join(''));
             const bytes = padArray(cbor, 5);
             const witness = await cir.calculateWitness({ bytes, pos: 0 }, true);
-            assert.equal(witness[1], strlen);    
-            assert.equal(witness[2], encodeInt(strlen).length);    
+            assert.equal(witness[1], strLen);    
+            assert.equal(witness[2], encodeInt(strLen).length);    
         }
     });
 });
@@ -396,8 +396,8 @@ describe("CBOR StringEquals", function () {
         assert.equal(witness[1], 1);    
     });
     it ("StringEquals not equal other strings", async () => {
-        for (var strlen = 0; strlen <= 5; strlen++) {
-            const strArray = stringToArray(Array(strlen).fill('b').join(''));
+        for (var strLen = 0; strLen <= 5; strLen++) {
+            const strArray = stringToArray(Array(strLen).fill('b').join(''));
             const bytes = padArray(strArray, 5);
             const len = strArray.length
             const witness = await cir.calculateWitness({ bytes, len, pos: 0 }, true);
