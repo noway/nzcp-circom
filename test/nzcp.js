@@ -4,6 +4,7 @@ const { wasm: wasm_tester } = require("circom_tester");
 const { verifyPassURIOffline, DID_DOCUMENTS } = require("@vaxxnz/nzcp");
 const { buffer2bitArray, bitArray2buffer, bufferToBytes } = require("./helpers/utils");
 const { getToBeSignedAndRs } = require('./helpers/nzcp');
+const { encodeUint } = require('./helpers/cbor');
 
 require('dotenv').config()
 
@@ -48,36 +49,76 @@ async function testNZCPCredSubjHash(cir, passURI, isLive, maxLen) {
 
 const EXAMPLE_PASS_URI = "NZCP:/1/2KCEVIQEIVVWK6JNGEASNICZAEP2KALYDZSGSZB2O5SWEOTOPJRXALTDN53GSZBRHEXGQZLBNR2GQLTOPICRUYMBTIFAIGTUKBAAUYTWMOSGQQDDN5XHIZLYOSBHQJTIOR2HA4Z2F4XXO53XFZ3TGLTPOJTS6MRQGE4C6Y3SMVSGK3TUNFQWY4ZPOYYXQKTIOR2HA4Z2F4XW46TDOAXGG33WNFSDCOJONBSWC3DUNAXG46RPMNXW45DFPB2HGL3WGFTXMZLSONUW63TFGEXDALRQMR2HS4DFQJ2FMZLSNFTGSYLCNRSUG4TFMRSW45DJMFWG6UDVMJWGSY2DN53GSZCQMFZXG4LDOJSWIZLOORUWC3CTOVRGUZLDOSRWSZ3JOZSW4TTBNVSWISTBMNVWUZTBNVUWY6KOMFWWKZ2TOBQXE4TPO5RWI33CNIYTSNRQFUYDILJRGYDVAYFE6VGU4MCDGK7DHLLYWHVPUS2YIDJOA6Y524TD3AZRM263WTY2BE4DPKIF27WKF3UDNNVSVWRDYIYVJ65IRJJJ6Z25M2DO4YZLBHWFQGVQR5ZLIWEQJOZTS3IQ7JTNCFDX";
 
+const LIVE_PASS_URI_1 = process.env.LIVE_PASS_URI_1;
+const LIVE_PASS_URI_2 = process.env.LIVE_PASS_URI_2;
+const LIVE_PASS_URI_3 = process.env.LIVE_PASS_URI_3;
+const LIVE_PASS_URI_4 = process.env.LIVE_PASS_URI_4;
 
+async function testFindVCAndExp(cir, passURI, isLive, pos, maxLen, expectedVCPos, expectedExpPos) {
+
+    const verificationResult = verifyPassURIOffline(passURI, { didDocument: isLive ? DID_DOCUMENTS.MOH_LIVE : DID_DOCUMENTS.MOH_EXAMPLE })
+    const exp = verificationResult.raw.exp
+
+    const maplen = 5;
+    const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
+    const bytes = bufferToBytes(input.bytes)
+    const witness = await cir.calculateWitness({ maplen, bytes, pos }, true);
+
+    const actualVCPos = Number(witness[1]);
+    assert.equal(actualVCPos, expectedVCPos);
+
+    const actualExpPos = Number(witness[2]);
+    assert.equal(actualExpPos, expectedExpPos);
+
+    // assert that expiry date is at the right position
+    assert.equal(input.bytes[actualExpPos + 0], encodeUint(exp)[0]);
+    assert.equal(input.bytes[actualExpPos + 1], encodeUint(exp)[1]);
+    assert.equal(input.bytes[actualExpPos + 2], encodeUint(exp)[2]);
+    assert.equal(input.bytes[actualExpPos + 3], encodeUint(exp)[3]);
+    assert.equal(input.bytes[actualExpPos + 4], encodeUint(exp)[4]);
+
+}
 describe("NZCP find vc and exp - example pass", function () {
     this.timeout(100000);
 
     const maxLen = 314;
     let cir
     before(async () => {
-        cir = await wasm_tester(`${__dirname}/../circuits/findVCAndExp_test.circom`);
+        cir = await wasm_tester(`${__dirname}/../circuits/findVCAndExp_exampleTest.circom`);
     })
 
-    it ("Should parse ToBeSigned and return vc and exp pos", async () => {
-        const pos = 28;
-        const maplen = 5;
-        const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(EXAMPLE_PASS_URI).ToBeSigned, "hex"), maxLen);
-        const bytes = bufferToBytes(input.bytes)
-        const witness = await cir.calculateWitness({ maplen, bytes, pos }, true);
-
-        const actualVCPos = Number(witness[1]);
-        assert.equal(actualVCPos, 76);
-
-        const actualExpPos = Number(witness[2]);
-        assert.equal(actualExpPos, 68);
-
-        // assert that expiry date is at the right position
-        assert.equal(input.bytes[actualExpPos], 26);
-        assert.equal(input.bytes[actualExpPos + 1], 116);
-        assert.equal(input.bytes[actualExpPos + 2], 80);
-        assert.equal(input.bytes[actualExpPos + 3], 64);
-        assert.equal(input.bytes[actualExpPos + 4], 10);
+    it ("Should find vc and exp pos of EXAMPLE_PASS_URI", async () => {
+        await testFindVCAndExp(cir, EXAMPLE_PASS_URI, 0, 28, maxLen, 76, 68);
     });
+});
+
+describe("NZCP find vc and exp - live pass", function () {
+    this.timeout(100000);
+
+    const maxLen = 355;
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/findVCAndExp_liveTest.circom`);
+    })
+
+    it ("Should find vc and exp pos of LIVE_PASS_URI_1", async () => {
+        await testFindVCAndExp(cir, LIVE_PASS_URI_1, 1, 31, maxLen, 80, 72);
+    });
+    if (LIVE_PASS_URI_2) {
+        it ("Should find vc and exp pos of LIVE_PASS_URI_2", async () => {
+            await testFindVCAndExp(cir, LIVE_PASS_URI_2, 1, 31, maxLen, 80, 72);
+        });
+    }
+    if (LIVE_PASS_URI_3) {
+        it ("Should find vc and exp pos of LIVE_PASS_URI_3", async () => {
+            await testFindVCAndExp(cir, LIVE_PASS_URI_3, 1, 31, maxLen, 80, 72);
+        });
+    }
+    if (LIVE_PASS_URI_4) {
+        it ("Should find vc and exp pos of LIVE_PASS_URI_4", async () => {
+            await testFindVCAndExp(cir, LIVE_PASS_URI_4, 1, 31, maxLen, 80, 72);
+        });
+    }
 });
 describe("NZCP credential subject hash - example pass", function () {
     this.timeout(100000);
@@ -92,10 +133,6 @@ describe("NZCP credential subject hash - example pass", function () {
     });
 });
 
-const LIVE_PASS_URI_1 = process.env.LIVE_PASS_URI_1;
-const LIVE_PASS_URI_2 = process.env.LIVE_PASS_URI_2;
-const LIVE_PASS_URI_3 = process.env.LIVE_PASS_URI_3;
-const LIVE_PASS_URI_4 = process.env.LIVE_PASS_URI_4;
 
 describe("NZCP credential subject hash - live pass", function () {
     this.timeout(100000);
