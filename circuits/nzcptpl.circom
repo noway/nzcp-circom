@@ -330,7 +330,6 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
 }
 
-// TODO: test
 // concat givenName, familyName and dob with comma as separator
 template ConcatCredSubj(MaxBufferLen) {
     var COMMA_CHAR = 44;
