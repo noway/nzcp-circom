@@ -414,6 +414,7 @@ template ConcatCredSubj(MaxBufferLen) {
 }
 
 // get NZCP public identity based on ToBeSigned
+// TODO: document parameters
 template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborMapLenVC, MaxCborArrayLenCredSubj, MaxCborMapLenCredSubj, CredSubjMaxBufferSpace) {
     // constants
     var SHA256_LEN = 256;
