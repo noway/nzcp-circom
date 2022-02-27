@@ -54,6 +54,7 @@ const LIVE_PASS_URI_2 = process.env.LIVE_PASS_URI_2;
 const LIVE_PASS_URI_3 = process.env.LIVE_PASS_URI_3;
 const LIVE_PASS_URI_4 = process.env.LIVE_PASS_URI_4;
 
+// TODO: use false/true for isLive
 async function testFindVCAndExp(cir, passURI, isLive, pos, maxLen, expectedVCPos, expectedExpPos) {
 
     const verificationResult = verifyPassURIOffline(passURI, { didDocument: isLive ? DID_DOCUMENTS.MOH_LIVE : DID_DOCUMENTS.MOH_EXAMPLE })
@@ -71,6 +72,7 @@ async function testFindVCAndExp(cir, passURI, isLive, pos, maxLen, expectedVCPos
     assert.equal(actualExpPos, expectedExpPos);
 
     // assert that expiry date is at the right position
+    // TODO: use slice or something?
     assert.equal(input.bytes[actualExpPos + 0], encodeUint(exp)[0]);
     assert.equal(input.bytes[actualExpPos + 1], encodeUint(exp)[1]);
     assert.equal(input.bytes[actualExpPos + 2], encodeUint(exp)[2]);
@@ -179,6 +181,7 @@ describe("NZCP find credential subject - live pass", function () {
     }
 });
 
+// TODO: rename to pub identity
 describe("NZCP credential subject hash - example pass", function () {
     this.timeout(100000);
 
