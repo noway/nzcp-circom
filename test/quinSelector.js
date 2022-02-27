@@ -60,5 +60,29 @@ describe("QuinSelector", function () {
             assert.equal(witness[1], inArray[index]);    
         }
     });
-    // TODO: test overflow throw
+    it ("QuinSelector(1) should throw on 1 index", async () => {
+        const index = 1;
+        const inArray = [1]
+        await assert.isRejected(cir1.calculateWitness({ in: inArray, index }, true))
+    });
+    it ("QuinSelector(2) should throw on 2 index", async () => {
+        const index = 2;
+        const inArray = [1, 2]
+        await assert.isRejected(cir2.calculateWitness({ in: inArray, index }, true))
+    });
+    it ("QuinSelector(3) should throw on 3 index", async () => {
+        const index = 3;
+        const inArray = [1, 2, 3]
+        await assert.isRejected(cir3.calculateWitness({ in: inArray, index }, true))
+    });
+    it ("QuinSelector(4) should throw on 4 index", async () => {
+        const index = 4;
+        const inArray = [1, 2, 3, 4]
+        await assert.isRejected(cir4.calculateWitness({ in: inArray, index }, true))
+    });
+    it ("QuinSelector(5) should throw on 5 index", async () => {
+        const index = 5;
+        const inArray = [1, 2, 3, 4, 5]
+        await assert.isRejected(cir5.calculateWitness({ in: inArray, index }, true))
+    });
 });
