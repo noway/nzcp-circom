@@ -35,7 +35,7 @@ async function testNZCPCredSubjHash(cir, passURI, isLive, maxLen) {
     const expected = getNZCPPubIdentity(passURI, isLive);
 
     const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
-    const witness = await cir.calculateWitness(input, true);
+    const witness = await cir.calculateWitness({ toBeSigned: buffer2bitArray(input.bytes), toBeSignedLen: input.byteslen }, true);
 
     const credSubjHash = bitArray2buffer(witness.slice(1, 1 + SHA256_BITS)).toString("hex");
     assert.equal(credSubjHash, expected.credSubjHash);
