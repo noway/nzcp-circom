@@ -36,7 +36,7 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     signal input bytes[BytesLen];
     signal input pos;
 
-    signal output needlePos; // TODO: rename to needlePos
+    signal output needlePos;
     signal output expPos;
 
     // signals
