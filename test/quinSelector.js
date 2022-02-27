@@ -6,12 +6,14 @@ const { assert } = chai;
 
 
 describe("QuinSelector", function () {
+    let cir0
     let cir1
     let cir2
     let cir3
     let cir4
     let cir5
     before(async () => {
+        cir0 = await wasm_tester(`${__dirname}/../circuits/quinSelector0_test.circom`);
         cir1 = await wasm_tester(`${__dirname}/../circuits/quinSelector1_test.circom`);
         cir2 = await wasm_tester(`${__dirname}/../circuits/quinSelector2_test.circom`);
         cir3 = await wasm_tester(`${__dirname}/../circuits/quinSelector3_test.circom`);
@@ -19,7 +21,10 @@ describe("QuinSelector", function () {
         cir5 = await wasm_tester(`${__dirname}/../circuits/quinSelector5_test.circom`);
     })
     it ("QuinSelector(0) select from array []", async () => {
-        await assert.isRejected(wasm_tester(`${__dirname}/../circuits/quinSelector0_test.circom`))
+        const index = -1;
+        const inArray = [];
+        const witness = await cir0.calculateWitness({ in: inArray, index }, true);
+        assert.equal(witness[1], 0);    
     });
     it ("QuinSelector(1) select from array [1]", async () => {
         const index = 0;
