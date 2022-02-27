@@ -2,7 +2,7 @@ pragma circom 2.0.0;
 
 include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/comparators.circom";
 include "../sha256-var-circom-main/snark-jwt-verify/circomlib/circuits/sha256/shift.circom";
-include "./incrementalQuinTree.circom";
+include "./quinSelector.circom";
 
 /* check through constraint and assert */
 #define hardcore_assert(a, b) a === b; assert(a == b)

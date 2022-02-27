@@ -8,8 +8,11 @@ include "../sha256-var-circom-main/snark-jwt-verify/circuits/calculate_total.cir
 // https://github.com/appliedzkp/maci/blob/v1/circuits/circom/trees/incrementalQuinTree.circom
 // Optimized + added support for any number of choises
 // License: MIT
-// TODO: test
 template QuinSelector(choices) {
+
+    assert(choices > 0);
+
+    // i/o signals
     signal input in[choices];
     signal input index;
     signal output out;
