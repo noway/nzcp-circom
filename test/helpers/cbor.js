@@ -28,7 +28,6 @@ function encodeUint(val) {
     }
 }
 
-// TODO: put into helper file?
 function encodeInt(val) {
     const [x, ...rest] = encodeUint(val);
     return [(MAJOR_TYPE_INT << 5) | x, ...rest];
