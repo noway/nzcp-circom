@@ -197,11 +197,17 @@ async function testReadCredSubj(cir, passURI, isLive, pos, maxLen, maxBufferLen)
     const actualFamilyName = witness.slice(2 + maxBufferLen, 2 + 2 * maxBufferLen).map(e => Number(e));
     const actualFamilyNameLen = witness[2 + 2 * maxBufferLen];
 
+    const actualDob = witness.slice(3 + 2 * maxBufferLen, 3 + 3 * maxBufferLen).map(e => Number(e));
+    const actualDobLen = witness[3 + 3 * maxBufferLen];
+
     assert.deepEqual(actualGivenName, padArray(stringToArray(givenName), maxBufferLen));
     assert.equal(actualGivenNameLen, givenName.length);
 
     assert.deepEqual(actualFamilyName, padArray(stringToArray(familyName), maxBufferLen));
     assert.equal(actualFamilyNameLen, familyName.length);
+
+    assert.deepEqual(actualDob, padArray(stringToArray(dob), maxBufferLen));
+    assert.equal(actualDobLen, dob.length);
 }
 describe("NZCP read cred subj - example pass", function () {
     this.timeout(100000);
