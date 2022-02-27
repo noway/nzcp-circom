@@ -208,7 +208,6 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
 }
 
 
-// TODO: test
 template ReadCredSubj(BytesLen, MaxBufferLen) {
 
     // constants
