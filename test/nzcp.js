@@ -306,8 +306,7 @@ describe("NZCP credential subject concat - example pass", function () {
         });
     }
 });
-// TODO: rename to pub identity
-describe("NZCP credential subject hash - example pass", function () {
+describe("NZCP public identity - example pass", function () {
     this.timeout(100000);
 
     let cir
@@ -321,7 +320,7 @@ describe("NZCP credential subject hash - example pass", function () {
 });
 
 
-describe("NZCP credential subject hash - live pass", function () {
+describe("NZCP public identity - live pass", function () {
     this.timeout(100000);
 
     let cir
