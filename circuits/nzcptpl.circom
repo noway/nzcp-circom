@@ -25,7 +25,10 @@ include "./cbor.circom";
 #define NOT(in) (1 + in - 2*in)
 
 
-// find verifiable credential and expiry date positions
+// @dev find verifiable credential and expiry date positions
+// @param BytesLen - max bytes length of the cbor buffer
+// @param MaxCborArrayLen - maximum number of elements in the CBOR array
+// @param MaxCborMapLen - maximum number of elements in the CBOR map
 template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 2;
@@ -131,7 +134,10 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     expPos <== calculateTotal_expPos.sum;
 }
 
-// find credential subject position
+// @dev find credential subject position
+// @param BytesLen - max bytes length of the cbor buffer
+// @param MaxCborArrayLen - maximum number of elements in the CBOR array
+// @param MaxCborMapLen - maximum number of elements in the CBOR map
 template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     // constants
     var ConstBytesLen = 17;
@@ -209,7 +215,9 @@ template FindCredSubj(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     needlePos <== calculateTotal_foundPos.sum;
 }
 
-// read credential subject
+// @dev read credential subject
+// @param BytesLen - max bytes length of the cbor buffer
+// @param MaxBufferLen - max buffer length of every piece of credential subject (e.g. givenName, familyName, dob)
 template ReadCredSubj(BytesLen, MaxBufferLen) {
 
     // constants
@@ -332,7 +340,8 @@ template ReadCredSubj(BytesLen, MaxBufferLen) {
 
 }
 
-// concat givenName, familyName and dob with comma as separator
+// @dev concat givenName, familyName and dob with comma as separator
+// @param MaxBufferLen - max length of the buffer
 template ConcatCredSubj(MaxBufferLen) {
     var COMMA_CHAR = 44;
     var ConcatSizeBits = log2(MaxBufferLen) + 1;
@@ -413,8 +422,14 @@ template ConcatCredSubj(MaxBufferLen) {
     resultLen <== givenNameLen + 1 + familyNameLen + 1 + dobLen;
 }
 
-// get NZCP public identity based on ToBeSigned
-// TODO: document parameters
+// @dev get NZCP public identity based on ToBeSigned
+// @param IsLive - are we to use live or example NZCP?
+// @param MaxToBeSignedBytes - maximum number of bytes in ToBeSigned
+// @param MaxCborArrayLenVC - maximum number of elements in the CBOR array for verifiable credential
+// @param MaxCborMapLenVC - maximum number of elements in the CBOR map for verifiable credential
+// @param MaxCborArrayLenCredSubj - maximum number of elements in the CBOR array for credential subject
+// @param MaxCborMapLenCredSubj - maximum number of elements in the CBOR map for credential subject
+// @param CredSubjMaxBufferSpace - maximum number of bytes in the buffer for concat credential subject
 template NZCPPubIdentity(IsLive, MaxToBeSignedBytes, MaxCborArrayLenVC, MaxCborMapLenVC, MaxCborArrayLenCredSubj, MaxCborMapLenCredSubj, CredSubjMaxBufferSpace) {
     // constants
     var SHA256_LEN = 256;
