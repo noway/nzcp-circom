@@ -4,7 +4,7 @@ const { wasm: wasm_tester } = require("circom_tester");
 const { verifyPassURIOffline, DID_DOCUMENTS } = require("@vaxxnz/nzcp");
 const { buffer2bitArray, bitArray2buffer, bufferToBytes } = require("./helpers/utils");
 const { getToBeSignedAndRs } = require('./helpers/nzcp');
-const { encodeUint } = require('./helpers/cbor');
+const { encodeUint, stringToArray, padArray } = require('./helpers/cbor');
 
 require('dotenv').config()
 
@@ -181,6 +181,34 @@ describe("NZCP find credential subject - live pass", function () {
     }
 });
 
+async function testReadCredSubj(cir, passURI, isLive, pos, maxLen, maxBufferLen) {
+
+    const verificationResult = verifyPassURIOffline(passURI, { didDocument: isLive ? DID_DOCUMENTS.MOH_LIVE : DID_DOCUMENTS.MOH_EXAMPLE })
+    const { givenName, familyName, dob } = verificationResult.credentialSubject;
+
+    const maplen = 3;
+    const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
+    const bytes = bufferToBytes(input.bytes)
+    const witness = await cir.calculateWitness({ maplen, bytes, pos }, true);
+
+    const actualGivenName = witness.slice(1, 1 + maxBufferLen).map(e => Number(e));
+    const actualGivenNameLen = witness[1 + maxBufferLen];
+
+    assert.deepEqual(actualGivenName, padArray(stringToArray(givenName), maxBufferLen));
+    assert.equal(actualGivenNameLen, givenName.length);
+}
+describe("NZCP read cred subj - example pass", function () {
+    this.timeout(100000);
+
+    let cir
+    before(async () => {
+        cir = await wasm_tester(`${__dirname}/../circuits/readCredSubj_exampleTest.circom`);
+    })
+
+    it ("Should parse ToBeSigned", async () => {
+        await testReadCredSubj(cir, EXAMPLE_PASS_URI, 0, 247, 314, 32);
+    });
+});
 // TODO: rename to pub identity
 describe("NZCP credential subject hash - example pass", function () {
     this.timeout(100000);
