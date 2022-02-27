@@ -32,7 +32,7 @@ template FindVCAndExp(BytesLen, MaxCborArrayLen, MaxCborMapLen) {
     var ConstBytes[ConstBytesLen] = [118, 99];
 
     // i/o signals
-    signal input mapLen; // TODO: rename to mapLen?
+    signal input mapLen;
     signal input bytes[BytesLen];
     signal input pos;
 
