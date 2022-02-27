@@ -21,7 +21,7 @@ include "./quinSelector.circom";
 
 // TODO: document parameters
 
-// get CBOR type
+// @dev get CBOR type
 // CBOR type is the value of v bit shifted to the right by 5 bits
 // input MUST be a byte
 template GetType() {
@@ -52,7 +52,7 @@ template GetType() {
     type <== b2n.out;
 }
 
-// get CBOR x value
+// @dev get CBOR x value
 // CBOR x value is the 5 lowest bits of v
 // input MUST be a byte
 template GetX() {
@@ -73,7 +73,7 @@ template GetX() {
     x <== b2n.out;
 }
 
-// get CBOR v
+// @dev get CBOR v
 // CBOR v is the element of array `bytes` at index `pos`
 // input MUST be a byte array
 template GetV(BytesLen) {
@@ -89,7 +89,7 @@ template GetV(BytesLen) {
     v <== quinSelector.out;
 }
 
-// decode a CBOR integer
+// @dev decode a CBOR integer
 // supports <=23 integers
 // input MUST be a byte
 template DecodeUint23() {
@@ -108,7 +108,7 @@ template DecodeUint23() {
     value <== getX.x;
 }
 
-// decode a CBOR integer
+// @dev decode a CBOR integer
 // Supports <=23 integers as well as 8-bit, 16-bit and 32-bit integers
 // input MUST be a byte array
 template DecodeUint(BytesLen) {
@@ -235,7 +235,7 @@ template DecodeUint(BytesLen) {
     nextPos <== calculateTotal_nextPos.sum;
 }
 
-// read a CBOR type
+// @dev read a CBOR type
 // returns the next position and v
 // input MUST be a byte array
 template ReadType(BytesLen) {
@@ -258,7 +258,7 @@ template ReadType(BytesLen) {
     nextPos <== pos + 1;
 }
 
-// skip a scalar CBOR value, only ints and strings are supported atm.
+// @dev skip a scalar CBOR value, only ints and strings are supported atm.
 // input MUST be a byte array
 template SkipValueScalar(BytesLen) {
 
@@ -296,7 +296,7 @@ template SkipValueScalar(BytesLen) {
 }
 
 
-// skip a CBOR value. supports everything that SkipValueScalar supports plus arrays
+// @dev skip a CBOR value. supports everything that SkipValueScalar supports plus arrays
 // input MUST be a byte array
 template SkipValue(BytesLen, MaxArrayLen) {
     // i/o signals
@@ -362,7 +362,7 @@ template SkipValue(BytesLen, MaxArrayLen) {
     nextPos <== calculateTotal.sum;
 }
 
-// check if a CBOR string equals to a given string
+// @dev check if a CBOR string equals to a given string
 // input MUST be a byte array
 template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
 
@@ -402,7 +402,7 @@ template StringEquals(BytesLen, ConstBytes, ConstBytesLen) {
     out <== isZero.out;
 }
 
-// reads CBOR string length
+// @dev reads CBOR string length
 // returns the next position and string length
 // input MUST be a byte array
 template ReadStringLength(BytesLen) {
@@ -427,7 +427,7 @@ template ReadStringLength(BytesLen) {
     len <== dUint.value;
 }
 
-// reads CBOR map length
+// @dev reads CBOR map length
 // returns the next position and map length
 // input MUST be a byte array
 template ReadMapLength(ToBeSignedBytes) {
@@ -451,7 +451,7 @@ template ReadMapLength(ToBeSignedBytes) {
     len <== dUint23.value;
 }
 
-// copies over a CBOR string value to a given array `outbytes`
+// @dev copies over a CBOR string value to a given array `outbytes`
 // returns the next position and string length
 // input MUST be a byte array
 template CopyString(BytesLen, MaxLen) {
