@@ -34,8 +34,3 @@ For live passes:
 
 ## Usage
 See the [test/nzcp.js](test/nzcp.js) file for usage examples.
-
-## Roadmap
-Depending on my availability:
-- Optimize the size and compile time of the circuit
-- Add more tests
