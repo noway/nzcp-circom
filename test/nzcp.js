@@ -8,7 +8,7 @@ const { encodeUint, stringToArray, padArray } = require('./helpers/cbor');
 
 require('dotenv').config()
 
-function prepareNZCPCredSubjHashInput(input, maxLen) {
+function prepareToBeSigned(input, maxLen) {
     const bytes = Buffer.alloc(maxLen).fill(0);
     input.copy(bytes, 0);
     const bytesLen = input.length;
@@ -34,8 +34,9 @@ async function testNZCPCredSubjHash(cir, passURI, isLive, maxLen) {
 
     const expected = getNZCPPubIdentity(passURI, isLive);
 
-    const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
-    const witness = await cir.calculateWitness({ toBeSigned: bufferToBitArray(input.bytes), toBeSignedLen: input.bytesLen }, true);
+    const data = prepareToBeSigned(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
+    const input = { toBeSigned: bufferToBitArray(data.bytes), toBeSignedLen: data.bytesLen }
+    const witness = await cir.calculateWitness(input, true);
 
     const credSubjHash = bitArrayToBuffer(witness.slice(1, 1 + SHA256_BITS)).toString("hex");
     assert.equal(credSubjHash, expected.credSubjHash);
@@ -60,7 +61,7 @@ async function testFindVCAndExp(cir, passURI, isLive, pos, maxLen, expectedVCPos
     const exp = verificationResult.raw.exp
 
     const mapLen = 5;
-    const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
+    const input = prepareToBeSigned(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
     const bytes = bufferToBytes(input.bytes)
     const witness = await cir.calculateWitness({ mapLen, bytes, pos }, true);
 
@@ -122,7 +123,7 @@ describe("NZCP find vc and exp - live pass", function () {
 async function testFindCredSubj(cir, passURI, pos, maxLen, expectedCredSubjPos) {
 
     const mapLen = 4;
-    const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
+    const input = prepareToBeSigned(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
     const bytes = bufferToBytes(input.bytes)
     const witness = await cir.calculateWitness({ mapLen, bytes, pos }, true);
 
@@ -182,7 +183,7 @@ async function testReadCredSubj(cir, passURI, isLive, pos, maxLen, maxBufferLen)
     const { givenName, familyName, dob } = verificationResult.credentialSubject;
 
     const mapLen = 3;
-    const input = prepareNZCPCredSubjHashInput(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
+    const input = prepareToBeSigned(Buffer.from(getToBeSignedAndRs(passURI).ToBeSigned, "hex"), maxLen);
     const bytes = bufferToBytes(input.bytes)
     const witness = await cir.calculateWitness({ mapLen, bytes, pos }, true);
 
