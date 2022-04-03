@@ -10,3 +10,7 @@ cbor.circom
 sha256-var-circom.zip
 sha256-var-circom-main
 .env
+nzcp_exampleTest_js
+nzcp_liveTest_js
+nzcp_exampleTest.r1cs
+nzcp_liveTest.r1cs
